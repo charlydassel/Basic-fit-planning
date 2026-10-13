@@ -441,7 +441,7 @@ const NAVG={"g-seances":["plan","cal"],"g-stats":["rank","pr"],"g-social":["frie
 function grpOf(v){return Object.keys(NAVG).find(g=>NAVG[g].includes(v))}
 function setView(v){if(v!==curV){prevV=curV;curV=v}
   try{pageTitle(v)}catch(e){}
-  $("#home").hidden=v!=="home";$("#topbar").hidden=v==="home";window.scrollTo(0,0);$("#form").hidden=$("#list").hidden=v!=="plan";$("#cal").hidden=v!=="cal";$("#rank").hidden=v!=="rank";$("#pr").hidden=v!=="pr";$("#photos").hidden=v!=="photos";if(v==="rank")renderRank();$("#acct").hidden=v!=="acct";$("#user").hidden=v!=="user";$("#chat").hidden=v!=="chat";$("#admin").hidden=v!=="admin";$("#notifs").hidden=v!=="notifs";if(v==="notifs")renderNotifs();$("#acctTheme").hidden=v!=="acct";if(v==="acct")renderTheme();Object.keys(XV).forEach(k=>{$("#"+k).hidden=v!==k});if(XV[v])XV[v]();if(v==="acct")renderAcct();if(v==="admin")renderAdmin();
+  $("#home").hidden=v!=="home";$("#topbar").hidden=v==="home";window.scrollTo(0,0);$("#form").hidden=$("#list").hidden=v!=="plan";$("#cal").hidden=v!=="cal";$("#rank").hidden=v!=="rank";$("#pr").hidden=v!=="pr";$("#photos").hidden=v!=="photos";if(v==="rank")renderRank();$("#acct").hidden=v!=="acct";$("#user").hidden=v!=="user";$("#chat").hidden=v!=="chat";$("#admin").hidden=v!=="admin";$("#notifs").hidden=v!=="notifs";if(v==="notifs")renderNotifs();$("#acctTheme").hidden=v!=="acct";if(v==="acct"){renderTheme();try{setTimeout(autoGeocode,500)}catch(e){}}Object.keys(XV).forEach(k=>{$("#"+k).hidden=v!==k});if(XV[v])XV[v]();if(v==="acct")renderAcct();if(v==="admin")renderAdmin();
   const g=grpOf(v);if(g)lastSub[g]=v;
   document.querySelectorAll("#nav button").forEach(b=>b.classList.toggle("on",b.dataset.v===v||b.dataset.v===g));
   const sg=$("#seg");sg.hidden=!g;sg.textContent="";
@@ -1073,7 +1073,7 @@ if("serviceWorker" in navigator&&location.protocol==="https:")navigator.serviceW
 // L'app installée sur l'écran d'accueil reste ouverte en arrière-plan et ne se recharge pas toute seule.
 // Au retour dans l'app (et toutes les 15 min), on vérifie s'il existe une nouvelle version et on propose de l'installer.
 // APP_VERSION doit changer à chaque mise à jour du site.
-const APP_VERSION="2026-10-13.6";
+const APP_VERSION="2026-10-13.7";
 if(/[?&]u=\d+/.test(location.search))try{history.replaceState(null,"",location.pathname+location.hash)}catch(e){}
 let updShown=false;
 async function checkUpdate(){
@@ -1878,8 +1878,9 @@ function autoGeoCard(){
   const G=myGyms();
   if(G.length){c.appendChild(h("p","m","Position de mes salles :"));
     G.forEach(n=>{const g=geoOf(n),s=h("div","s");s.style.flexWrap="nowrap";s.appendChild(ic(g?"map-pin-check":"map-pin-off"));
-      const p=h("div","p");p.appendChild(h("div","",n));p.appendChild(h("div","m",g?(g.src==="auto"?"Position enregistrée automatiquement":"Position enregistrée"+(g.pseudo?" par "+g.pseudo:""))+(geoLast?" · tu es à "+fmtDist(dist(geoLast.la,geoLast.lo,g.lat,g.lng)):""):(geocoding?"Recherche de la position…":"Position en cours de recherche (sinon, touche « J'y suis » sur place)")));s.appendChild(p);
+      const p=h("div","p");p.appendChild(h("div","",n));p.appendChild(h("div","m",g?(g.src==="auto"?"Position enregistrée automatiquement":"Position enregistrée"+(g.pseudo?" par "+g.pseudo:""))+(geoLast?" · tu es à "+fmtDist(dist(geoLast.la,geoLast.lo,g.lat,g.lng)):""):(geocoding&&!geoTried[gymKey(n)]?"Recherche automatique de la position…":geoTried[gymKey(n)]?"Position introuvable automatiquement : touche « J'y suis » sur place":"Recherche automatique de la position…")));s.appendChild(p);
       if(!g||g.uid===me||isAdmin()){const b=h("button","tb"+(g?"":" on"));b.appendChild(ic("locate-fixed"));b.appendChild(h("span","",g?"Corriger":"J'y suis"));b.title="Enregistrer la position de cette salle (à faire sur place)";b.onclick=()=>saveGymPos(n);s.appendChild(b)}
+      if(g&&g.src!=="auto"&&isAdmin()){const r=h("button","tb");r.appendChild(ic("rotate-ccw"));r.title="Revenir à la position automatique";r.setAttribute("aria-label","Revenir à la position automatique");r.onclick=()=>resetGymPos(n);s.appendChild(r)}
       c.appendChild(s)})}
   return c;
 }
@@ -1892,21 +1893,43 @@ const COMMUNE_FULL={"Bruxelles":"1000 Bruxelles","Saint-Josse":"Saint-Josse-ten-
 let geocoding=false,ggLoaded=false;
 function addrQuery(e){const [com,name,adr]=e;const a=adr.replace(/\s*\(.*?\)\s*/g," ").trim();return /\d{4}/.test(a)?a+", Belgique":a+", "+(COMMUNE_FULL[com]||com)+", Belgique"}
 async function nomi(q){const r=await fetch("https://nominatim.openstreetmap.org/search?format=json&limit=1&countrycodes=be&q="+encodeURIComponent(q),{headers:{"Accept-Language":"fr"}});if(!r.ok)throw new Error(r.status);const j=await r.json();return j[0]?{lat:+(+j[0].lat).toFixed(6),lng:+(+j[0].lon).toFixed(6)}:null}
+const geoTried={}; // salle -> heure du dernier essai raté (on réessaie après 10 min)
+function addrVariants(e){
+  const [com,name,adr]=e,city=(COMMUNE_FULL[com]||com)+", Belgique",base=adr.replace(/\s*\(.*?\)\s*/g," ").trim();
+  const [street,...rest]=base.split(","),tail=rest.join(",").trim(),loc=tail?tail+", Belgique":city;
+  const num=street.match(/^(.*?)\s+(\d+)[\w\-\/]*\s*$/); // « Ikaroslaan 9-11 » -> « Ikaroslaan 9 »
+  const V=[base+(tail?", Belgique":", "+city)];
+  if(num){V.push(num[1]+" "+num[2]+", "+loc);V.push(num[1]+", "+loc)} // sans numéro : au moins la bonne rue
+  V.push("Basic-Fit "+name.replace(/\s*24\/7/,"")+", Belgique");
+  return [...new Set(V)];
+}
+async function geocodeOne(n){
+  const e=BF_BXL.find(x=>gymKey(x[1])===gymKey(n));
+  for(const q of e?addrVariants(e):["Basic-Fit "+n+", Belgique"]){
+    const g=await nomi(q);await new Promise(r=>setTimeout(r,1200)); // 1 requête par seconde maximum (règle d'OpenStreetMap)
+    if(g)return g}
+  return null;
+}
+let geoPrio=[];
 async function autoGeocode(){
   if(geocoding||local||!ggCol||!ggLoaded||!auth||cantPost())return;
-  const want=[...new Set(myGyms().concat(isAdmin()?BF_BXL.map(x=>x[1]):[]))];
-  const todo=want.filter(n=>!geoOf(n));if(!todo.length)return;
-  geocoding=true;let fails=0;
-  for(const n of todo){
-    if(geoOf(n))continue;
-    const e=BF_BXL.find(x=>gymKey(x[1])===gymKey(n));
-    try{let g=e?await nomi(addrQuery(e)):await nomi("Basic-Fit "+n);
-      if(!g&&e)g=await nomi(e[2].replace(/^[^,]*?(\d+\S*)\s*/,"").replace(/\s*\(.*?\)/g,"")+" "+e[0]+", Belgique").catch(()=>null); // sans numéro
-      if(g)await ggCol.doc(gymKey(n)).set({uid:me,pseudo:"Position automatique",name:n,lat:g.lat,lng:g.lng,src:"auto",ts:Date.now()})}
-    catch(x){if(++fails>=3)break}
-    await new Promise(r=>setTimeout(r,1200)); // 1 requête par seconde maximum (règle d'OpenStreetMap)
+  geocoding=true;let fails=0;if(!$("#acctTheme").hidden)renderTheme();
+  // À chaque tour on recalcule la file : salles remises à zéro, puis mes salles, puis (admin) toute la liste
+  for(;;){
+    const want=[...new Set(geoPrio.concat(myGyms(),isAdmin()?BF_BXL.map(x=>x[1]):[]))];
+    const n=want.find(x=>!geoOf(x)&&!(Date.now()-(geoTried[gymKey(x)]||0)<600e3));if(!n)break;
+    geoPrio=geoPrio.filter(x=>x!==n);
+    try{const g=await geocodeOne(n);
+      if(g&&!geoOf(n))await ggCol.doc(gymKey(n)).set({uid:me,pseudo:"Position automatique",name:n,lat:g.lat,lng:g.lng,src:"auto",ts:Date.now()});
+      else if(!g)geoTried[gymKey(n)]=Date.now();
+      if(!$("#acctTheme").hidden)renderTheme()}
+    catch(x){geoTried[gymKey(n)]=Date.now();if(++fails>=3)break}
   }
-  geocoding=false;
+  geocoding=false;if(!$("#acctTheme").hidden)renderTheme();
+}
+async function resetGymPos(n){
+  const g=geoOf(n);if(!g)return;if(!confirm("Effacer la position de "+n+" et la rechercher automatiquement ?"))return;
+  try{geoPrio.unshift(n);await ggCol.doc(g.id).delete();delete geoTried[gymKey(n)];toast("Recherche de la position de "+n+"…");setTimeout(autoGeocode,300)}catch(e){alert("Action impossible.")}
 }
 
 // Panel admin : visible seulement pour le compte dont l'email correspond à ADMIN_HASH (config.js)
@@ -2034,7 +2057,7 @@ $("#add").onclick=async()=>{
   const sub=(name,set,views)=>{const c=db.collection(name);c.onSnapshot(s=>{set(s.docs.map(d=>({id:d.id,...d.data()})));views.forEach(soft);renderHome();if(!$("#user").hidden)renderUser();if(!$("#notifs").hidden)renderNotifs()},()=>{});return c};
   frCol=sub("friend_req",v=>{freq=v;frBadge()},["friends"]);foCol=sub("friend_ok",v=>{fok=v;frBadge()},["friends"]);
   woCol=sub("workouts",v=>workouts=v,["journal","defis"]);pgCol=sub("programs",v=>{programs=v;if(!$("#admin").hidden)renderAdmin()},["programs"]);
-  ggCol=sub("gym_geo",v=>{gymGeo=v;if(!ggLoaded){ggLoaded=true;setTimeout(autoGeocode,3000)}if(!$("#acctTheme").hidden)renderTheme()},[]);
+  ggCol=sub("gym_geo",v=>{gymGeo=v;const first=!ggLoaded;ggLoaded=true;setTimeout(autoGeocode,first?3000:800);if(!$("#acctTheme").hidden)renderTheme()},[]);
   rdCol=sub("rides",v=>{rides=v;if(!$("#admin").hidden)renderAdmin()},["rides"]);rjCol=sub("ride_join",v=>rideJ=v,["rides"]);
   lfgCol=sub("lfg",v=>lfg=v,["team"]);ljCol=sub("lfg_join",v=>lfgJ=v,["team"]);grCol=sub("groups",v=>groups=v,["team"]);gmCol=sub("gmember",v=>gmem=v,["team"]);
   duCol=sub("duels",v=>duels=v,["defis"]);drCol=sub("duel_resp",v=>duelR=v,["defis"]);ckLogCol=sub("ck_log",v=>ckLog=v,["crowd","defis"]);bdCol=sub("body",v=>body=v,["body"]);
