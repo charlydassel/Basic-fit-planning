@@ -121,6 +121,7 @@ button{font:inherit;cursor:pointer}
   <div id="acct" hidden></div>
   <div id="user" hidden></div>
   <div id="chat" hidden></div>
+  <div id="admin" hidden></div>
   <div id="rank" hidden></div>
   <div id="pr" hidden>
     <div class="card">
@@ -216,7 +217,7 @@ function renderHome(){
   if(!tod.length){c.appendChild(h("p","note","Personne n'a encore prévu de séance aujourd'hui. Lance le mouvement !"));return}
   tod.forEach(r=>{const l=h("div","m",r.start+" · "+r.pseudo+(r.type?" ("+r.type+")":"")+(r.boost&&r.boost!=="none"?" "+(LABELS[r.boost]||""):""));l.style.fontSize="14px";l.style.marginTop="6px";c.appendChild(l)});
 }
-function render(){if(!$("#user").hidden)renderUser();renderHome();renderCal();renderRank();renderList();renderPR();renderPhotos()}
+function render(){if(!$("#user").hidden)renderUser();if(!$("#admin").hidden)renderAdmin();renderHome();renderCal();renderRank();renderList();renderPR();renderPhotos()}
 function renderList(){
   const list=$("#list");list.textContent="";
   const t=todayStr();
@@ -246,9 +247,9 @@ function renderList(){
       if(meta.length)p.appendChild(h("div","m",meta.join(" · ")));s.appendChild(p);
       if(r.spot)s.appendChild(h("span","b","🤝 Cherche pareur"));
       if(r.boost&&r.boost!=="none")s.appendChild(h("span","b",LABELS[r.boost]||"Énergisant"));
-      if(local||(me&&r.uid===me)){
+      if(local||(me&&r.uid===me)||isAdmin()){
         const x=h("button","x","✕");x.title="Supprimer";
-        x.onclick=()=>remove(r.id);s.appendChild(x);
+        x.onclick=()=>{if(!local&&r.uid!==me&&!confirm("Supprimer la séance de "+r.pseudo+" ?"))return;remove(r.id)};s.appendChild(x);
       }
       if(!(local||(me&&r.uid===me))){const j=h("button","x","➕");j.title="Je viens aussi";j.onclick=()=>join(r);s.appendChild(j)}
       card.appendChild(s);
@@ -269,9 +270,9 @@ function join(r){$("#date").value=r.date;$("#start").value=r.start;$("#end").val
 
 let calY=new Date().getFullYear(),calM=new Date().getMonth(),selD=todayStr(),rankAll=false;
 function pad(n){return String(n).padStart(2,"0")}
-let curV="home",prevV="home";
+let curV="home",prevV="home",admin=false,adTab="photos",adQ="";
 function setView(v){if(v!==curV){prevV=curV;curV=v}
-  $("#home").hidden=v!=="home";$("#topbar").hidden=v==="home";window.scrollTo(0,0);$("#form").hidden=$("#list").hidden=v!=="plan";$("#cal").hidden=v!=="cal";$("#rank").hidden=v!=="rank";$("#pr").hidden=v!=="pr";$("#photos").hidden=v!=="photos";if(v==="rank")renderRank();$("#acct").hidden=v!=="acct";$("#user").hidden=v!=="user";$("#chat").hidden=v!=="chat";if(v==="acct")renderAcct();
+  $("#home").hidden=v!=="home";$("#topbar").hidden=v==="home";window.scrollTo(0,0);$("#form").hidden=$("#list").hidden=v!=="plan";$("#cal").hidden=v!=="cal";$("#rank").hidden=v!=="rank";$("#pr").hidden=v!=="pr";$("#photos").hidden=v!=="photos";if(v==="rank")renderRank();$("#acct").hidden=v!=="acct";$("#user").hidden=v!=="user";$("#chat").hidden=v!=="chat";$("#admin").hidden=v!=="admin";if(v==="acct")renderAcct();if(v==="admin")renderAdmin();
   document.querySelectorAll("#nav button").forEach(b=>b.classList.toggle("on",b.dataset.v===v));
 }
 document.querySelectorAll("#nav button").forEach(b=>b.onclick=()=>setView(b.dataset.v));
@@ -443,7 +444,7 @@ function renderPhotos(){
     const card=h("div","card"),top=h("div","s");
     top.appendChild(click(av(p.uid,p.pseudo,32),p.uid,p.pseudo));top.appendChild(click(h("b","p",(fol(p.uid)?"⭐ ":"")+p.pseudo),p.uid,p.pseudo));
     top.appendChild(h("span","m",new Date(p.ts).toLocaleDateString("fr-FR",{day:"numeric",month:"short",year:"numeric"})));
-    if(me&&p.uid===me){const x=h("button","x","✕");x.title="Supprimer";x.onclick=async()=>{try{await phCol.doc(p.id).delete()}catch(e){}};top.appendChild(x)}
+    if((me&&p.uid===me)||isAdmin()){const x=h("button","x","✕");x.title="Supprimer";x.onclick=()=>delPhoto(p,p.uid!==me);top.appendChild(x)}
     card.appendChild(top);
     if(typeof p.img==="string"&&p.img.startsWith("data:image/")){
       const im=h("img");im.src=p.img;im.alt="Photo de "+p.pseudo;
@@ -456,7 +457,7 @@ function renderPhotos(){
     if(p.note)card.appendChild(h("p","cm",p.note));
     comments.filter(c=>c.photoId===p.id).sort((a,b)=>a.ts-b.ts).forEach(c=>{
       const line=h("div","cm");line.appendChild(click(h("b","",c.pseudo+" "),c.uid,c.pseudo));line.appendChild(document.createTextNode(c.text));
-      if(me&&c.uid===me){const x=h("button","x","✕");x.onclick=async()=>{try{await cmCol.doc(c.id).delete()}catch(e){}};line.appendChild(x)}
+      if((me&&c.uid===me)||isAdmin()){const x=h("button","x","✕");x.onclick=async()=>{if(c.uid!==me&&!confirm("Supprimer ce commentaire de "+c.pseudo+" ?"))return;try{await cmCol.doc(c.id).delete()}catch(e){}};line.appendChild(x)}
       card.appendChild(line);
     });
     const f=h("div","cf"),ci=h("input");
@@ -502,13 +503,14 @@ function avatarShrink(file){return new Promise((ok,ko)=>{
   fr.readAsDataURL(file);
 })}
 function afterAuth(ps){
-  saveAuth();me=auth?auth.uid:uid();subInbox();
+  saveAuth();checkAdmin();me=auth?auth.uid:uid();subInbox();
   const pr=auth&&profiles[auth.uid],name=ps||(pr&&pr.pseudo)||"";
   if(name){pa=true;applyProfile(name)}
   render();renderAcct();
 }
 if(auth&&hasFB)fetch("https://securetoken.googleapis.com/v1/token?key="+FB_API_KEY,{method:"POST",headers:{"Content-Type":"application/x-www-form-urlencoded"},body:"grant_type=refresh_token&refresh_token="+encodeURIComponent(auth.refresh)}).then(r=>{if(r.status===400){auth=null;saveAuth();me=uid();render();renderAcct()}}).catch(()=>{});
 
+checkAdmin();
 function renderAcct(){
   const box=$("#acct");box.textContent="";
   const card=h("div","card");box.appendChild(card);
@@ -529,6 +531,7 @@ function renderAcct(){
         await profCol.doc(auth.uid).set({uid:auth.uid,pseudo:v,photo});applyProfile(v);st.textContent="Profil enregistré ✅"}
       catch(e){st.textContent="Impossible d'enregistrer le profil."}
     };
+    if(isAdmin()){const ad=h("button","go","🛡️ Panel admin");ad.onclick=()=>setView("admin");card.appendChild(ad)}
     const lo=h("button","sec","Se déconnecter");card.appendChild(lo);
     lo.onclick=()=>{auth=null;pa=false;afterAuth(null)};
     card.appendChild(st);box.appendChild(socialCard());return;
@@ -696,6 +699,61 @@ async function sendMsg(txt){
     await DB.collection("inbox_"+chatWith.uid).doc(auth.uid).set({with:auth.uid,name:mn,last,ts,unread:true});
     await DB.collection("inbox_"+auth.uid).doc(chatWith.uid).set({with:chatWith.uid,name:chatWith.name,last,ts,unread:false});
   }catch(e){}
+}
+
+// Panel admin : visible seulement pour le compte dont l'email correspond à ADMIN_HASH (config.js)
+async function checkAdmin(){
+  let ok=false;
+  try{const hs=typeof ADMIN_HASH==="string"?[ADMIN_HASH]:(Array.isArray(ADMIN_HASH)?ADMIN_HASH:[]);
+    if(auth&&auth.email&&hs.length){const b=await crypto.subtle.digest("SHA-256",new TextEncoder().encode(auth.email.trim().toLowerCase()));
+      ok=hs.includes([...new Uint8Array(b)].map(x=>x.toString(16).padStart(2,"0")).join(""))}}catch(e){}
+  if(ok!==admin){admin=ok;render();if(!$("#acct").hidden)renderAcct()}
+  if(!admin&&curV==="admin")setView("home");
+}
+function isAdmin(){return admin&&!local}
+async function delPhoto(p,ask){
+  if(ask&&!confirm("Supprimer la photo de "+p.pseudo+" (et ses commentaires) ?"))return;
+  try{await phCol.doc(p.id).delete();
+    for(const c of comments.filter(c=>c.photoId===p.id))await cmCol.doc(c.id).delete();
+    for(const r of reacts.filter(r=>r.photoId===p.id))await reCol.doc(r.id).delete()}catch(e){alert("Suppression impossible.")}
+}
+function renderAdmin(){
+  const box=$("#admin");box.textContent="";
+  if(!isAdmin()){box.appendChild(h("p","note","Accès réservé à l'administrateur."));return}
+  const fmt=t=>t?new Date(t).toLocaleDateString("fr-FR",{day:"numeric",month:"short",year:"numeric"}):"";
+  const del=(label,fn)=>{const b=h("button","x","🗑️");b.title="Supprimer";b.onclick=async()=>{if(!confirm(label))return;try{await fn()}catch(e){alert("Suppression impossible.")}};return b};
+  const head=h("div","card");head.appendChild(h("b","","🛡️ Panel admin"));
+  head.appendChild(h("p","m","Modère les publications de tout le monde. Les suppressions sont définitives."));
+  const q=h("input");q.placeholder="Filtrer par pseudo ou texte…";q.value=adQ;
+  q.oninput=()=>{adQ=q.value;const c=q.selectionStart;renderAdmin();const n=$("#admin input");n.focus();n.setSelectionRange(c,c)};
+  head.appendChild(q);box.appendChild(head);
+  const tabs=[["photos","📸 Photos",photos.length],["comments","💬 Commentaires",comments.length],["sessions","📋 Séances",rows.length],["prs","🏋️ PR",prs.length],["profiles","👤 Profils",Object.keys(profiles).length]];
+  const tg=h("div","tabs");
+  tabs.forEach(([k,l,n])=>{const b=h("button",adTab===k?"on":"",l+" ("+n+")");b.onclick=()=>{adTab=k;renderAdmin()};tg.appendChild(b)});
+  box.appendChild(tg);
+  const card=h("div","card");box.appendChild(card);
+  const f=adQ.trim().toLowerCase(),hit=(...v)=>!f||v.some(x=>String(x||"").toLowerCase().includes(f));
+  const line=(u,name,txt,meta)=>{const s=h("div","s");s.appendChild(click(av(u,name),u,name));const p=h("div","p");p.appendChild(h("div","",txt));if(meta)p.appendChild(h("div","m",meta));s.appendChild(p);card.appendChild(s);return s};
+  let n=0;
+  if(adTab==="photos")photos.slice().sort((a,b)=>b.ts-a.ts).filter(p=>hit(p.pseudo,p.note)).forEach(p=>{n++;
+    const s=line(p.uid,p.pseudo,p.pseudo+(p.note?" · « "+p.note+" »":""),fmt(p.ts)+" · "+comments.filter(c=>c.photoId===p.id).length+" commentaire(s)");
+    if(typeof p.img==="string"&&p.img.startsWith("data:image/")){const im=h("img");im.src=p.img;im.alt="Photo de "+p.pseudo;im.style.cssText="width:56px;height:56px;object-fit:cover;border-radius:8px";s.insertBefore(im,s.lastChild)}
+    const x=h("button","x","🗑️");x.title="Supprimer";x.onclick=()=>delPhoto(p,true);s.appendChild(x)});
+  if(adTab==="comments")comments.slice().sort((a,b)=>b.ts-a.ts).filter(c=>hit(c.pseudo,c.text)).forEach(c=>{n++;
+    const ph=photos.find(p=>p.id===c.photoId);
+    line(c.uid,c.pseudo,c.pseudo+" : "+c.text,fmt(c.ts)+(ph?" · sur la photo de "+ph.pseudo:" · photo supprimée"))
+      .appendChild(del("Supprimer ce commentaire de "+c.pseudo+" ?",()=>cmCol.doc(c.id).delete()))});
+  if(adTab==="sessions")rows.slice().sort((a,b)=>(b.date+b.start).localeCompare(a.date+a.start)).filter(r=>hit(r.pseudo,r.note,r.club,r.type)).forEach(r=>{n++;
+    line(r.uid,r.pseudo,r.pseudo+" · "+new Date(r.date+"T12:00:00").toLocaleDateString("fr-FR",{day:"numeric",month:"short"})+" "+r.start+(r.type?" · "+r.type:""),[r.club&&"📍 "+r.club,r.note&&"« "+r.note+" »"].filter(Boolean).join(" · "))
+      .appendChild(del("Supprimer la séance de "+r.pseudo+" ?",()=>col.doc(r.id).delete()))});
+  if(adTab==="prs")prs.filter(p=>hit(p.pseudo)).forEach(p=>{n++;
+    line(p.uid||p.id,p.pseudo,p.pseudo,LIFTS.map(([k,nm])=>nm+" "+(p[k]?p[k]+" kg":"–")).join(" · "))
+      .appendChild(del("Supprimer les PR de "+p.pseudo+" ?",()=>prCol.doc(p.id).delete()))});
+  if(adTab==="profiles")Object.keys(profiles).map(id=>({id,...profiles[id]})).filter(p=>hit(p.pseudo)).forEach(p=>{n++;
+    const s=line(p.id,p.pseudo,p.pseudo||"Sans pseudo",rows.filter(r=>r.uid===p.id).length+" séance(s) · "+photos.filter(x=>x.uid===p.id).length+" photo(s)");
+    if(p.photo){const b=h("button","x","🖼️");b.title="Retirer la photo de profil";b.onclick=async()=>{if(!confirm("Retirer la photo de profil de "+p.pseudo+" ?"))return;try{await profCol.doc(p.id).set({uid:p.uid||p.id,pseudo:p.pseudo||"",photo:""})}catch(e){alert("Action impossible.")}};s.appendChild(b)}
+    s.appendChild(del("Supprimer le profil de "+p.pseudo+" ? (ses séances et photos restent, à supprimer dans les autres onglets)",()=>profCol.doc(p.id).delete()))});
+  if(!n)card.appendChild(h("p","note",f?"Aucun résultat.":"Rien à modérer ici."));
 }
 
 async function remove(id){
