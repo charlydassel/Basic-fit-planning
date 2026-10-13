@@ -29,7 +29,7 @@ Les clés se trouvent dans `config.js`.
 - **🔔 Notifications** sur l'accueil : commentaires et 🔥 sur tes photos, nouveaux abonnés, quelqu'un qui vient au même créneau, PR battu, ami à la salle. Le téléphone peut aussi afficher une notification quand l'app est ouverte en arrière-plan (pas quand elle est complètement fermée : il faudrait un serveur d'envoi pour ça).
 - **📈 PR** : chaque nouveau record est enregistré et affiché en courbe (onglet PR et profils).
 - **📲 App installable** : Android propose « Installer l'app » ; sur iPhone, Safari → Partager → « Sur l'écran d'accueil ».
-- **Temps réel** : les changements arrivent instantanément si le temps réel Supabase est activé (fait par `supabase-securite.sql`), sinon toutes les 6 secondes.
+- **Temps réel et économie de données** : les changements arrivent instantanément par le temps réel Supabase (activé par `supabase-securite.sql`). Une seule requête groupée resynchronise tout toutes les 5 minutes (45 s si le temps réel ne marche pas), et un cache sur l'appareil évite de retélécharger les photos à chaque ouverture.
 
 ### Entraînement et team (tuiles de l'accueil)
 
