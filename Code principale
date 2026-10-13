@@ -1,0 +1,382 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Planning Basic-Fit</title>
+<style>
+:root{box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);--bg:#fff7f1;--card:#fff;--tx:#1d1d1f;--mut:#6b6b70;--ac:#ff5a00;--bd:#ece3dc;--chip:#ffe9db}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#161412;--card:#221f1c;--tx:#f5f1ed;--mut:#a39d97;--bd:#363029;--chip:#3a2518}}
+:root[data-theme="dark"]{--bg:#161412;--card:#221f1c;--tx:#f5f1ed;--mut:#a39d97;--bd:#363029;--chip:#3a2518}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{background:var(--bg);color:var(--tx);font:16px/1.4 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+main{max-width:560px;margin:0 auto;padding:16px}
+h1{font-size:24px;margin:8px 0 2px}
+.sub{color:var(--mut);margin:0 0 16px;font-size:14px}
+.card{background:var(--card);border:1px solid var(--bd);border-radius:14px;padding:14px;margin-bottom:14px}
+label{display:block;font-size:13px;color:var(--mut);margin:10px 0 4px}
+input,select{width:100%;padding:10px;border-radius:10px;border:1px solid var(--bd);background:var(--bg);color:var(--tx);font:inherit}
+.row{display:flex;gap:10px}.row>div{flex:1;min-width:0}
+button{font:inherit;cursor:pointer}
+.go{width:100%;margin-top:14px;padding:12px;border:0;border-radius:10px;background:var(--ac);color:#fff;font-weight:600}
+.day h2{font-size:15px;text-transform:capitalize;margin:0 0 8px;display:flex;justify-content:space-between}
+.day h2 span{color:var(--mut);font-weight:400;font-size:13px;text-transform:none}
+.s{display:flex;align-items:center;gap:10px;padding:8px 0;border-top:1px solid var(--bd)}
+.s:first-of-type{border-top:0}
+.t{font-weight:700;min-width:84px;font-variant-numeric:tabular-nums}
+.p{flex:1;min-width:0;overflow-wrap:anywhere}
+.b{background:var(--chip);color:var(--ac);border-radius:99px;padding:2px 9px;font-size:12px;white-space:nowrap}
+.x{border:0;background:none;color:var(--mut);font-size:18px;padding:0 4px}
+.note{color:var(--mut);font-size:13px;text-align:center}
+.m{color:var(--mut);font-size:12px;margin-top:2px}
+.s{flex-wrap:wrap}.p{flex:1 1 140px}
+[hidden]{display:none!important}
+.tabs{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:14px}
+.tabs button{flex:1 1 28%;padding:9px 4px;border:1px solid var(--bd);background:var(--card);color:var(--tx);border-radius:10px;font-size:14px}
+.tabs .on{background:var(--ac);color:#fff;border-color:var(--ac)}
+.grid{display:grid;grid-template-columns:repeat(7,1fr);gap:4px}
+.c{aspect-ratio:1;border:1px solid var(--bd);border-radius:8px;display:flex;flex-direction:column;align-items:center;justify-content:center;font-size:14px;background:var(--bg);padding:0;color:var(--tx)}
+.c small{font-size:10px}.c.n{background:var(--chip);color:var(--ac);font-weight:700}.c.t{outline:2px solid var(--ac)}.c.sel{background:var(--ac);color:#fff}
+.dh{text-align:center;color:var(--mut);font-size:12px}
+.nav{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;text-transform:capitalize}
+.nav button{border:1px solid var(--bd);background:var(--card);color:var(--tx);border-radius:8px;padding:6px 14px}
+.medal{font-size:28px;min-width:34px;text-align:center}.rk{display:flex;align-items:center;gap:12px;padding:10px 0;border-top:1px solid var(--bd)}
+.cm{font-size:14px;margin-top:6px;overflow-wrap:anywhere}.cm button{margin-left:6px}
+.cf{display:flex;gap:6px;margin-top:10px}.cf button{padding:0 14px;border:0;border-radius:10px;background:var(--ac);color:#fff}
+</style>
+</head>
+<body>
+<main>
+  <h1>💪 Planning Basic-Fit</h1>
+  <p class="sub">Note ton créneau, vois qui y va et quand.</p>
+  <div class="tabs"><button data-v="plan" class="on">📋 Planning</button><button data-v="cal">📅 Calendrier</button><button data-v="rank">🏆 Classement</button><button data-v="pr">🏋️ PR</button><button data-v="photos">📸 Photos</button></div>
+
+  <div class="card" id="form">
+    <label for="pseudo">Pseudo</label>
+    <input id="pseudo" maxlength="20" placeholder="ex : Big_Mehdi" autocomplete="off">
+    <label for="date">Jour</label>
+    <input id="date" type="date">
+    <div class="row">
+      <div><label for="start">Arrivée</label><input id="start" type="time" value="18:00"></div>
+      <div><label for="end">Départ (optionnel)</label><input id="end" type="time"></div>
+    </div>
+    <label for="boost">Pré-workout / énergisant pour cette séance ?</label>
+    <select id="boost">
+      <option value="none">Non, rien</option>
+      <option value="pre">⚡ Pré-workout</option>
+      <option value="cafe">☕ Café</option>
+      <option value="energy">🥤 Boisson énergisante</option>
+      <option value="autre">✨ Autre énergisant</option>
+    </select>
+    <label for="type">Type de séance</label>
+    <select id="type"><option value="">Pas précisé</option><option>Pecs</option><option>Dos</option><option>Jambes</option><option>Épaules</option><option>Bras</option><option>Abdos</option><option>Full body</option><option>Cardio</option></select>
+    <label for="club">Salle (optionnel)</label>
+    <input id="club" maxlength="30" placeholder="ex : Basic-Fit Gare du Nord">
+    <label for="note">Petit mot (optionnel)</label>
+    <input id="note" maxlength="60" placeholder="ex : je vise un PR au développé couché">
+    <label style="display:flex;gap:8px;align-items:center;color:var(--tx)"><input id="spot" type="checkbox" style="width:auto"> 🤝 Je cherche un partenaire / pareur</label>
+    <button class="go" id="add">Ajouter au planning</button>
+    <p class="note" id="status"></p>
+  </div>
+
+  <div id="list"></div>
+  <div id="cal" hidden></div>
+  <div id="rank" hidden></div>
+  <div id="pr" hidden>
+    <div class="card">
+      <b>🏋️ Mes PR (en kg)</b>
+      <label for="prPseudo">Pseudo</label><input id="prPseudo" maxlength="20">
+      <div class="row">
+        <div><label for="prSquat">Squat</label><input id="prSquat" type="number" inputmode="decimal" min="0" max="600" step="0.5"></div>
+        <div><label for="prBench">Bench</label><input id="prBench" type="number" inputmode="decimal" min="0" max="600" step="0.5"></div>
+        <div><label for="prDead">Deadlift</label><input id="prDead" type="number" inputmode="decimal" min="0" max="600" step="0.5"></div>
+      </div>
+      <button class="go" id="prSave">Enregistrer mes PR</button>
+      <p class="note" id="prStatus">Laisse vide ce que tu ne veux pas modifier.</p>
+    </div>
+    <div id="prList"></div>
+  </div>
+  <div id="photos" hidden>
+    <div class="card">
+      <b>📸 Photo de progression</b>
+      <label for="phPseudo">Pseudo</label><input id="phPseudo" maxlength="20">
+      <label for="phFile">Photo</label><input id="phFile" type="file" accept="image/*">
+      <label for="phNote">Légende (optionnel)</label><input id="phNote" maxlength="80" placeholder="ex : 3 mois de volume">
+      <button class="go" id="phAdd">Publier</button>
+      <p class="note" id="phStatus">Visible par tous ceux qui ont accès à la page.</p>
+    </div>
+    <div id="phList"></div>
+  </div>
+</main>
+
+<script>
+const LABELS={pre:"⚡ Pré-workout",cafe:"☕ Café",energy:"🥤 Énergisant",autre:"✨ Énergisant"};
+const $=s=>document.querySelector(s);
+let rows=[],col=null,me=null,local=false;
+
+function todayStr(){const d=new Date();return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0")}
+function h(tag,cls,txt){const e=document.createElement(tag);if(cls)e.className=cls;if(txt!=null)e.textContent=txt;return e}
+
+$("#date").value=todayStr();
+try{$("#pseudo").value=localStorage.getItem("bf_pseudo")||"";$("#club").value=localStorage.getItem("bf_club")||""}catch(e){}
+
+function render(){renderCal();renderRank();renderList();renderPR();renderPhotos()}
+function renderList(){
+  const list=$("#list");list.textContent="";
+  const t=todayStr();
+  const up=rows.filter(r=>r.date>=t).sort((a,b)=>(a.date+a.start).localeCompare(b.date+b.start));
+  if(!up.length){list.appendChild(h("p","note","Aucune séance prévue pour l'instant. Sois le premier !"));return}
+  const days={};up.forEach(r=>(days[r.date]=days[r.date]||[]).push(r));
+  Object.keys(days).sort().forEach(d=>{
+    const card=h("div","card day");
+    const dt=new Date(d+"T12:00:00");
+    const hd=h("h2","",dt.toLocaleDateString("fr-FR",{weekday:"long",day:"numeric",month:"long"}));
+    const nb=days[d].filter(r=>r.boost&&r.boost!=="none").length;hd.appendChild(h("span","",days[d].length+" personne"+(days[d].length>1?"s":"")+(nb?" · "+nb+" ⚡":"")));
+    card.appendChild(hd);
+    days[d].forEach(r=>{
+      const s=h("div","s");
+      s.appendChild(h("div","t",r.start+(r.end?" – "+r.end:"")));
+      const p=h("div","p");p.appendChild(h("div","",r.pseudo+(r.type?" · "+r.type:"")));
+      const meta=[];if(r.club)meta.push("📍 "+r.club);const n=overlap(r,days[d]);if(n)meta.push("👥 "+n+" autre"+(n>1?"s":"")+" en même temps");if(r.note)meta.push("« "+r.note+" »");
+      if(meta.length)p.appendChild(h("div","m",meta.join(" · ")));s.appendChild(p);
+      if(r.spot)s.appendChild(h("span","b","🤝 Cherche pareur"));
+      if(r.boost&&r.boost!=="none")s.appendChild(h("span","b",LABELS[r.boost]||"Énergisant"));
+      if(local||(me&&r.uid===me)){
+        const x=h("button","x","✕");x.title="Supprimer";
+        x.onclick=()=>remove(r.id);s.appendChild(x);
+      }
+      if(!(local||(me&&r.uid===me))){const j=h("button","x","➕");j.title="Je viens aussi";j.onclick=()=>join(r);s.appendChild(j)}
+      card.appendChild(s);
+    });
+    list.appendChild(card);
+  });
+}
+
+function mins(t){const a=t.split(":");return +a[0]*60+ +a[1]}
+function span(r){const s=mins(r.start);return[s,r.end?mins(r.end):s+90]}
+function overlap(r,all){const x=span(r);return all.filter(o=>{if(o===r)return false;const y=span(o);return x[0]<y[1]&&y[0]<x[1]}).length}
+function join(r){$("#date").value=r.date;$("#start").value=r.start;$("#end").value=r.end||"";$("#club").value=r.club||"";$("#type").value=r.type||"";$("#status").textContent="Créneau repris : mets ton pseudo et ton énergisant, puis Ajouter.";window.scrollTo({top:0,behavior:"smooth"});if(!$("#pseudo").value)$("#pseudo").focus()}
+
+let calY=new Date().getFullYear(),calM=new Date().getMonth(),selD=todayStr(),rankAll=false;
+function pad(n){return String(n).padStart(2,"0")}
+function setView(v){
+  $("#form").hidden=$("#list").hidden=v!=="plan";$("#cal").hidden=v!=="cal";$("#rank").hidden=v!=="rank";$("#pr").hidden=v!=="pr";$("#photos").hidden=v!=="photos";
+  document.querySelectorAll("body>main>.tabs button").forEach(b=>b.classList.toggle("on",b.dataset.v===v));
+}
+document.querySelectorAll("body>main>.tabs button").forEach(b=>b.onclick=()=>setView(b.dataset.v));
+
+function renderCal(){
+  const box=$("#cal");box.textContent="";
+  const card=h("div","card"),nav=h("div","nav");
+  const prev=h("button","","‹"),next=h("button","","›");
+  prev.onclick=()=>{calM--;if(calM<0){calM=11;calY--}renderCal()};
+  next.onclick=()=>{calM++;if(calM>11){calM=0;calY++}renderCal()};
+  nav.append(prev,h("b","",new Date(calY,calM,1).toLocaleDateString("fr-FR",{month:"long",year:"numeric"})),next);
+  card.appendChild(nav);
+  const g=h("div","grid");
+  ["L","M","M","J","V","S","D"].forEach(x=>g.appendChild(h("div","dh",x)));
+  const first=(new Date(calY,calM,1).getDay()+6)%7,n=new Date(calY,calM+1,0).getDate(),t=todayStr();
+  for(let i=0;i<first;i++)g.appendChild(h("div"));
+  for(let d=1;d<=n;d++){
+    const ds=calY+"-"+pad(calM+1)+"-"+pad(d),c=rows.filter(r=>r.date===ds).length;
+    const b=h("button","c"+(c?" n":"")+(ds===t?" t":"")+(ds===selD?" sel":""),String(d));
+    if(c)b.appendChild(h("small","","👥"+c));
+    b.onclick=()=>{selD=ds;renderCal()};
+    g.appendChild(b);
+  }
+  card.appendChild(g);box.appendChild(card);
+  const det=h("div","card day");
+  det.appendChild(h("h2","",new Date(selD+"T12:00:00").toLocaleDateString("fr-FR",{weekday:"long",day:"numeric",month:"long"})));
+  const items=rows.filter(r=>r.date===selD).sort((a,b)=>a.start.localeCompare(b.start));
+  if(!items.length)det.appendChild(h("p","note","Personne n'a prévu de séance ce jour-là."));
+  items.forEach(r=>{
+    const s=h("div","s");
+    s.appendChild(h("div","t",r.start+(r.end?" – "+r.end:"")));
+    s.appendChild(h("div","p",r.pseudo+(r.type?" · "+r.type:"")));
+    if(r.boost&&r.boost!=="none")s.appendChild(h("span","b",LABELS[r.boost]||"Énergisant"));
+    det.appendChild(s);
+  });
+  box.appendChild(det);
+}
+
+function renderRank(){
+  const box=$("#rank");box.textContent="";
+  const card=h("div","card"),tg=h("div","tabs");
+  [["Ce mois-ci",false],["Depuis le début",true]].forEach(([l,v])=>{
+    const b=h("button",rankAll===v?"on":"",l);b.onclick=()=>{rankAll=v;renderRank()};tg.appendChild(b);
+  });
+  card.appendChild(tg);
+  const pre=todayStr().slice(0,7),map={};
+  rows.filter(r=>rankAll||r.date.slice(0,7)===pre).forEach(r=>{
+    const k=r.pseudo.trim().toLowerCase(),o=map[k]=map[k]||{name:r.pseudo,n:0};o.n++;
+  });
+  const top=Object.values(map).sort((a,b)=>b.n-a.n||a.name.localeCompare(b.name)).slice(0,3);
+  if(!top.length)card.appendChild(h("p","note","Pas encore de séances à classer."));
+  top.forEach((o,i)=>{
+    const r=h("div","rk");
+    r.appendChild(h("div","medal",["🥇","🥈","🥉"][i]));
+    r.appendChild(h("div","p",o.name));
+    r.appendChild(h("span","b",o.n+" séance"+(o.n>1?"s":"")));
+    card.appendChild(r);
+  });
+  box.appendChild(card);
+  const cur=wk(todayStr()),weeks={};
+  rows.forEach(r=>{const k=r.pseudo.trim().toLowerCase(),w=wk(r.date);if(w>cur)return;const o=weeks[k]=weeks[k]||{name:r.pseudo,w:new Set()};o.w.add(w)});
+  const st=Object.values(weeks).map(o=>{let w=o.w.has(cur)?cur:cur-1,n=0;while(o.w.has(w)){n++;w--}return{name:o.name,n}}).filter(o=>o.n>0);
+  box.appendChild(topCard("🔥 Streak (semaines d'affilée)",st,"sem."));
+  const pm={};
+  rows.filter(r=>r.boost==="pre"&&(rankAll||r.date.slice(0,7)===pre)).forEach(r=>{const k=r.pseudo.trim().toLowerCase(),o=pm[k]=pm[k]||{name:r.pseudo,n:0};o.n++});
+  box.appendChild(topCard("⚡ Team pré-workout",Object.values(pm),"pré"));
+}
+function wk(d){const a=d.split("-");return Math.floor((Date.UTC(+a[0],+a[1]-1,+a[2])/864e5+3)/7)}
+function topCard(title,list,unit){
+  const card=h("div","card");card.appendChild(h("b","",title));
+  const top=list.sort((a,b)=>b.n-a.n||a.name.localeCompare(b.name)).slice(0,3);
+  if(!top.length)card.appendChild(h("p","note","Personne pour l'instant."));
+  top.forEach((o,i)=>{const r=h("div","rk");r.appendChild(h("div","medal",["🥇","🥈","🥉"][i]));r.appendChild(h("div","p",o.name));r.appendChild(h("span","b",o.n+" "+unit));card.appendChild(r)});
+  return card;
+}
+
+let prs=[],photos=[],comments=[],prCol=null,phCol=null,cmCol=null,drafts={};
+const LIFTS=[["squat","Squat"],["bench","Bench"],["deadlift","Deadlift"]];
+try{const ps=localStorage.getItem("bf_pseudo")||"";$("#prPseudo").value=ps;$("#phPseudo").value=ps}catch(e){}
+function keep(p){try{localStorage.setItem("bf_pseudo",p)}catch(e){}}
+function pid(p){return "p"+Array.from(p.toLowerCase()).map(c=>c.charCodeAt(0).toString(36)).join("-")}
+const SHARED="Disponible en mode partagé (connecte-toi à Claude).";
+
+$("#prSave").onclick=async()=>{
+  const st=$("#prStatus"),pseudo=$("#prPseudo").value.trim();
+  if(!pseudo){st.textContent="Mets ton pseudo.";return}
+  if(local||!prCol){st.textContent=SHARED;return}
+  const id=pid(pseudo),old=prs.find(x=>x.id===id)||{};
+  const data={pseudo,uid:me,ts:Date.now(),squat:old.squat||0,bench:old.bench||0,deadlift:old.deadlift||0,dates:old.dates||{}};
+  let n=0;
+  [["squat","#prSquat"],["bench","#prBench"],["deadlift","#prDead"]].forEach(([k,s])=>{
+    const v=parseFloat($(s).value);
+    if(v>0&&v<=600){data[k]=v;data.dates=Object.assign({},data.dates,{[k]:todayStr()});n++}
+  });
+  if(!n){st.textContent="Entre au moins un PR (en kg).";return}
+  keep(pseudo);
+  try{await prCol.doc(id).set(data);st.textContent="PR enregistrés 💪";["#prSquat","#prBench","#prDead"].forEach(s=>$(s).value="")}
+  catch(e){st.textContent="Écriture refusée : il faut l'accès Contributeur."}
+};
+
+function renderPR(){
+  const l=$("#prList");l.textContent="";
+  if(local){l.appendChild(h("p","note",SHARED));return}
+  const list=prs.filter(p=>p.squat||p.bench||p.deadlift).map(p=>({...p,total:(p.squat||0)+(p.bench||0)+(p.deadlift||0)})).sort((a,b)=>b.total-a.total);
+  if(!list.length){l.appendChild(h("p","note","Aucun PR pour l'instant."));return}
+  const best={};LIFTS.forEach(([k])=>best[k]=Math.max(...list.map(p=>p[k]||0)));
+  const card=h("div","card");card.appendChild(h("b","","Tableau des PR"));
+  list.forEach((p,i)=>{
+    const r=h("div","rk");
+    r.appendChild(h("div","medal",["🥇","🥈","🥉"][i]||String(i+1)));
+    const c=h("div","p");c.appendChild(h("div","",p.pseudo));
+    c.appendChild(h("div","m",LIFTS.map(([k,n])=>n+" "+(p[k]?p[k]+" kg"+(p[k]===best[k]?" 👑":""):"–")).join(" · ")));
+    r.appendChild(c);r.appendChild(h("span","b","Total "+p.total+" kg"));
+    card.appendChild(r);
+  });
+  l.appendChild(card);
+}
+
+function shrink(file){return new Promise((ok,ko)=>{
+  const fr=new FileReader();
+  fr.onerror=ko;
+  fr.onload=()=>{
+    const img=new Image();
+    img.onerror=ko;
+    img.onload=()=>{
+      const s=Math.min(1,800/Math.max(img.width,img.height)),c=document.createElement("canvas");
+      c.width=Math.round(img.width*s);c.height=Math.round(img.height*s);
+      c.getContext("2d").drawImage(img,0,0,c.width,c.height);
+      let q=0.75,d=c.toDataURL("image/jpeg",q);
+      while(d.length>180000&&q>0.3){q-=0.1;d=c.toDataURL("image/jpeg",q)}
+      d.length>200000?ko():ok(d);
+    };
+    img.src=fr.result;
+  };
+  fr.readAsDataURL(file);
+})}
+
+$("#phAdd").onclick=async()=>{
+  const st=$("#phStatus"),pseudo=$("#phPseudo").value.trim(),f=$("#phFile").files[0];
+  if(local||!phCol){st.textContent=SHARED;return}
+  if(!pseudo||!f){st.textContent="Pseudo et photo requis.";return}
+  st.textContent="Envoi…";keep(pseudo);
+  try{
+    const img=await shrink(f);
+    await phCol.add({pseudo,img,note:$("#phNote").value.trim(),uid:me,ts:Date.now()});
+    $("#phFile").value="";$("#phNote").value="";st.textContent="Photo publiée ✅";
+  }catch(e){st.textContent="Impossible d'envoyer cette photo (format, taille ou accès Contributeur)."}
+};
+
+function renderPhotos(){
+  const l=$("#phList");l.textContent="";
+  if(local){l.appendChild(h("p","note",SHARED));return}
+  if(!photos.length){l.appendChild(h("p","note","Aucune photo pour l'instant."));return}
+  photos.slice().sort((a,b)=>b.ts-a.ts).forEach(p=>{
+    const card=h("div","card"),top=h("div","s");
+    top.appendChild(h("b","p",p.pseudo));
+    top.appendChild(h("span","m",new Date(p.ts).toLocaleDateString("fr-FR",{day:"numeric",month:"short",year:"numeric"})));
+    if(me&&p.uid===me){const x=h("button","x","✕");x.title="Supprimer";x.onclick=async()=>{try{await phCol.doc(p.id).delete()}catch(e){}};top.appendChild(x)}
+    card.appendChild(top);
+    if(typeof p.img==="string"&&p.img.startsWith("data:image/")){
+      const im=h("img");im.src=p.img;im.alt="Photo de "+p.pseudo;
+      im.style.cssText="width:100%;border-radius:10px;display:block";card.appendChild(im);
+    }
+    if(p.note)card.appendChild(h("p","cm",p.note));
+    comments.filter(c=>c.photoId===p.id).sort((a,b)=>a.ts-b.ts).forEach(c=>{
+      const line=h("div","cm");line.appendChild(h("b","",c.pseudo+" "));line.appendChild(document.createTextNode(c.text));
+      if(me&&c.uid===me){const x=h("button","x","✕");x.onclick=async()=>{try{await cmCol.doc(c.id).delete()}catch(e){}};line.appendChild(x)}
+      card.appendChild(line);
+    });
+    const f=h("div","cf"),ci=h("input");
+    ci.placeholder="Commenter…";ci.maxLength=200;ci.value=drafts[p.id]||"";
+    ci.oninput=()=>{drafts[p.id]=ci.value};
+    const send=async()=>{
+      const pseudo=$("#phPseudo").value.trim()||$("#prPseudo").value.trim(),text=ci.value.trim();
+      if(!text)return;
+      if(!pseudo){ci.value="";ci.placeholder="Mets d'abord ton pseudo (en haut)";return}
+      drafts[p.id]="";keep(pseudo);
+      try{await cmCol.add({photoId:p.id,pseudo,text,uid:me,ts:Date.now()})}catch(e){ci.placeholder="Commentaire refusé (accès Contributeur ?)"}
+    };
+    ci.onkeydown=e=>{if(e.key==="Enter")send()};
+    const b=h("button","","Envoyer");b.onclick=send;
+    f.append(ci,b);card.appendChild(f);
+    l.appendChild(card);
+  });
+}
+
+async function remove(id){
+  if(local){rows=rows.filter(r=>r.id!==id);render();return}
+  try{await col.doc(id).delete()}catch(e){$("#status").textContent="Suppression impossible."}
+}
+
+$("#add").onclick=async()=>{
+  const pseudo=$("#pseudo").value.trim(),date=$("#date").value,start=$("#start").value;
+  if(!pseudo||!date||!start){$("#status").textContent="Pseudo, jour et heure d'arrivée sont requis.";return}
+  try{localStorage.setItem("bf_pseudo",pseudo);localStorage.setItem("bf_club",$("#club").value.trim())}catch(e){}
+  const data={pseudo,date,start,end:$("#end").value||"",boost:$("#boost").value,type:$("#type").value,club:$("#club").value.trim(),note:$("#note").value.trim(),spot:$("#spot").checked,uid:me,ts:Date.now()};
+  if(local){rows.push({id:"l"+Date.now(),...data});render();return}
+  try{await col.add(data);$("#status").textContent="Ajouté ✅"}
+  catch(e){$("#status").textContent="Écriture refusée : demande à l'organisateur de te donner l'accès Contributeur."}
+};
+
+(async()=>{
+  render();
+  let db=null;
+  try{db=window.claude&&await claude.use("db")}catch(e){}
+  if(!db){local=true;$("#status").textContent="Mode local : connecte-toi à Claude pour partager le planning avec tes amis.";return}
+  try{const u=await claude.use("user");if(u)me=await u.id()}catch(e){}
+  col=db.collection("sessions");
+  prCol=db.collection("prs");phCol=db.collection("photos");cmCol=db.collection("comments");
+  prCol.onSnapshot(s=>{prs=s.docs.map(d=>({id:d.id,...d.data()}));renderPR()},()=>{});
+  phCol.onSnapshot(s=>{photos=s.docs.map(d=>({id:d.id,...d.data()}));renderPhotos()},()=>{});
+  cmCol.onSnapshot(s=>{comments=s.docs.map(d=>({id:d.id,...d.data()}));renderPhotos()},()=>{});
+  col.onSnapshot(snap=>{rows=snap.docs.map(d=>({id:d.id,...d.data()}));render()},
+    ()=>{$("#status").textContent="Connexion au planning perdue."});
+})();
+</script>
+</body>
+</html>
