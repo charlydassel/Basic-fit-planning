@@ -1073,7 +1073,7 @@ if("serviceWorker" in navigator&&location.protocol==="https:")navigator.serviceW
 // L'app installée sur l'écran d'accueil reste ouverte en arrière-plan et ne se recharge pas toute seule.
 // Au retour dans l'app (et toutes les 15 min), on vérifie s'il existe une nouvelle version et on propose de l'installer.
 // APP_VERSION doit changer à chaque mise à jour du site.
-const APP_VERSION="2026-10-13.4";
+const APP_VERSION="2026-10-13.5";
 if(/[?&]u=\d+/.test(location.search))try{history.replaceState(null,"",location.pathname+location.hash)}catch(e){}
 let updShown=false;
 async function checkUpdate(){
@@ -1697,7 +1697,7 @@ function gymBar(){
   if(f!=="all"&&hid)w.appendChild(h("p","m",hid+" séance"+(hid>1?"s":"")+" dans d'autres salles masquée"+(hid>1?"s":"")+"."));
   return w;
 }
-// Salles Basic-Fit de la Région de Bruxelles-Capitale (d'après basic-fit.com, octobre 2026). On peut toujours ajouter une autre salle à la main.
+// Salles Basic-Fit de la Région de Bruxelles-Capitale et des communes autour (d'après basic-fit.com, octobre 2026). On peut toujours ajouter une autre salle à la main.
 const BF_BXL=[
  ["Bruxelles","Arts-Loi 24/7","Avenue des Arts 47"],["Bruxelles","Berlaymont","Rue Archimède 73"],["Bruxelles","Gare Centrale 24/7","Rue Ravenstein 50"],
  ["Bruxelles","Madou 24/7","Avenue des Arts 3"],["Bruxelles","Rue Neuve 24/7","Rue Saint-Michel 29"],["Bruxelles","Rue Antoine Dansaert Ladies","Rue Antoine Dansaert 25"],
@@ -1713,11 +1713,23 @@ const BF_BXL=[
  ["Uccle","Uccle Ch. d'Alsemberg","Chaussée d'Alsemberg 396"],["Uccle","Uccle Bascule 24/7","Rue Vanderkindere 465"],["Uccle","Uccle Stalle 24/7","Rue de l'Étoile 99"],
  ["Forest","Forest Van Volxem 24/7","Avenue Van Volxem 388"],["Forest","Forest Neerstalle","Chaussée de Neerstalle 24"],
  ["Auderghem","Auderghem Chaussée de Wavre 24/7","Chaussée de Wavre 1509"],["Auderghem","Auderghem Hankar","Chaussée de Wavre 1210"],
- ["Woluwe-Saint-Lambert","Woluwe-St-Lambert Av. Georges Henri","Avenue Georges Henri 164"],["Woluwe-Saint-Lambert","Woluwe-St-Lambert Marcel Thiry","Avenue Marcel Thiry 79"]];
+ ["Woluwe-Saint-Lambert","Woluwe-St-Lambert Av. Georges Henri","Avenue Georges Henri 164"],["Woluwe-Saint-Lambert","Woluwe-St-Lambert Marcel Thiry","Avenue Marcel Thiry 79"],
+ // Autour de Bruxelles (Brabant flamand et wallon)
+ ["Zaventem","Zaventem Ikaroslaan 24/7","Ikaroslaan 9-11, 1930 Zaventem","p"],
+ ["Wezembeek-Oppem","Wezembeek-Oppem Mechelsesteenweg 24/7","Chaussée de Malines 153 (près de Kraainem et Sterrebeek)","p"],
+ ["Overijse","Overijse Brusselsesteenweg 24/7","Brusselsesteenweg 541, 3090 Overijse","p"],
+ ["Vilvoorde","Vilvoorde Schaarbeeklei 24/7","Schaarbeeklei 244, 1800 Vilvoorde","p"],["Vilvoorde","Vilvoorde Leuvensesteenweg 24/7","Leuvensesteenweg 305 (Machelen-Peutie)","p"],
+ ["Wemmel","Wemmel Steenweg op Brussel 24/7","Steenweg op Brussel 397B, 1780 Wemmel","p"],
+ ["Dilbeek","Dilbeek Ninoofsesteenweg 24/7","Ninoofsesteenweg 1107, 1700 Dilbeek","p"],
+ ["Sint-Pieters-Leeuw","Sint-Pieters-Leeuw Bergensesteenweg 24/7","Bergensesteenweg 306, 1600 Sint-Pieters-Leeuw","p"],
+ ["Halle","Halle René Deboecklaan 24/7","René Deboecklaan 2, 1500 Halle","p"],
+ ["Waterloo","Waterloo Chaussée de Bruxelles","Chaussée de Bruxelles 94A, 1410 Waterloo","p"],
+ ["Braine-l'Alleud","Braine-l'Alleud Victor Hugo 24/7","Avenue Victor Hugo 7, 1420 Braine-l'Alleud","p"],
+ ["Rixensart","Rixensart","Place Jean Vanderbecken 14, 1332 Rixensart","p"]];
 let gymQ="";
 function gymsCard(){
   const c=h("div","card");c.appendChild(h("b","","🏢 Mes salles Basic-Fit"));
-  c.appendChild(h("p","m","Coche les salles où tu vas : l'agenda et le planning peuvent n'afficher que les séances dans ces salles."));
+  c.appendChild(h("p","m","Coche les salles où tu vas (Bruxelles et communes autour) : l'agenda et le planning peuvent n'afficher que les séances dans ces salles."));
   const G=myGyms(),mine=new Set(G.map(gymKey));
   if(G.length){const ch=h("div","chips");ch.style.flexWrap="wrap";
     G.forEach((g,i)=>{const b=h("button","chip on");b.appendChild(document.createTextNode(g+" "));b.appendChild(ic("x"));b.title="Retirer";b.onclick=()=>saveGyms(G.filter((_,j)=>j!==i));ch.appendChild(b)});c.appendChild(ch)}
@@ -1726,8 +1738,10 @@ function gymsCard(){
   const sw=h("div");sw.style.cssText="position:relative;margin-top:6px";const si=ic("search");si.style.cssText="position:absolute;left:12px;top:50%;transform:translateY(-50%);color:var(--mut)";
   const q=h("input");q.placeholder="Rechercher une salle ou une commune…";q.value=gymQ;q.style.paddingLeft="38px";q.setAttribute("aria-label","Rechercher une salle");sw.append(si,q);c.appendChild(sw);
   const list=h("div");list.style.cssText="max-height:340px;overflow-y:auto;margin-top:8px;border:1px solid var(--bd);border-radius:10px;padding:0 10px";c.appendChild(list);
-  const draw=()=>{list.textContent="";const f=gymKey(gymQ);let last=null,n=0;
-    BF_BXL.filter(([com,name,adr])=>!f||gymKey(com+" "+name+" "+adr).includes(f)).forEach(([com,name,adr])=>{n++;
+  const draw=()=>{list.textContent="";const f=gymKey(gymQ);let last=null,lastR=null,n=0;
+    BF_BXL.filter(([com,name,adr])=>!f||gymKey(com+" "+name+" "+adr+(com==="Wezembeek-Oppem"?" kraainem sterrebeek":"")+(com==="Vilvoorde"?" machelen":"")).includes(f)).forEach(([com,name,adr,reg])=>{n++;
+      const R=reg==="p"?"Autour de Bruxelles":"Bruxelles-Capitale";
+      if(R!==lastR){lastR=R;const rh=h("div","",R);rh.style.cssText="font-family:Anton,Impact,sans-serif;text-transform:uppercase;letter-spacing:.05em;color:var(--ac);padding:12px 0 0;font-size:15px";list.appendChild(rh)}
       if(com!==last){last=com;const hd=h("div","m",com);hd.style.cssText="font-weight:700;text-transform:uppercase;letter-spacing:.05em;padding:10px 0 2px";list.appendChild(hd)}
       const on=mine.has(gymKey(name)),r=h("label","");r.style.cssText="display:flex;align-items:center;gap:10px;padding:8px 0;margin:0;color:var(--tx);cursor:pointer;border-top:1px solid var(--bd)";
       const cb=h("input");cb.type="checkbox";cb.checked=on;cb.style.cssText="width:20px;height:20px;flex:none;accent-color:var(--ac)";
