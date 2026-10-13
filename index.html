@@ -118,6 +118,8 @@ button{font:inherit;cursor:pointer}
   <div id="list"></div>
   <div id="cal" hidden></div>
   <div id="acct" hidden></div>
+  <div id="user" hidden></div>
+  <div id="chat" hidden></div>
   <div id="rank" hidden></div>
   <div id="pr" hidden>
     <div class="card">
@@ -184,7 +186,7 @@ function sbDb(){
       const s={next,sent:false};(subs[c]=subs[c]||[]).push(s);
       const tick=()=>{if(!document.hidden)pull(c).catch(()=>err&&err())};
       tick();const t=setInterval(tick,6000);
-      return()=>clearInterval(t);
+      return()=>{clearInterval(t);subs[c]=(subs[c]||[]).filter(x=>x!==s)};
     },
     add(data){
       const id=Date.now().toString(36)+Math.random().toString(36).slice(2,8);
@@ -213,7 +215,7 @@ function renderHome(){
   if(!tod.length){c.appendChild(h("p","note","Personne n'a encore prévu de séance aujourd'hui. Lance le mouvement !"));return}
   tod.forEach(r=>{const l=h("div","m",r.start+" · "+r.pseudo+(r.type?" ("+r.type+")":"")+(r.boost&&r.boost!=="none"?" "+(LABELS[r.boost]||""):""));l.style.fontSize="14px";l.style.marginTop="6px";c.appendChild(l)});
 }
-function render(){renderHome();renderCal();renderRank();renderList();renderPR();renderPhotos()}
+function render(){if(!$("#user").hidden)renderUser();renderHome();renderCal();renderRank();renderList();renderPR();renderPhotos()}
 function renderList(){
   const list=$("#list");list.textContent="";
   const t=todayStr();
@@ -237,8 +239,8 @@ function renderList(){
     days[d].forEach(r=>{
       const s=h("div","s");
       s.appendChild(h("div","t",r.start+(r.end?" – "+r.end:"")));
-      s.appendChild(av(r.uid,r.pseudo));
-      const p=h("div","p");p.appendChild(h("div","",r.pseudo+(r.type?" · "+r.type:"")));
+      s.appendChild(click(av(r.uid,r.pseudo),r.uid,r.pseudo));
+      const p=h("div","p");p.appendChild(click(h("div","",(fol(r.uid)?"⭐ ":"")+r.pseudo+(r.type?" · "+r.type:"")),r.uid,r.pseudo));
       const meta=[];if(r.club)meta.push("📍 "+r.club);const n=overlap(r,days[d]);if(n)meta.push("👥 "+n+" autre"+(n>1?"s":"")+" en même temps");if(r.note)meta.push("« "+r.note+" »");
       if(meta.length)p.appendChild(h("div","m",meta.join(" · ")));s.appendChild(p);
       if(r.spot)s.appendChild(h("span","b","🤝 Cherche pareur"));
@@ -266,8 +268,9 @@ function join(r){$("#date").value=r.date;$("#start").value=r.start;$("#end").val
 
 let calY=new Date().getFullYear(),calM=new Date().getMonth(),selD=todayStr(),rankAll=false;
 function pad(n){return String(n).padStart(2,"0")}
-function setView(v){
-  $("#home").hidden=v!=="home";$("#topbar").hidden=v==="home";window.scrollTo(0,0);$("#form").hidden=$("#list").hidden=v!=="plan";$("#cal").hidden=v!=="cal";$("#rank").hidden=v!=="rank";$("#pr").hidden=v!=="pr";$("#photos").hidden=v!=="photos";if(v==="rank")renderRank();$("#acct").hidden=v!=="acct";if(v==="acct")renderAcct();
+let curV="home",prevV="home";
+function setView(v){if(v!==curV){prevV=curV;curV=v}
+  $("#home").hidden=v!=="home";$("#topbar").hidden=v==="home";window.scrollTo(0,0);$("#form").hidden=$("#list").hidden=v!=="plan";$("#cal").hidden=v!=="cal";$("#rank").hidden=v!=="rank";$("#pr").hidden=v!=="pr";$("#photos").hidden=v!=="photos";if(v==="rank")renderRank();$("#acct").hidden=v!=="acct";$("#user").hidden=v!=="user";$("#chat").hidden=v!=="chat";if(v==="acct")renderAcct();
   document.querySelectorAll("#nav button").forEach(b=>b.classList.toggle("on",b.dataset.v===v));
 }
 document.querySelectorAll("#nav button").forEach(b=>b.onclick=()=>setView(b.dataset.v));
@@ -304,7 +307,7 @@ function renderCal(){
   items.forEach(r=>{
     const s=h("div","s");
     s.appendChild(h("div","t",r.start+(r.end?" – "+r.end:"")));
-    s.appendChild(h("div","p",r.pseudo+(r.type?" · "+r.type:"")));
+    s.appendChild(click(av(r.uid,r.pseudo),r.uid,r.pseudo));s.appendChild(click(h("div","p",r.pseudo+(r.type?" · "+r.type:"")),r.uid,r.pseudo));
     if(r.boost&&r.boost!=="none")s.appendChild(h("span","b",LABELS[r.boost]||"Énergisant"));
     det.appendChild(s);
   });
@@ -358,7 +361,7 @@ function topCard(title,list,unit){
   return card;
 }
 
-let prs=[],photos=[],comments=[],prCol=null,phCol=null,cmCol=null,drafts={},reacts=[],reCol=null,profCol=null,profiles={},auth=null,acMode="in",pa=false;
+let prs=[],photos=[],comments=[],prCol=null,phCol=null,cmCol=null,drafts={},reacts=[],reCol=null,profCol=null,profiles={},auth=null,acMode="in",pa=false,follows=[],folCol=null,inbox=[],inboxSub=null,DB=null,tu=null,chatSub=null,chatKey=null,chatWith=null,chatMsgs=[];
 const LIFTS=[["squat","Squat"],["bench","Bench"],["deadlift","Deadlift"]];
 try{const ps=localStorage.getItem("bf_pseudo")||"";$("#prPseudo").value=ps;$("#phPseudo").value=ps}catch(e){}
 function keep(p){try{localStorage.setItem("bf_pseudo",p)}catch(e){}}
@@ -437,7 +440,7 @@ function renderPhotos(){
   if(!photos.length){l.appendChild(h("p","note","Aucune photo pour l'instant."));return}
   photos.slice().sort((a,b)=>b.ts-a.ts).forEach(p=>{
     const card=h("div","card"),top=h("div","s");
-    top.appendChild(av(p.uid,p.pseudo,32));top.appendChild(h("b","p",p.pseudo));
+    top.appendChild(click(av(p.uid,p.pseudo,32),p.uid,p.pseudo));top.appendChild(click(h("b","p",(fol(p.uid)?"⭐ ":"")+p.pseudo),p.uid,p.pseudo));
     top.appendChild(h("span","m",new Date(p.ts).toLocaleDateString("fr-FR",{day:"numeric",month:"short",year:"numeric"})));
     if(me&&p.uid===me){const x=h("button","x","✕");x.title="Supprimer";x.onclick=async()=>{try{await phCol.doc(p.id).delete()}catch(e){}};top.appendChild(x)}
     card.appendChild(top);
@@ -451,7 +454,7 @@ function renderPhotos(){
     card.appendChild(rb);
     if(p.note)card.appendChild(h("p","cm",p.note));
     comments.filter(c=>c.photoId===p.id).sort((a,b)=>a.ts-b.ts).forEach(c=>{
-      const line=h("div","cm");line.appendChild(h("b","",c.pseudo+" "));line.appendChild(document.createTextNode(c.text));
+      const line=h("div","cm");line.appendChild(click(h("b","",c.pseudo+" "),c.uid,c.pseudo));line.appendChild(document.createTextNode(c.text));
       if(me&&c.uid===me){const x=h("button","x","✕");x.onclick=async()=>{try{await cmCol.doc(c.id).delete()}catch(e){}};line.appendChild(x)}
       card.appendChild(line);
     });
@@ -498,7 +501,7 @@ function avatarShrink(file){return new Promise((ok,ko)=>{
   fr.readAsDataURL(file);
 })}
 function afterAuth(ps){
-  saveAuth();me=auth?auth.uid:uid();
+  saveAuth();me=auth?auth.uid:uid();subInbox();
   const pr=auth&&profiles[auth.uid],name=ps||(pr&&pr.pseudo)||"";
   if(name){pa=true;applyProfile(name)}
   render();renderAcct();
@@ -527,7 +530,7 @@ function renderAcct(){
     };
     const lo=h("button","sec","Se déconnecter");card.appendChild(lo);
     lo.onclick=()=>{auth=null;pa=false;afterAuth(null)};
-    card.appendChild(st);return;
+    card.appendChild(st);box.appendChild(socialCard());return;
   }
   const tg=h("div","tabs");
   [["in","Connexion"],["up","Créer un compte"]].forEach(([k,l])=>{const b=h("button",acMode===k?"on":"",l);b.onclick=()=>{acMode=k;renderAcct()};tg.appendChild(b)});
@@ -563,7 +566,135 @@ function renderAcct(){
   card.appendChild(st);
 }
 
+function click(el,u,name){el.style.cursor="pointer";el.onclick=()=>openUser(u,name);return el}
+function fol(u){return !!(auth&&u&&follows.some(f=>f.from===auth.uid&&f.to===u))}
+function badge(){const n=inbox.filter(x=>x.unread).length,i=document.querySelector('#nav [data-v="acct"] i');if(i)i.textContent=n?"📬":"👤"}
+function subInbox(){
+  if(inboxSub){inboxSub();inboxSub=null}
+  inbox=[];badge();
+  if(!DB||!auth)return;
+  inboxSub=DB.collection("inbox_"+auth.uid).onSnapshot(s=>{
+    inbox=s.docs.map(d=>({id:d.id,...d.data()})).sort((a,b)=>b.ts-a.ts);
+    badge();if(auth&&!$("#acct").hidden)renderAcct();
+  },()=>{});
+}
+function openUser(u,name){tu={uid:u||null,name};renderUser();setView("user")}
+
+function renderUser(){
+  const box=$("#user");box.textContent="";
+  if(!tu)return;
+  const u=tu.uid,pr=u&&profiles[u],name=(pr&&pr.pseudo)||tu.name||"Membre";
+  const bk=h("button","sec","← Retour");bk.style.cssText="width:auto;margin:0 0 12px;padding:8px 14px";
+  bk.onclick=()=>setView(["user","chat"].includes(prevV)?"home":prevV);box.appendChild(bk);
+  const card=h("div","card"),hd=h("div","hero");hd.style.padding="0 0 8px";
+  hd.appendChild(av(u,name,88));
+  const nm=h("b","",name);nm.style.cssText="display:block;font-size:22px;margin-top:8px";hd.appendChild(nm);
+  const fo=u?follows.filter(f=>f.to===u).length:0,fi=u?follows.filter(f=>f.from===u).length:0;
+  hd.appendChild(h("div","m",fo+" abonné"+(fo>1?"s":"")+" · "+fi+" abonnement"+(fi>1?"s":"")));
+  card.appendChild(hd);
+  const td=todayStr(),key=name.trim().toLowerCase();
+  const past=rows.filter(r=>(u?r.uid===u:r.pseudo.trim().toLowerCase()===key)&&r.date<=td);
+  const mo=past.filter(r=>r.date.slice(0,7)===td.slice(0,7)).length;
+  const ws=new Set(past.map(r=>wk(r.date))),cw=wk(td);let w=ws.has(cw)?cw:cw-1,sk=0;while(ws.has(w)){sk++;w--}
+  card.appendChild(h("p","cm","🏃 "+mo+" séance"+(mo>1?"s":"")+" ce mois-ci · "+past.length+" au total · 🔥 "+sk+" sem. d'affilée"));
+  const pp=prs.find(x=>u?x.uid===u:x.pseudo.trim().toLowerCase()===key);
+  if(pp&&(pp.squat||pp.bench||pp.deadlift))card.appendChild(h("p","cm","🏋️ "+LIFTS.map(([k,n])=>n+" "+(pp[k]?pp[k]+" kg":"–")).join(" · ")));
+  const reg=!!(u&&pr);
+  if(auth&&u===auth.uid){const b=h("button","sec","Modifier mon profil");b.onclick=()=>setView("acct");card.appendChild(b)}
+  else if(!reg)card.appendChild(h("p","note","Ce membre n'a pas de compte : impossible de s'abonner ou de lui écrire."));
+  else if(!auth){const b=h("button","go","Connecte-toi pour t'abonner ou écrire");b.onclick=()=>setView("acct");card.appendChild(b)}
+  else{
+    const f=fol(u),fbtn=h("button",f?"sec":"go",f?"✓ Abonné · se désabonner":"➕ S'abonner");
+    fbtn.onclick=async()=>{const id=auth.uid+"_"+u;try{f?await folCol.doc(id).delete():await folCol.doc(id).set({from:auth.uid,to:u,ts:Date.now()})}catch(e){}};
+    card.appendChild(fbtn);
+    const mb=h("button","sec","✉️ Envoyer un message");mb.onclick=()=>openChat(u,name);card.appendChild(mb);
+  }
+  box.appendChild(card);
+  const ph=photos.filter(x=>u?x.uid===u:x.pseudo.trim().toLowerCase()===key).sort((a,b)=>b.ts-a.ts);
+  if(ph.length){
+    const pc=h("div","card");pc.appendChild(h("b","","📸 Photos de progression"));
+    ph.forEach(x=>{if(typeof x.img==="string"&&x.img.startsWith("data:image/")){const im=h("img");im.src=x.img;im.style.cssText="width:100%;border-radius:10px;display:block;margin-top:10px";pc.appendChild(im)}});
+    box.appendChild(pc);
+  }
+}
+
+function socialCard(){
+  const c=h("div","card");
+  const fo=follows.filter(f=>f.to===auth.uid).length,fi=follows.filter(f=>f.from===auth.uid);
+  c.appendChild(h("b","","✉️ Messages"));
+  if(!inbox.length)c.appendChild(h("p","note","Aucune conversation. Va sur le profil d'un ami pour lui écrire."));
+  inbox.forEach(x=>{
+    const r=h("div","s");r.style.cursor="pointer";
+    r.appendChild(av(x.id,x.name,36));
+    const p=h("div","p"),nm=h("div","",x.name+(x.unread?" 🔴":""));nm.style.fontWeight=x.unread?"700":"400";
+    p.appendChild(nm);p.appendChild(h("div","m",x.last||""));r.appendChild(p);
+    r.onclick=()=>openChat(x.id,x.name);c.appendChild(r);
+  });
+  const sub=h("b","","👥 "+fo+" abonné"+(fo>1?"s":"")+" · "+fi.length+" abonnement"+(fi.length>1?"s":""));
+  sub.style.cssText="display:block;margin-top:14px";c.appendChild(sub);
+  fi.forEach(f=>{
+    const pr=profiles[f.to]||{},r=h("div","s");r.style.cursor="pointer";
+    r.appendChild(av(f.to,pr.pseudo,32));r.appendChild(h("div","p",pr.pseudo||"Membre"));
+    r.onclick=()=>openUser(f.to,pr.pseudo||"Membre");c.appendChild(r);
+  });
+  return c;
+}
+
+function openChat(u,name){
+  if(!auth){setView("acct");return}
+  if(!DB)return;
+  chatWith={uid:u,name};const key=[auth.uid,u].sort().join("_");chatKey=key;chatMsgs=[];
+  if(chatSub){chatSub();chatSub=null}
+  setView("chat");buildChat();drawMsgs();
+  chatSub=DB.collection("dm_"+key).onSnapshot(s=>{
+    if(chatKey!==key)return;
+    chatMsgs=s.docs.map(d=>({id:d.id,...d.data()})).sort((a,b)=>a.ts-b.ts);
+    drawMsgs();markRead();
+  },()=>{});
+}
+function buildChat(){
+  const box=$("#chat");box.textContent="";
+  const hd=h("div","s");hd.style.padding="0 0 10px";
+  const bk=h("button","sec","←");bk.style.cssText="width:auto;margin:0;padding:8px 14px";
+  bk.onclick=()=>{if(chatSub){chatSub();chatSub=null}chatKey=null;setView(prevV==="user"?"user":"acct")};
+  hd.appendChild(bk);hd.appendChild(click(av(chatWith.uid,chatWith.name,36),chatWith.uid,chatWith.name));
+  hd.appendChild(h("b","p",chatWith.name));box.appendChild(hd);
+  const ml=h("div","card");ml.id="msgs";
+  ml.style.cssText="min-height:240px;max-height:55vh;overflow-y:auto;display:flex;flex-direction:column;gap:6px";
+  box.appendChild(ml);
+  const f=h("div","cf"),i=h("input");i.placeholder="Ton message…";i.maxLength=500;
+  const send=()=>{const t=i.value;i.value="";sendMsg(t)};
+  i.onkeydown=e=>{if(e.key==="Enter")send()};
+  const b=h("button","","Envoyer");b.onclick=send;f.append(i,b);box.appendChild(f);
+  box.appendChild(h("p","note","⚠️ Messages non chiffrés : ne partage rien de sensible."));
+}
+function drawMsgs(){
+  const ml=$("#msgs");if(!ml||!auth)return;ml.textContent="";
+  if(!chatMsgs.length)ml.appendChild(h("p","note","Dis bonjour 👋"));
+  chatMsgs.forEach(m=>{
+    const mine=m.from===auth.uid,b=h("div","",m.text);
+    b.style.cssText="max-width:80%;padding:8px 12px;border-radius:14px;overflow-wrap:anywhere;align-self:"+(mine?"flex-end":"flex-start")+";background:"+(mine?"var(--ac)":"var(--chip)")+";color:"+(mine?"#fff":"var(--tx)");
+    ml.appendChild(b);
+  });
+  ml.scrollTop=ml.scrollHeight;
+}
+function markRead(){
+  if(!auth||!chatWith||!DB)return;
+  const ib=inbox.find(x=>x.id===chatWith.uid);
+  if(ib&&ib.unread)DB.collection("inbox_"+auth.uid).doc(chatWith.uid).set({with:ib.with,name:ib.name,last:ib.last,ts:ib.ts,unread:false}).catch(()=>{});
+}
+async function sendMsg(txt){
+  const t=txt.trim();if(!t||!DB||!auth||!chatWith)return;
+  const mn=(profiles[auth.uid]||{}).pseudo||"Membre",ts=Date.now(),last=t.slice(0,60);
+  try{
+    await DB.collection("dm_"+chatKey).add({from:auth.uid,to:chatWith.uid,text:t,ts});
+    await DB.collection("inbox_"+chatWith.uid).doc(auth.uid).set({with:auth.uid,name:mn,last,ts,unread:true});
+    await DB.collection("inbox_"+auth.uid).doc(chatWith.uid).set({with:chatWith.uid,name:chatWith.name,last,ts,unread:false});
+  }catch(e){}
+}
+
 async function remove(id){
+
   if(local){rows=rows.filter(r=>r.id!==id);render();return}
   try{await col.doc(id).delete()}catch(e){$("#status").textContent="Suppression impossible."}
 }
@@ -593,7 +724,10 @@ $("#add").onclick=async()=>{
   profCol=db.collection("profiles");
   profCol.onSnapshot(s=>{profiles={};s.docs.forEach(d=>{profiles[d.id]=d.data()});
     const mp=auth&&profiles[auth.uid];if(mp&&mp.pseudo&&!pa){pa=true;applyProfile(mp.pseudo)}
-    renderHome();renderList();renderPhotos();if(auth&&!$("#acct").hidden)renderAcct()},()=>{});
+    renderHome();renderList();renderPhotos();if(!$("#user").hidden)renderUser();if(auth&&!$("#acct").hidden)renderAcct()},()=>{});
+  DB=db;folCol=db.collection("follows");
+  folCol.onSnapshot(s=>{follows=s.docs.map(d=>({id:d.id,...d.data()}));renderList();renderPhotos();if(!$("#user").hidden)renderUser();if(auth&&!$("#acct").hidden)renderAcct()},()=>{});
+  subInbox();
   reCol=db.collection("reactions");reCol.onSnapshot(s=>{reacts=s.docs.map(d=>({id:d.id,...d.data()}));renderPhotos()},()=>{});
   col.onSnapshot(snap=>{rows=snap.docs.map(d=>({id:d.id,...d.data()}));render()},
     ()=>{$("#status").textContent="Connexion au planning perdue."});
