@@ -113,7 +113,7 @@ button{font:inherit;cursor:pointer}
 <script>
 const LABELS={pre:"⚡ Pré-workout",cafe:"☕ Café",energy:"🥤 Énergisant",autre:"✨ Énergisant"};
 const $=s=>document.querySelector(s);
-const SB_URL="COLLE_ICI_TON_PROJECT_URL",SB_KEY="COLLE_ICI_TA_CLE_ANON";
+const SB_URL="https://vvwylhhoqpxwijweqwlf.supabase.co/rest/v1/",SB_KEY="sb_publishable_DkgLU4MEgAVXIG2564pV2g_hjiviFeL";
 const useSB=SB_URL.startsWith("https://");
 function uid(){try{let u=localStorage.getItem("bf_uid");if(!u){u="u"+Math.random().toString(36).slice(2)+Date.now().toString(36);localStorage.setItem("bf_uid",u)}return u}catch(e){return "u"+Math.random().toString(36).slice(2)}}
 function sbDb(){
