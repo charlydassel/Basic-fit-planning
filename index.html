@@ -176,8 +176,9 @@ button:active,.tile:active,.mitem:active,.chip:active{transform:scale(.96);filte
     <select id="rep"><option value="1">Une seule fois</option><option value="4">Pendant 4 semaines</option><option value="8">Pendant 8 semaines</option><option value="12">Pendant 12 semaines</option></select>
     <label for="type">Type de séance</label>
     <select id="type"><option value="">Pas précisé</option><option>Pecs</option><option>Dos</option><option>Jambes</option><option>Épaules</option><option>Bras</option><option>Abdos</option><option>Full body</option><option>Cardio</option></select>
-    <label for="club">Salle (optionnel)</label>
-    <input id="club" maxlength="30" placeholder="ex : Basic-Fit Gare du Nord">
+    <label for="clubSel">Salle</label>
+    <select id="clubSel" aria-label="Salle Basic-Fit"></select>
+    <input id="club" maxlength="30" placeholder="Nom de la salle" hidden style="margin-top:8px">
     <label for="note">Petit mot (optionnel)</label>
     <input id="note" maxlength="60" placeholder="ex : je vise un PR au développé couché">
     <label style="display:flex;gap:8px;align-items:center;color:var(--tx)"><input id="spot" type="checkbox" style="width:auto"> 🤝 Je cherche un partenaire / pareur</label>
@@ -395,7 +396,7 @@ function soft(k){const b=$("#"+k);if(!b||b.hidden)return;const a=document.active
 function render(){Object.keys(XV).forEach(soft);if(!$("#user").hidden)renderUser();if(!$("#notifs").hidden)renderNotifs();if(!$("#admin").hidden)renderAdmin();renderHome();renderCal();renderRank();renderList();renderPR();renderPhotos()}
 function renderList(){
   const list=$("#list");list.textContent="";
-  const t=todayStr();if(!local){list.appendChild(gymBar());fillClub()}
+  const t=todayStr();fillClub();if(!local)list.appendChild(gymBar());
   const tod=visRows().filter(r=>r.date===t).sort((a,b)=>a.start.localeCompare(b.start));
   if(tod.length){
     const bn=h("div","card");
@@ -442,7 +443,7 @@ function shareToday(tod){
 function mins(t){const a=t.split(":");return +a[0]*60+ +a[1]}
 function span(r){const s=mins(r.start);return[s,r.end?mins(r.end):s+90]}
 function overlap(r,all){const x=span(r);return all.filter(o=>{if(o===r)return false;const y=span(o);return x[0]<y[1]&&y[0]<x[1]}).length}
-function join(r){$("#date").value=r.date;$("#start").value=r.start;$("#end").value=r.end||"";$("#club").value=r.club||"";$("#type").value=r.type||"";$("#status").textContent="Créneau repris : mets ton pseudo et ton énergisant, puis Ajouter.";window.scrollTo({top:0,behavior:"smooth"});if(!$("#pseudo").value)$("#pseudo").focus()}
+function join(r){$("#date").value=r.date;$("#start").value=r.start;$("#end").value=r.end||"";$("#club").value=r.club||"";syncClub();$("#type").value=r.type||"";$("#status").textContent="Créneau repris : mets ton pseudo et ton énergisant, puis Ajouter.";window.scrollTo({top:0,behavior:"smooth"});if(!$("#pseudo").value)$("#pseudo").focus()}
 
 let calY=new Date().getFullYear(),calM=new Date().getMonth(),selD=todayStr(),rankAll=false;
 function pad(n){return String(n).padStart(2,"0")}
@@ -1085,7 +1086,7 @@ if("serviceWorker" in navigator&&location.protocol==="https:")navigator.serviceW
 // L'app installée sur l'écran d'accueil reste ouverte en arrière-plan et ne se recharge pas toute seule.
 // Au retour dans l'app (et toutes les 15 min), on vérifie s'il existe une nouvelle version et on propose de l'installer.
 // APP_VERSION doit changer à chaque mise à jour du site.
-const APP_VERSION="2026-10-13.8";
+const APP_VERSION="2026-10-13.9";
 // Retour au toucher : anneau autour de l'élément touché + petite vibration (Android ; l'iPhone ne permet pas la vibration aux sites)
 document.addEventListener("touchstart",()=>{},{passive:true}); // active l'effet :active sur iPhone
 document.addEventListener("pointerdown",e=>{
@@ -1777,9 +1778,27 @@ function gymsCard(){
   return c;
 }
 // Champ « Salle » du formulaire de séance : propose mes salles et pré-remplit la première
-function fillClub(){const G=myGyms();let dl=$("#clubDL");if(!dl){dl=h("datalist");dl.id="clubDL";document.body.appendChild(dl);$("#club").setAttribute("list","clubDL")}
-  dl.textContent="";[...new Map(G.concat(BF_BXL.map(x=>x[1]),knownGyms()).map(g=>[gymKey(g),g])).values()].forEach(g=>{const o=h("option");o.value=g;dl.appendChild(o)});
-  if(!$("#club").value&&G.length)$("#club").value=G[0]}
+// Menu déroulant « Salle » du formulaire de séance : mes salles en premier, puis toutes les salles par commune, puis « Autre salle… »
+function fillClub(){
+  const sel=$("#clubSel"),inp=$("#club"),G=myGyms(),opt=(v,t)=>{const o=h("option","",t||v);o.value=v;return o};
+  sel.textContent="";sel.appendChild(opt("","— Choisir la salle —"));
+  const seen=new Set();
+  if(G.length){const og=h("optgroup");og.label="⭐ Mes salles";G.forEach(g=>{seen.add(gymKey(g));og.appendChild(opt(g))});sel.appendChild(og)}
+  let last=null,og=null;
+  BF_BXL.forEach(([com,name,adr,reg])=>{if(seen.has(gymKey(name)))return;
+    const lab=(reg==="p"?"Autour de Bruxelles · ":"")+com;if(lab!==last){last=lab;og=h("optgroup");og.label=lab;sel.appendChild(og)}og.appendChild(opt(name))});
+  sel.appendChild(opt("__other","✏️ Autre salle…"));
+  sel.onchange=()=>{if(sel.value==="__other"){inp.hidden=false;inp.value="";inp.focus()}else{inp.hidden=true;inp.value=sel.value}};
+  syncClub();
+  if(!inp.value&&G.length){inp.value=G[0];syncClub()}
+}
+// Aligne le menu déroulant sur la valeur du champ (ex. « Je viens aussi » qui reprend la salle d'une séance)
+function syncClub(){
+  const sel=$("#clubSel"),inp=$("#club");if(!sel||!sel.options.length)return;const v=inp.value.trim();
+  if(!v){sel.value="";inp.hidden=true;return}
+  const o=[...sel.options].find(o=>o.value&&o.value!=="__other"&&gymKey(o.value)===gymKey(v));
+  if(o){sel.value=o.value;inp.value=o.value;inp.hidden=true}else{sel.value="__other";inp.hidden=false}
+}
 
 // ---------- 🧭 Tout retrouver facilement ----------
 // Liste unique de toutes les fonctions de l'app : sert au menu, à la recherche, aux titres de page et au guide.
