@@ -65,3 +65,9 @@ Ensuite :
 **En cas de problème** : remets `SB_SECURE=false` dans `config.js` et exécute la partie « RETOUR ARRIÈRE » en bas de `supabase-securite.sql`.
 
 > Les séances publiées avant la sécurisation par des personnes **non connectées** ne pourront plus être modifiées par elles (seul l'admin pourra les supprimer).
+
+## Mises à jour de l'app installée
+
+L'app installée sur l'écran d'accueil vérifie s'il existe une nouvelle version quand on revient dessus (et toutes les 15 min) et affiche un bandeau « Mettre à jour ».
+**À chaque modification du site, change `APP_VERSION` dans `index.html`** (ex. `2026-10-13.3` → `2026-10-13.4`), sinon le bandeau ne s'affiche pas.
+En cas de souci : Profil → « Forcer la mise à jour de l'app ».
