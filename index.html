@@ -98,10 +98,12 @@ button{font:inherit;cursor:pointer}
     <div class="card" id="homeToday"></div>
     <button class="go" data-go="plan" style="margin:0 0 14px">📋 Ajouter ma séance au planning</button>
     <div class="tiles">
-      <button class="tile" data-go="cal"><span>📅</span><b>Calendrier</b><small>Qui y va, quand</small></button>
-      <button class="tile" data-go="rank"><span>🏆</span><b>Classement</b><small>Top 3 et streaks</small></button>
-      <button class="tile" data-go="pr"><span>🏋️</span><b>PR</b><small>Squat, bench, deadlift</small></button>
-      <button class="tile" data-go="photos"><span>📸</span><b>Photos</b><small>Ta progression</small></button>
+      <button class="tile" data-go="journal"><span>📝</span><b>Journal</b><small>Séances, séries, minuteur</small></button>
+      <button class="tile" data-go="programs"><span>📚</span><b>Programmes</b><small>Partagés par la team</small></button>
+      <button class="tile" data-go="team"><span>🤝</span><b>Team</b><small>Partenaires et groupes</small></button>
+      <button class="tile" data-go="defis"><span>⚔️</span><b>Défis</b><small>Niveaux, badges, duels</small></button>
+      <button class="tile" data-go="body"><span>⚖️</span><b>Mon corps</b><small>Poids et mensurations</small></button>
+      <button class="tile" data-go="crowd"><span>📊</span><b>Affluence</b><small>Quand il y a du monde</small></button>
     </div>
   </div>
 
@@ -138,6 +140,13 @@ button{font:inherit;cursor:pointer}
   <div id="list"></div>
   <div id="cal" hidden></div>
   <div id="acct" hidden></div>
+  <div id="acctTheme" hidden></div>
+  <div id="journal" hidden></div>
+  <div id="programs" hidden></div>
+  <div id="team" hidden></div>
+  <div id="defis" hidden></div>
+  <div id="crowd" hidden></div>
+  <div id="body" hidden></div>
   <div id="user" hidden></div>
   <div id="chat" hidden></div>
   <div id="notifs" hidden></div>
@@ -259,6 +268,7 @@ function renderHome(){
   hi.textContent=auth?"👤 "+((pp&&pp.pseudo)||"Mon profil"):"Se connecter";
   const ht=$("#homeTop");ht.textContent="";
   const ib=installCard();if(ib)ht.appendChild(ib);
+  const nx=nextMine();if(nx){const b=h("div","ban");b.appendChild(h("span","","⏰ Ta séance commence à "+nx.start+(nx.club?" · "+nx.club:"")));ht.appendChild(b)}
   // Raccourcis : notifications + check-in
   const L=notifs(),nw=L.filter(x=>x.ts>seenAt("bf_seen")).length;pushNew(L);
   const ni=document.querySelector('#nav [data-v="home"] i');if(ni)ni.textContent=nw?"🔔":"🏠";
@@ -281,7 +291,8 @@ function renderHome(){
   if(!tod.length){c.appendChild(h("p","note","Aucune séance prévue aujourd'hui. Lance le mouvement !"));return}
   tod.forEach(r=>{const l=h("div","m",r.start+" · "+r.pseudo+(r.type?" ("+r.type+")":"")+(r.boost&&r.boost!=="none"?" "+(LABELS[r.boost]||""):""));l.style.cssText="font-size:14px;margin-top:6px;color:var(--tx)";c.appendChild(l)});
 }
-function render(){if(!$("#user").hidden)renderUser();if(!$("#notifs").hidden)renderNotifs();if(!$("#admin").hidden)renderAdmin();renderHome();renderCal();renderRank();renderList();renderPR();renderPhotos()}
+function soft(k){const b=$("#"+k);if(!b||b.hidden)return;const a=document.activeElement;if(a&&b.contains(a)&&a.matches("input,textarea,select"))return;XV[k]()}
+function render(){Object.keys(XV).forEach(soft);if(!$("#user").hidden)renderUser();if(!$("#notifs").hidden)renderNotifs();if(!$("#admin").hidden)renderAdmin();renderHome();renderCal();renderRank();renderList();renderPR();renderPhotos()}
 function renderList(){
   const list=$("#list");list.textContent="";
   const t=todayStr();
@@ -334,9 +345,10 @@ function join(r){$("#date").value=r.date;$("#start").value=r.start;$("#end").val
 
 let calY=new Date().getFullYear(),calM=new Date().getMonth(),selD=todayStr(),rankAll=false;
 function pad(n){return String(n).padStart(2,"0")}
-let curV="home",prevV="home",admin=false,adTab="reports",adQ="",bans=[],reports=[],checkins=[],prHist=[],banCol=null,repCol=null,ckCol=null,histCol=null;
+const XV={};
+let curV="home",prevV="home",workouts=[],programs=[],lfg=[],lfgJ=[],groups=[],gmem=[],duels=[],duelR=[],ckLog=[],body=[],teamTab="lfg",woCol=null,pgCol=null,lfgCol=null,ljCol=null,grCol=null,gmCol=null,duCol=null,drCol=null,ckLogCol=null,bdCol=null,admin=false,adTab="reports",adQ="",bans=[],reports=[],checkins=[],prHist=[],banCol=null,repCol=null,ckCol=null,histCol=null;
 function setView(v){if(v!==curV){prevV=curV;curV=v}
-  $("#home").hidden=v!=="home";$("#topbar").hidden=v==="home";window.scrollTo(0,0);$("#form").hidden=$("#list").hidden=v!=="plan";$("#cal").hidden=v!=="cal";$("#rank").hidden=v!=="rank";$("#pr").hidden=v!=="pr";$("#photos").hidden=v!=="photos";if(v==="rank")renderRank();$("#acct").hidden=v!=="acct";$("#user").hidden=v!=="user";$("#chat").hidden=v!=="chat";$("#admin").hidden=v!=="admin";$("#notifs").hidden=v!=="notifs";if(v==="notifs")renderNotifs();if(v==="acct")renderAcct();if(v==="admin")renderAdmin();
+  $("#home").hidden=v!=="home";$("#topbar").hidden=v==="home";window.scrollTo(0,0);$("#form").hidden=$("#list").hidden=v!=="plan";$("#cal").hidden=v!=="cal";$("#rank").hidden=v!=="rank";$("#pr").hidden=v!=="pr";$("#photos").hidden=v!=="photos";if(v==="rank")renderRank();$("#acct").hidden=v!=="acct";$("#user").hidden=v!=="user";$("#chat").hidden=v!=="chat";$("#admin").hidden=v!=="admin";$("#notifs").hidden=v!=="notifs";if(v==="notifs")renderNotifs();$("#acctTheme").hidden=v!=="acct";if(v==="acct")renderTheme();Object.keys(XV).forEach(k=>{$("#"+k).hidden=v!==k});if(XV[v])XV[v]();if(v==="acct")renderAcct();if(v==="admin")renderAdmin();
   document.querySelectorAll("#nav button").forEach(b=>b.classList.toggle("on",b.dataset.v===v));
 }
 document.querySelectorAll("#nav button").forEach(b=>b.onclick=()=>setView(b.dataset.v));
@@ -381,7 +393,7 @@ function renderCal(){
 }
 
 function renderRank(){
-  const box=$("#rank");box.textContent="";if(!local)box.appendChild(defiCard());
+  const box=$("#rank");box.textContent="";if(!local){box.appendChild(defiCard());box.appendChild(recapCard())}
   const me0=($("#pseudo").value||"").trim().toLowerCase();
   if(me0){
     const td=todayStr(),mine=rows.filter(r=>r.pseudo.trim().toLowerCase()===me0&&r.date<=td);
@@ -457,6 +469,7 @@ $("#prSave").onclick=async()=>{
 function renderPR(){
   const l=$("#prList");l.textContent="";
   if(local){l.appendChild(h("p","note",SHARED));return}
+  l.appendChild(oneRmCard());
   const mc=prChart(auth?auth.uid:null,$("#prPseudo").value,"📈 Ma progression");if(mc)l.appendChild(mc);
   const list=prs.filter(p=>p.squat||p.bench||p.deadlift).map(p=>({...p,total:(p.squat||0)+(p.bench||0)+(p.deadlift||0)})).sort((a,b)=>b.total-a.total);
   if(!list.length){l.appendChild(h("p","note","Aucun PR pour l'instant."));return}
@@ -679,7 +692,8 @@ function renderUser(){
   card.appendChild(h("p","cm","🏃 "+mo+" séance"+(mo>1?"s":"")+" ce mois-ci · "+past.length+" au total · 🔥 "+sk+" sem. d'affilée"));
   const pp=prs.find(x=>u?x.uid===u:x.pseudo.trim().toLowerCase()===key);
   if(pp&&(pp.squat||pp.bench||pp.deadlift))card.appendChild(h("p","cm","🏋️ "+LIFTS.map(([k,n])=>n+" "+(pp[k]?pp[k]+" kg":"–")).join(" · ")));
-  const bg=badges(u,name);if(bg.length)card.appendChild(h("p","cm","Défis réussis : "+bg.join(" ")));
+  card.appendChild(levelBox(u,name));card.appendChild(badgeGrid(u,name,false));
+  const bg=badges(u,name);if(bg.length)card.appendChild(h("p","cm","Défis du mois réussis : "+bg.join(" ")));
   if(banned(u))card.appendChild(h("p","note","🚫 Membre suspendu"));
   const reg=!!(u&&pr);
   if(auth&&u===auth.uid){const b=h("button","sec","Modifier mon profil");b.onclick=()=>setView("acct");card.appendChild(b)}
@@ -690,10 +704,12 @@ function renderUser(){
     fbtn.onclick=async()=>{const id=auth.uid+"_"+u;try{f?await folCol.doc(id).delete():await folCol.doc(id).set({from:auth.uid,to:u,ts:Date.now()})}catch(e){}};
     card.appendChild(fbtn);
     const mb=h("button","sec","✉️ Envoyer un message");mb.onclick=()=>openChat(u,name);card.appendChild(mb);
+    const db=h("button","sec","⚔️ Défier ce mois-ci");db.onclick=()=>challenge(u,name);card.appendChild(db);
   }
   box.appendChild(card);
   const pc0=prChart(u,name);if(pc0)box.appendChild(pc0);
   const ph=photos.filter(x=>u?x.uid===u:x.pseudo.trim().toLowerCase()===key).sort((a,b)=>b.ts-a.ts);
+  const cmp=compareCard(ph);if(cmp)box.appendChild(cmp);
   if(ph.length){
     const pc=h("div","card");pc.appendChild(h("b","","📸 Photos de progression"));
     ph.forEach(x=>{if(typeof x.img==="string"&&x.img.startsWith("data:image/")){const im=h("img");im.loading="lazy";im.decoding="async";im.src=x.img;im.style.cssText="width:100%;border-radius:10px;display:block;margin-top:10px";pc.appendChild(im)}});
@@ -823,6 +839,10 @@ function notifs(){
     L.push({ts:r.ts,t:"🤝 "+r.pseudo+" sera aussi à la salle le "+new Date(r.date+"T12:00:00").toLocaleDateString("fr-FR",{weekday:"long",day:"numeric"})+" à "+r.start,go:"plan"})});
   const mp=prs.find(p=>p.uid===u);
   if(mp)prs.forEach(p=>{if(p.uid===u||!(p.ts>mp.ts))return;LIFTS.forEach(([k,n])=>{if(mp[k]&&p[k]>mp[k])L.push({ts:p.ts,t:"🏋️ "+p.pseudo+" a dépassé ton PR au "+n.toLowerCase()+" ("+p[k]+" kg)",go:"pr"})})});
+  const myL=new Set(lfg.filter(x=>x.uid===u).map(x=>x.id));
+  lfgJ.forEach(j=>{if(myL.has(j.post)&&j.uid!==u)L.push({ts:j.ts,t:"🙋 "+j.pseudo+" vient avec toi : « "+((lfg.find(x=>x.id===j.post)||{}).text||"")+" »",go:"team"})});
+  duels.forEach(d=>{if(d.to===u&&duelRes(d)==="wait")L.push({ts:d.ts,t:"⚔️ "+d.fromName+" te défie ce mois-ci !",go:"defis"})});
+  duelR.forEach(r=>{const d=duels.find(x=>x.id===r.duel);if(d&&d.from===u&&r.uid===d.to)L.push({ts:r.ts,t:"⚔️ "+d.toName+(r.ok?" a accepté":" a refusé")+" ton défi",go:"defis"})});
   checkins.forEach(c=>{if(c.uid!==u&&fol(c.uid)&&here(c))L.push({ts:c.ts,t:"📍 "+c.pseudo+" est à la salle"+(c.club?" ("+c.club+")":""),user:c.uid})});
   return L.filter(x=>x.ts>old).sort((a,b)=>b.ts-a.ts).slice(0,30);
 }
@@ -863,7 +883,7 @@ async function toggleCheckin(mine){
   try{if(mine)await ckCol.doc(u).delete();
     else{const ps=myName();if(ps==="Anonyme"){alert("Mets d'abord ton pseudo (onglet Planning ou Profil).");return}
       let club="";try{club=localStorage.getItem("bf_club")||""}catch(e){}
-      await ckCol.doc(u).set({uid:u,pseudo:clean(ps),club:clean(club),ts:Date.now()})}}catch(e){alert("Check-in impossible, réessaie.")}
+      await ckCol.doc(u).set({uid:u,pseudo:clean(ps),club:clean(club),ts:Date.now()});ckLogCol.add({uid:u,club:clean(club),ts:Date.now()}).catch(()=>{})}}catch(e){alert("Check-in impossible, réessaie.")}
 }
 
 // ---------- Défi du mois ----------
@@ -899,22 +919,22 @@ function prSeries(u,name){
   });
   return out;
 }
-function sparkline(pts,label){
+function sparkline(pts,label,unit){unit=unit||"kg";
   const W=300,H=90,P=10,box=h("div");box.style.marginTop="10px";
   const last=pts[pts.length-1],first=pts[0];
   const hd=h("div","");hd.style.cssText="display:flex;justify-content:space-between;font-size:14px";
-  hd.appendChild(h("b","",label));hd.appendChild(h("span","m",last.kg+" kg"+(pts.length>1&&last.kg>first.kg?" (+"+(Math.round((last.kg-first.kg)*10)/10)+")":"")));box.appendChild(hd);
-  if(pts.length<2){box.appendChild(h("div","m","Un seul record pour l'instant : la courbe apparaîtra au prochain PR."));return box}
+  hd.appendChild(h("b","",label));const dl=Math.round((last.kg-first.kg)*10)/10;hd.appendChild(h("span","m",last.kg+" "+unit+(pts.length>1&&dl?" ("+(dl>0?"+":"")+dl+")":"")));box.appendChild(hd);
+  if(pts.length<2){box.appendChild(h("div","m","Une seule valeur pour l'instant : la courbe apparaîtra à la prochaine."));return box}
   const t=pts.map(p=>Date.parse(p.d)),t0=Math.min(...t),t1=Math.max(...t)||t0+1,v=pts.map(p=>p.kg),v0=Math.min(...v),v1=Math.max(...v);
   const X=i=>P+(t1===t0?0:(t[i]-t0)/(t1-t0))*(W-2*P),Y=i=>H-P-(v1===v0?.5:(v[i]-v0)/(v1-v0))*(H-2*P);
   const ns="http://www.w3.org/2000/svg",svg=document.createElementNS(ns,"svg");svg.setAttribute("viewBox","0 0 "+W+" "+H);svg.style.cssText="width:100%;height:auto;display:block";
-  svg.setAttribute("role","img");svg.setAttribute("aria-label",label+" : "+pts.map(p=>p.kg+" kg le "+p.d).join(", "));
+  svg.setAttribute("role","img");svg.setAttribute("aria-label",label+" : "+pts.map(p=>p.kg+" "+unit+" le "+p.d).join(", "));
   const base=document.createElementNS(ns,"line");base.setAttribute("x1",P);base.setAttribute("x2",W-P);base.setAttribute("y1",H-P+4);base.setAttribute("y2",H-P+4);base.setAttribute("stroke","var(--bd)");svg.appendChild(base);
   const pl=document.createElementNS(ns,"polyline");pl.setAttribute("points",pts.map((p,i)=>X(i)+","+Y(i)).join(" "));
   pl.setAttribute("fill","none");pl.setAttribute("stroke","var(--ac)");pl.setAttribute("stroke-width","2");pl.setAttribute("stroke-linejoin","round");svg.appendChild(pl);
   pts.forEach((p,i)=>{const c=document.createElementNS(ns,"circle");c.setAttribute("cx",X(i));c.setAttribute("cy",Y(i));c.setAttribute("r",i===pts.length-1?5:4);
     c.setAttribute("fill","var(--ac)");c.setAttribute("stroke","var(--card)");c.setAttribute("stroke-width","2");
-    const tt=document.createElementNS(ns,"title");tt.textContent=p.kg+" kg · "+new Date(p.d+"T12:00:00").toLocaleDateString("fr-FR");c.appendChild(tt);svg.appendChild(c)});
+    const tt=document.createElementNS(ns,"title");tt.textContent=p.kg+" "+unit+" · "+new Date(p.d+"T12:00:00").toLocaleDateString("fr-FR");c.appendChild(tt);svg.appendChild(c)});
   box.appendChild(svg);
   const ax=h("div","m");ax.style.cssText="display:flex;justify-content:space-between";
   [first,last].forEach(p=>ax.appendChild(h("span","",new Date(p.d+"T12:00:00").toLocaleDateString("fr-FR",{day:"numeric",month:"short"}))));box.appendChild(ax);
@@ -941,6 +961,411 @@ function installCard(){
   return c;
 }
 if("serviceWorker" in navigator&&location.protocol==="https:")navigator.serviceWorker.register("sw.js").catch(()=>{});
+
+// =================== Vues supplémentaires ===================
+function backBtn(){const b=h("button","sec","← Accueil");b.style.cssText="width:auto;margin:0 0 12px;padding:8px 14px";b.onclick=()=>setView("home");return b}
+function noShared(box){if(local){box.appendChild(h("p","note",SHARED));return true}return false}
+function ownOrAdmin(x){return (me&&x.uid===me)||isAdmin()}
+function delX(label,fn){const x=h("button","x","✕");x.title="Supprimer";x.onclick=async()=>{if(!confirm(label))return;try{await fn()}catch(e){alert("Suppression impossible.")}};return x}
+function fmtD(d){return new Date(d+"T12:00:00").toLocaleDateString("fr-FR",{weekday:"short",day:"numeric",month:"short"})}
+function num(v){const n=parseFloat(String(v).replace(",","."));return isFinite(n)?n:0}
+
+// ---------- 📝 Journal de séance ----------
+const EXOS=["Squat","Développé couché","Soulevé de terre","Développé militaire","Tractions","Rowing barre","Dips","Presse à cuisses","Fentes","Curl biceps","Extension triceps","Élévations latérales","Hip thrust","Leg curl","Leg extension","Tirage vertical","Tirage horizontal","Pompes","Gainage","Mollets","Développé incliné","Écarté poulie"];
+let jd=null;
+function jdLoad(){if(jd)return jd;try{jd=JSON.parse(localStorage.getItem("bf_jd")||"null")}catch(e){}return jd=jd||{title:"",ex:[]}}
+function jdSave(){try{localStorage.setItem("bf_jd",JSON.stringify(jd))}catch(e){}}
+function volume(ex){return Math.round(ex.reduce((t,e)=>t+e.sets.reduce((a,s)=>a+num(s.kg)*num(s.reps),0),0))}
+XV.journal=()=>{
+  const box=$("#journal");box.textContent="";box.appendChild(backBtn());
+  if(noShared(box))return;
+  jdLoad();
+  const c=h("div","card");c.appendChild(h("b","","📝 Ma séance"));
+  const ti=h("input");ti.placeholder="Nom de la séance (ex : Push, Jambes…)";ti.value=jd.title;ti.maxLength=40;ti.style.marginTop="10px";ti.oninput=()=>{jd.title=ti.value;jdSave()};c.appendChild(ti);
+  let dl=$("#exos");if(!dl){dl=h("datalist");dl.id="exos";EXOS.forEach(x=>{const o=h("option");o.value=x;dl.appendChild(o)});document.body.appendChild(dl)}
+  jd.ex.forEach((e,i)=>{
+    const ec=h("div");ec.style.cssText="border-top:1px solid var(--bd);margin-top:12px;padding-top:10px";
+    const top=h("div","row");const ni=h("input");ni.setAttribute("list","exos");ni.placeholder="Exercice";ni.value=e.name;ni.oninput=()=>{e.name=ni.value;jdSave()};
+    const rm=h("button","x","🗑️");rm.title="Retirer l'exercice";rm.onclick=()=>{jd.ex.splice(i,1);jdSave();XV.journal()};
+    const w=h("div");w.appendChild(ni);top.appendChild(w);top.appendChild(rm);top.style.alignItems="center";ec.appendChild(top);
+    e.sets.forEach((st,j)=>{
+      const r=h("div","row");r.style.cssText="align-items:center;margin-top:6px";
+      r.appendChild(h("span","m","Série "+(j+1)));
+      const kg=h("input");kg.type="number";kg.inputMode="decimal";kg.placeholder="kg";kg.value=st.kg;kg.oninput=()=>{st.kg=kg.value;jdSave()};
+      const rp=h("input");rp.type="number";rp.inputMode="numeric";rp.placeholder="reps";rp.value=st.reps;rp.oninput=()=>{st.reps=rp.value;jdSave()};
+      const a=h("div"),b=h("div");a.appendChild(kg);b.appendChild(rp);r.append(a,b);
+      const x=h("button","x","✕");x.onclick=()=>{e.sets.splice(j,1);jdSave();XV.journal()};r.appendChild(x);ec.appendChild(r)});
+    const as=h("button","tb","+ série");as.onclick=()=>{const l=e.sets[e.sets.length-1]||{kg:"",reps:""};e.sets.push({kg:l.kg,reps:l.reps});jdSave();XV.journal();startRest()};ec.appendChild(as);
+    c.appendChild(ec)});
+  const ae=h("button","sec","➕ Ajouter un exercice");ae.onclick=()=>{jd.ex.push({name:"",sets:[{kg:"",reps:""}]});jdSave();XV.journal()};c.appendChild(ae);
+  const pg=h("button","sec","📚 Partir d'un programme");pg.onclick=()=>setView("programs");c.appendChild(pg);
+  const st=h("p","note","");
+  const sv=h("button","go","✅ Enregistrer la séance");sv.onclick=async()=>{
+    const no=cantPost();if(no){st.textContent=no;return}
+    const ex=jd.ex.map(e=>({name:clean(e.name.trim()),sets:e.sets.filter(s=>num(s.reps)>0).map(s=>({kg:num(s.kg),reps:num(s.reps)}))})).filter(e=>e.name&&e.sets.length);
+    if(!ex.length){st.textContent="Ajoute au moins un exercice avec une série.";return}
+    const ps=myName();
+    try{await woCol.add({uid:me,pseudo:clean(ps==="Anonyme"?"Membre":ps),date:todayStr(),title:clean(jd.title.trim()),ex,vol:volume(ex),ts:Date.now()});
+      jd={title:"",ex:[]};jdSave();XV.journal();$("#jStatus").textContent="Séance enregistrée 💪"}catch(e){st.textContent="Échec de l'envoi, réessaie."}};
+  c.appendChild(sv);c.appendChild(st);box.appendChild(c);
+  const done=h("p","note","");done.id="jStatus";box.appendChild(done);
+  box.appendChild(timerCard());
+  const hc=h("div","card");hc.appendChild(h("b","","📚 Mon historique"));
+  const mine=workouts.filter(w=>w.uid===me).sort((a,b)=>b.ts-a.ts);
+  if(!mine.length)hc.appendChild(h("p","note","Aucune séance enregistrée."));
+  mine.slice(0,30).forEach(w=>{const s=h("div","s"),p=h("div","p");
+    p.appendChild(h("b","",fmtD(w.date)+(w.title?" · "+w.title:"")));
+    w.ex.forEach(e=>{const best=Math.max(...e.sets.map(x=>x.kg));p.appendChild(h("div","m",e.name+" : "+e.sets.length+" × "+e.sets.map(x=>x.reps).join("/")+(best?" · max "+best+" kg":"")))});
+    s.appendChild(p);s.appendChild(h("span","b",w.vol+" kg"));
+    if(ownOrAdmin(w))s.appendChild(delX("Supprimer cette séance du journal ?",()=>woCol.doc(w.id).delete()));hc.appendChild(s)});
+  box.appendChild(hc);
+};
+
+// ---------- ⏱️ Minuteur de repos ----------
+let rest={end:0,dur:90,t:null};try{rest.dur=+localStorage.getItem("bf_rest")||90}catch(e){}
+function mmss(s){s=Math.max(0,Math.ceil(s));return Math.floor(s/60)+":"+String(s%60).padStart(2,"0")}
+function beep(){try{const a=new(window.AudioContext||window.webkitAudioContext)();[0,.35,.7].forEach(t=>{const o=a.createOscillator(),g=a.createGain();o.frequency.value=880;o.connect(g);g.connect(a.destination);g.gain.setValueAtTime(.25,a.currentTime+t);o.start(a.currentTime+t);o.stop(a.currentTime+t+.2)})}catch(e){}}
+function tickRest(){
+  const el=$("#restT"),left=(rest.end-Date.now())/1000;
+  if(el)el.textContent=rest.end?mmss(left):mmss(rest.dur);
+  if(rest.end&&left<=0){clearInterval(rest.t);rest.end=0;beep();try{navigator.vibrate&&navigator.vibrate([300,120,300])}catch(e){}
+    if(document.hidden&&"Notification" in window&&Notification.permission==="granted")try{new Notification("Gym Crew",{body:"⏱️ Repos terminé, à toi !",icon:"icon-192.png"})}catch(e){}
+    const b=$("#restB");if(b)b.textContent="▶️ Lancer";if(el)el.textContent="GO 💪"}
+}
+function startRest(d){if(d)rest.dur=d;try{localStorage.setItem("bf_rest",rest.dur)}catch(e){}clearInterval(rest.t);rest.end=Date.now()+rest.dur*1000;rest.t=setInterval(tickRest,250);tickRest();const b=$("#restB");if(b)b.textContent="⏹️ Stop"}
+function timerCard(){
+  const c=h("div","card");c.appendChild(h("b","","⏱️ Minuteur de repos"));
+  const t=h("div","",mmss(rest.dur));t.id="restT";t.style.cssText="font-size:44px;font-weight:800;text-align:center;font-variant-numeric:tabular-nums;margin:6px 0";c.appendChild(t);
+  const tg=h("div","tabs");[60,90,120,180].forEach(d=>{const b=h("button",rest.dur===d?"on":"",mmss(d));b.onclick=()=>{startRest(d);XV.journal()};tg.appendChild(b)});c.appendChild(tg);
+  const b=h("button","go",rest.end?"⏹️ Stop":"▶️ Lancer");b.id="restB";b.style.marginTop="0";
+  b.onclick=()=>{if(rest.end){clearInterval(rest.t);rest.end=0;b.textContent="▶️ Lancer";tickRest()}else startRest()};c.appendChild(b);
+  c.appendChild(h("p","m","Se lance aussi tout seul quand tu ajoutes une série. Sonne et vibre à la fin."));
+  if(rest.end)setTimeout(tickRest,0);
+  return c;
+}
+
+// ---------- 📚 Programmes partagés ----------
+function parseLine(l){const m=l.match(/^(.*?)[\s:–-]*(\d+)\s*[x×*]\s*(\d+)\s*$/i);return m?{name:m[1].trim(),sets:+m[2],reps:+m[3]}:{name:l.trim(),sets:3,reps:10}}
+let pgOpen=null;
+XV.programs=()=>{
+  const box=$("#programs");box.textContent="";box.appendChild(backBtn());
+  if(noShared(box))return;
+  const list=programs.slice().sort((a,b)=>b.ts-a.ts);
+  const lc=h("div","card");lc.appendChild(h("b","","📚 Programmes de la team"));
+  if(!list.length)lc.appendChild(h("p","note","Aucun programme pour l'instant. Crée le premier !"));
+  list.forEach(p=>{const s=h("div","s");s.style.cursor="pointer";const d=h("div","p");d.appendChild(h("b","",p.name));d.appendChild(h("div","m","par "+p.pseudo+" · "+p.days.length+" jour"+(p.days.length>1?"s":"")));s.appendChild(d);
+    s.appendChild(h("span","m",pgOpen===p.id?"▲":"▼"));s.onclick=()=>{pgOpen=pgOpen===p.id?null:p.id;XV.programs()};
+    lc.appendChild(s);
+    if(ownOrAdmin(p)){const x=h("button","x","🗑️ Supprimer");x.style.fontSize="13px";x.onclick=async()=>{if(confirm("Supprimer le programme « "+p.name+" » ?"))try{await pgCol.doc(p.id).delete()}catch(e){alert("Suppression impossible.")}};if(pgOpen===p.id)lc.appendChild(x)}
+    if(pgOpen===p.id)p.days.forEach(dy=>{const dc=h("div");dc.style.cssText="background:var(--bg);border-radius:10px;padding:10px;margin:6px 0";
+      dc.appendChild(h("b","",dy.name));dy.ex.forEach(e=>dc.appendChild(h("div","m",e.name+" — "+e.sets+"×"+e.reps)));
+      const u=h("button","tb","▶️ Faire cette séance");u.onclick=()=>{jdLoad();jd={title:p.name+" · "+dy.name,ex:dy.ex.map(e=>({name:e.name,sets:Array.from({length:e.sets},()=>({kg:"",reps:String(e.reps)}))}))};jdSave();setView("journal")};
+      dc.appendChild(u);lc.appendChild(dc)})});
+  box.appendChild(lc);
+  // Création
+  const c=h("div","card");c.appendChild(h("b","","➕ Créer un programme"));
+  const nm=h("input");nm.placeholder="Nom (ex : PPL débutant)";nm.maxLength=40;nm.style.marginTop="10px";c.appendChild(nm);
+  const days=h("div");c.appendChild(days);
+  const addDay=()=>{const n=days.children.length+1,d=h("div");d.style.marginTop="10px";
+    const dn=h("input");dn.placeholder="Nom du jour "+n+" (ex : Push)";dn.className="dn";
+    const ta=h("textarea");ta.placeholder="Un exercice par ligne :\nDéveloppé couché 4x8\nDips 3x10";ta.rows=4;ta.className="dt";
+    ta.style.cssText="width:100%;margin-top:6px;padding:10px;border-radius:10px;border:1px solid var(--bd);background:var(--bg);color:var(--tx);font:inherit";
+    d.append(dn,ta);days.appendChild(d)};
+  addDay();
+  const ad=h("button","sec","+ Ajouter un jour");ad.onclick=addDay;c.appendChild(ad);
+  const st=h("p","note","");
+  const sv=h("button","go","Partager le programme");sv.onclick=async()=>{
+    const no=cantPost();if(no){st.textContent=no;return}
+    const name=clean(nm.value.trim());if(!name){st.textContent="Donne un nom au programme.";return}
+    const ds=[...days.children].map((d,i)=>({name:clean(d.querySelector(".dn").value.trim()||"Jour "+(i+1)),ex:d.querySelector(".dt").value.split("\n").map(l=>l.trim()).filter(Boolean).map(parseLine).map(e=>({...e,name:clean(e.name)})).slice(0,20)})).filter(d=>d.ex.length);
+    if(!ds.length){st.textContent="Ajoute au moins un exercice.";return}
+    try{await pgCol.add({uid:me,pseudo:clean(myName()),name,days:ds,ts:Date.now()});st.textContent="Programme partagé ✅";XV.programs()}catch(e){st.textContent="Échec de l'envoi, réessaie."}};
+  c.appendChild(sv);c.appendChild(st);box.appendChild(c);
+};
+
+// ---------- 🧮 Calcul du 1RM (onglet PR) ----------
+function oneRmCard(){
+  const c=h("div","card");c.appendChild(h("b","","🧮 Calculer mon 1RM"));
+  const r=h("div","row"),a=h("div"),b=h("div");
+  const kg=h("input");kg.type="number";kg.inputMode="decimal";kg.placeholder="Charge (kg)";
+  const rp=h("input");rp.type="number";rp.inputMode="numeric";rp.placeholder="Répétitions";
+  a.appendChild(kg);b.appendChild(rp);r.append(a,b);r.style.marginTop="10px";c.appendChild(r);
+  const out=h("p","cm","Entre une série pour estimer ton max sur 1 répétition.");c.appendChild(out);
+  const calc=()=>{const w=num(kg.value),n=Math.round(num(rp.value));
+    if(!(w>0&&n>0)){out.textContent="Entre une série pour estimer ton max sur 1 répétition.";return}
+    if(n>12){out.textContent="Au-delà de 12 répétitions l'estimation n'est pas fiable.";return}
+    const rm=n===1?w:w*(1+n/30);
+    out.textContent="1RM estimé : "+Math.round(rm*2)/2+" kg · 90 % = "+Math.round(rm*.9*2)/2+" kg · 80 % = "+Math.round(rm*.8*2)/2+" kg"};
+  kg.oninput=rp.oninput=calc;return c;
+}
+// ---------- 🤝 Partenaires & 💬 Groupes ----------
+let grpOpen=null,grpSub=null,grpMsgs=[];
+XV.team=()=>{
+  const box=$("#team");box.textContent="";
+  if(grpOpen&&!local)return groupChat(box);
+  box.appendChild(backBtn());if(noShared(box))return;
+  const tg=h("div","tabs");[["lfg","🤝 Partenaires"],["grp","💬 Groupes"]].forEach(([k,l])=>{const b=h("button",teamTab===k?"on":"",l);b.onclick=()=>{teamTab=k;XV.team()};tg.appendChild(b)});box.appendChild(tg);
+  if(teamTab==="grp")return groupsList(box);
+  // Fil « qui est chaud ? »
+  const f=h("div","card");f.appendChild(h("b","","🙋 Chercher un partenaire"));
+  const tx=h("input");tx.placeholder="ex : Qui est chaud pour jambes ce soir ?";tx.maxLength=80;tx.style.marginTop="10px";f.appendChild(tx);
+  const r=h("div","row");r.style.marginTop="8px";const a=h("div"),b=h("div");
+  const dt=h("input");dt.type="date";dt.value=todayStr();const tm=h("input");tm.type="time";tm.value="18:00";a.appendChild(dt);b.appendChild(tm);r.append(a,b);f.appendChild(r);
+  const st=h("p","note","");
+  const go=h("button","go","Publier");go.onclick=async()=>{const no=cantPost();if(no){st.textContent=no;return}
+    const t=clean(tx.value.trim());if(!t||!dt.value){st.textContent="Écris ton message.";return}
+    try{await lfgCol.add({uid:me,pseudo:clean(myName()),text:t,date:dt.value,time:tm.value||"",ts:Date.now()});tx.value="";st.textContent="Publié ✅"}catch(e){st.textContent="Échec de l'envoi, réessaie."}};
+  f.append(go,st);box.appendChild(f);
+  const td=todayStr(),list=lfg.filter(x=>x.date>=td).sort((a,b)=>(a.date+a.time).localeCompare(b.date+b.time));
+  const c=h("div","card");c.appendChild(h("b","","📣 Propositions"));
+  if(!list.length)c.appendChild(h("p","note","Aucune proposition en cours."));
+  list.forEach(x=>{const s=h("div","s");s.appendChild(click(av(x.uid,x.pseudo),x.uid,x.pseudo));
+    const p=h("div","p");p.appendChild(h("div","",x.text));
+    const js=lfgJ.filter(j=>j.post===x.id),mineJ=js.find(j=>j.uid===me);
+    p.appendChild(h("div","m",x.pseudo+" · "+fmtD(x.date)+(x.time?" à "+x.time:"")+(js.length?" · 🙋 "+js.map(j=>j.pseudo).join(", "):"")));s.appendChild(p);
+    if(x.uid!==me){const jb=h("button","tb"+(mineJ?" on":""),mineJ?"✓ Je viens":"🙋 Je viens");jb.onclick=async()=>{const no=cantPost();if(no){alert(no);return}
+      try{mineJ?await ljCol.doc(mineJ.id).delete():await ljCol.doc(x.id+"_"+me).set({uid:me,pseudo:clean(myName()),post:x.id,to:x.uid,ts:Date.now()})}catch(e){alert("Action impossible.")}};s.appendChild(jb)}
+    if(ownOrAdmin(x))s.appendChild(delX("Supprimer cette proposition ?",()=>lfgCol.doc(x.id).delete()));
+    c.appendChild(s)});
+  box.appendChild(c);
+};
+function groupsList(box){
+  const c=h("div","card");c.appendChild(h("b","","💬 Groupes de discussion"));
+  if(!groups.length)c.appendChild(h("p","note","Aucun groupe. Crée le premier !"));
+  groups.slice().sort((a,b)=>b.ts-a.ts).forEach(g=>{const mem=gmem.filter(m=>m.group===g.id),inG=mem.some(m=>m.uid===me);
+    const s=h("div","s");const p=h("div","p");p.appendChild(h("b","",g.name));p.appendChild(h("div","m",mem.length+" membre"+(mem.length>1?"s":"")+" · créé par "+g.pseudo));s.appendChild(p);
+    const b=h("button","tb"+(inG?" on":""),inG?"Ouvrir":"Rejoindre");b.onclick=async()=>{
+      if(!inG){const no=cantPost();if(no){alert(no);return}try{await gmCol.doc(g.id+"_"+me).set({uid:me,pseudo:clean(myName()),group:g.id,ts:Date.now()})}catch(e){alert("Action impossible.");return}}
+      openGroup(g.id)};s.appendChild(b);
+    if(ownOrAdmin(g))s.appendChild(delX("Supprimer le groupe « "+g.name+" » ?",()=>grCol.doc(g.id).delete()));c.appendChild(s)});
+  box.appendChild(c);
+  const n=h("div","card");n.appendChild(h("b","","➕ Nouveau groupe"));
+  const i=h("input");i.placeholder="Nom du groupe (ex : Team du matin)";i.maxLength=30;i.style.marginTop="10px";n.appendChild(i);
+  const st=h("p","note","");const b=h("button","go","Créer le groupe");b.onclick=async()=>{const no=cantPost();if(no){st.textContent=no;return}
+    const nm=clean(i.value.trim());if(!nm){st.textContent="Donne un nom au groupe.";return}
+    try{const id=Date.now().toString(36)+Math.random().toString(36).slice(2,6);await grCol.doc(id).set({uid:me,pseudo:clean(myName()),name:nm,ts:Date.now()});
+      await gmCol.doc(id+"_"+me).set({uid:me,pseudo:clean(myName()),group:id,ts:Date.now()});openGroup(id)}catch(e){st.textContent="Création impossible, réessaie."}};
+  n.append(b,st);box.appendChild(n);
+}
+function openGroup(id){
+  grpOpen=id;grpMsgs=[];if(grpSub){grpSub();grpSub=null}
+  grpSub=DB.collection("gm_"+id).onSnapshot(s=>{if(grpOpen!==id)return;grpMsgs=s.docs.map(d=>({id:d.id,...d.data()})).sort((a,b)=>a.ts-b.ts);drawGroup()},()=>{});
+  XV.team();
+}
+function closeGroup(){grpOpen=null;if(grpSub){grpSub();grpSub=null}XV.team()}
+function groupChat(box){
+  const g=groups.find(x=>x.id===grpOpen);if(!g){grpOpen=null;return XV.team()}
+  const hd=h("div","s");hd.style.padding="0 0 10px";const bk=h("button","sec","←");bk.style.cssText="width:auto;margin:0;padding:8px 14px";bk.onclick=closeGroup;
+  const mem=gmem.filter(m=>m.group===g.id);hd.appendChild(bk);const t=h("div","p");t.appendChild(h("b","",g.name));t.appendChild(h("div","m",mem.map(m=>m.pseudo).join(", ")));hd.appendChild(t);
+  const mine=mem.find(m=>m.uid===me);
+  if(mine){const q=h("button","tb","Quitter");q.onclick=async()=>{if(!confirm("Quitter le groupe ?"))return;try{await gmCol.doc(mine.id).delete()}catch(e){}closeGroup()};hd.appendChild(q)}
+  box.appendChild(hd);
+  const ml=h("div","card");ml.id="gmsgs";ml.style.cssText="min-height:240px;max-height:55vh;overflow-y:auto;display:flex;flex-direction:column;gap:6px";box.appendChild(ml);
+  const f=h("div","cf"),i=h("input");i.placeholder="Ton message…";i.maxLength=500;
+  const send=async()=>{const tx=clean(i.value.trim());if(!tx)return;const no=cantPost();if(no){alert(no);return}i.value="";
+    try{await DB.collection("gm_"+g.id).add({uid:me,pseudo:clean(myName()),text:tx,ts:Date.now()})}catch(e){alert("Message non envoyé.")}};
+  i.onkeydown=e=>{if(e.key==="Enter")send()};const b=h("button","","Envoyer");b.onclick=send;f.append(i,b);box.appendChild(f);
+  box.appendChild(h("p","note","Visible par tous les membres du groupe."));drawGroup();
+}
+function drawGroup(){
+  const ml=$("#gmsgs");if(!ml)return;ml.textContent="";
+  if(!grpMsgs.length)ml.appendChild(h("p","note","Lance la discussion 👋"));
+  grpMsgs.forEach(m=>{const mine=m.uid===me,w=h("div");w.style.cssText="max-width:80%;align-self:"+(mine?"flex-end":"flex-start");
+    if(!mine)w.appendChild(h("div","m",m.pseudo));
+    const b=h("div","",m.text);b.style.cssText="padding:8px 12px;border-radius:14px;overflow-wrap:anywhere;background:"+(mine?"var(--ac)":"var(--chip)")+";color:"+(mine?"#fff":"var(--tx)");w.appendChild(b);
+    if(isAdmin()&&!mine){const x=delX("Supprimer ce message ?",()=>DB.collection("gm_"+grpOpen).doc(m.id).delete());x.style.fontSize="12px";w.appendChild(x)}
+    ml.appendChild(w)});
+  ml.scrollTop=ml.scrollHeight;
+}
+
+// ---------- 🏅 Badges, ⭐ niveaux, ⚔️ duels ----------
+function ownF(u,name){const k=(name||"").trim().toLowerCase();return x=>u?x.uid===u:(x.pseudo||"").trim().toLowerCase()===k}
+function bestStreak(ds){const ws=[...new Set(ds.map(wk))].sort((a,b)=>a-b);let b=0,c=0,p=null;ws.forEach(w=>{c=p!==null&&w===p+1?c+1:1;b=Math.max(b,c);p=w});return b}
+function duelRes(d){const r=duelR.find(x=>x.duel===d.id&&x.uid===d.to);return r?(r.ok?"ok":"no"):"wait"}
+function duelWins(u){const ym=todayStr().slice(0,7);return duels.filter(d=>duelRes(d)==="ok"&&d.ym<ym&&(d.from===u||d.to===u)).filter(d=>{const a=monthCount(d.from,d.fromName,d.ym),b=monthCount(d.to,d.toName,d.ym);return d.from===u?a>b:b>a}).length}
+function badgeList(u,name){
+  const f=ownF(u,name),td=todayStr(),ss=rows.filter(r=>f(r)&&r.date<=td),n=ss.length,st=bestStreak(ss.map(r=>r.date));
+  const early=ss.filter(r=>r.start<"08:00").length,late=ss.filter(r=>r.start>="21:00").length;
+  const prN=prHist.filter(f).length+(prs.some(p=>f(p)&&(p.squat||p.bench||p.deadlift))?1:0),ph=photos.filter(f).length,wo=workouts.filter(f).length;
+  return[["🥉","10 séances",n>=10],["🥈","50 séances",n>=50],["🥇","100 séances",n>=100],["🌅","Lève-tôt (5 séances avant 8 h)",early>=5],["🦉","Oiseau de nuit (5 séances après 21 h)",late>=5],
+    ["🔥","Régulier (4 semaines d'affilée)",st>=4],["💎","Machine (12 semaines d'affilée)",st>=12],["🏋️","Premier PR",prN>=1],["📸","Transformation (3 photos)",ph>=3],
+    ["📝","Carnet (10 séances au journal)",wo>=10],["🏅","Défi du mois réussi",badges(u,name).length>0],["⚔️","Duel gagné",!!u&&duelWins(u)>0]].map(([i,t,ok])=>({i,t,ok}));
+}
+function xpOf(u,name){
+  const f=ownF(u,name),td=todayStr();
+  return rows.filter(r=>f(r)&&r.date<=td).length*10+workouts.filter(f).length*15+prHist.filter(f).length*20+photos.filter(f).length*5+ckLog.filter(f).length*5+badgeList(u,name).filter(b=>b.ok).length*25;
+}
+function level(xp){const l=Math.floor(Math.sqrt(xp/40))+1;return{l,from:40*(l-1)*(l-1),to:40*l*l}}
+function levelBox(u,name){
+  const xp=xpOf(u,name),L=level(xp),c=h("div");
+  c.appendChild(h("div","cm","⭐ Niveau "+L.l+" · "+xp+" XP"));
+  const bar=h("div");bar.style.cssText="height:8px;border-radius:99px;background:var(--chip);margin:6px 0 2px;overflow:hidden";
+  const fl=h("div");fl.style.cssText="height:100%;background:var(--ac);border-radius:99px;width:"+Math.round((xp-L.from)/(L.to-L.from)*100)+"%";bar.appendChild(fl);c.appendChild(bar);
+  c.appendChild(h("div","m",(L.to-xp)+" XP avant le niveau "+(L.l+1)));
+  return c;
+}
+function badgeGrid(u,name,all){
+  const g=h("div");g.style.cssText="display:flex;flex-wrap:wrap;gap:6px;margin-top:8px";
+  badgeList(u,name).filter(b=>all||b.ok).forEach(b=>{const s=h("span","b",b.i+" "+b.t);if(!b.ok)s.style.cssText="opacity:.45;filter:grayscale(1)";g.appendChild(s)});
+  return g;
+}
+XV.defis=()=>{
+  const box=$("#defis");box.textContent="";box.appendChild(backBtn());
+  if(noShared(box))return;
+  const u=auth?auth.uid:me,nm=myName();
+  const c=h("div","card");c.appendChild(h("b","","⭐ Mon niveau"));c.appendChild(levelBox(u,nm));
+  c.appendChild(h("p","m","XP : séance 10 · journal 15 · PR 20 · photo 5 · check-in 5 · badge 25"));box.appendChild(c);
+  const bc=h("div","card");const bl=badgeList(u,nm);bc.appendChild(h("b","","🏅 Mes badges ("+bl.filter(b=>b.ok).length+"/"+bl.length+")"));bc.appendChild(badgeGrid(u,nm,true));box.appendChild(bc);
+  // Duels
+  const dc=h("div","card");dc.appendChild(h("b","","⚔️ Mes duels"));
+  if(!auth)dc.appendChild(h("p","note","Connecte-toi pour défier tes amis (depuis leur profil)."));
+  const my=duels.filter(d=>auth&&(d.from===auth.uid||d.to===auth.uid)).sort((a,b)=>b.ts-a.ts);
+  if(auth&&!my.length)dc.appendChild(h("p","note","Aucun duel. Va sur le profil d'un ami et touche « ⚔️ Défier »."));
+  const ym=todayStr().slice(0,7);
+  my.forEach(d=>{const s=h("div","s"),res=duelRes(d),other=d.from===auth.uid?{u:d.to,n:d.toName}:{u:d.from,n:d.fromName};
+    const a=monthCount(d.from,d.fromName,d.ym),b=monthCount(d.to,d.toName,d.ym),mineS=d.from===auth.uid?a:b,othS=d.from===auth.uid?b:a;
+    s.appendChild(click(av(other.u,other.n),other.u,other.n));
+    const p=h("div","p");p.appendChild(h("div","","Toi vs "+other.n+" · "+new Date(d.ym+"-15").toLocaleDateString("fr-FR",{month:"long"})));
+    const info=res==="wait"?(d.to===auth.uid?"Défi reçu, en attente de ta réponse":"En attente de réponse"):res==="no"?"Défi refusé":
+      mineS+" – "+othS+" séances"+(d.ym<ym?(mineS>othS?" · 🏆 Gagné":mineS<othS?" · Perdu":" · Égalité"):" · en cours");
+    p.appendChild(h("div","m",info));s.appendChild(p);
+    if(res==="wait"&&d.to===auth.uid){const y=h("button","tb on","Accepter"),n=h("button","tb","Refuser");
+      const ans=ok=>async()=>{try{await drCol.doc(d.id).set({uid:auth.uid,duel:d.id,ok,ts:Date.now()})}catch(e){alert("Action impossible.")}};y.onclick=ans(true);n.onclick=ans(false);s.append(y,n)}
+    if(ownOrAdmin(d)&&res!=="ok")s.appendChild(delX("Annuler ce duel ?",()=>duCol.doc(d.id).delete()));
+    dc.appendChild(s)});
+  box.appendChild(dc);
+  // Classement XP
+  const xc=h("div","card");xc.appendChild(h("b","","🏆 Classement XP"));
+  const ppl={};rows.forEach(r=>{const k=r.uid||r.pseudo;if(!ppl[k])ppl[k]={u:r.uid,n:r.pseudo}});Object.keys(profiles).forEach(k=>{if(!ppl[k])ppl[k]={u:k,n:profiles[k].pseudo}});
+  Object.values(ppl).filter(o=>o.n).map(o=>({...o,xp:xpOf(o.u,o.n)})).filter(o=>o.xp>0).sort((a,b)=>b.xp-a.xp).slice(0,10).forEach((o,i)=>{
+    const r=h("div","rk");r.appendChild(h("div","medal",["🥇","🥈","🥉"][i]||String(i+1)));r.appendChild(click(h("div","p",o.n),o.u,o.n));r.appendChild(h("span","b","Niv. "+level(o.xp).l+" · "+o.xp+" XP"));xc.appendChild(r)});
+  box.appendChild(xc);
+};
+async function challenge(u,name){
+  if(!auth){setView("acct");return}const no=cantPost();if(no){alert(no);return}
+  const ym=todayStr().slice(0,7);
+  if(duels.some(d=>d.ym===ym&&((d.from===auth.uid&&d.to===u)||(d.to===auth.uid&&d.from===u))&&duelRes(d)!=="no")){alert("Vous avez déjà un duel ce mois-ci.");return}
+  if(!confirm("Défier "+name+" : qui fera le plus de séances ce mois-ci ?"))return;
+  try{await duCol.add({uid:auth.uid,from:auth.uid,fromName:clean(myName()),to:u,toName:name,ym,ts:Date.now()});alert("Défi envoyé ⚔️");setView("defis")}catch(e){alert("Défi non envoyé.")}
+}
+// ---------- 🗓️ Récap de la semaine (onglet Top) ----------
+function recapCard(){
+  const cur=wk(todayStr()),w=cur-1,inW=d=>d&&wk(d)===w;
+  const ss=rows.filter(r=>inW(r.date)),map={};
+  ss.forEach(r=>{const k=r.uid||r.pseudo.trim().toLowerCase();(map[k]=map[k]||{n:0,name:r.pseudo}).n++});
+  const top=Object.values(map).sort((a,b)=>b.n-a.n).slice(0,3);
+  const toD=t=>{const d=new Date(t);return d.getFullYear()+"-"+pad(d.getMonth()+1)+"-"+pad(d.getDate())};
+  const prW=prHist.filter(p=>inW(p.date)),phW=photos.filter(p=>inW(toD(p.ts))),woW=workouts.filter(x=>inW(x.date));
+  const mon=new Date(Date.UTC(1970,0,1)+(w*7-3)*864e5),sun=new Date(mon.getTime()+6*864e5),f=d=>d.toLocaleDateString("fr-FR",{day:"numeric",month:"short",timeZone:"UTC"});
+  const c=h("div","card");c.appendChild(h("b","","🗓️ Récap de la semaine ("+f(mon)+" – "+f(sun)+")"));
+  const lines=[ss.length+" séance"+(ss.length>1?"s":"")+" par "+Object.keys(map).length+" membre"+(Object.keys(map).length>1?"s":""),
+    prW.length+" PR battu"+(prW.length>1?"s":"")+" · "+woW.length+" séance"+(woW.length>1?"s":"")+" au journal · "+phW.length+" photo"+(phW.length>1?"s":"")];
+  lines.forEach(l=>c.appendChild(h("p","cm",l)));
+  top.forEach((o,i)=>c.appendChild(h("div","cm",["🥇","🥈","🥉"][i]+" "+o.name+" · "+o.n+" séance"+(o.n>1?"s":""))));
+  const sh=h("button","sec","📲 Partager le récap");
+  sh.onclick=()=>{const t="💪 Récap Gym Crew ("+f(mon)+" – "+f(sun)+")\n"+lines.join("\n")+"\n"+top.map((o,i)=>["🥇","🥈","🥉"][i]+" "+o.name+" ("+o.n+")").join("\n")+"\n"+location.href.split("#")[0];
+    if(navigator.share)navigator.share({text:t}).catch(()=>{});else if(navigator.clipboard)navigator.clipboard.writeText(t).then(()=>alert("Copié !")).catch(()=>{})};
+  c.appendChild(sh);return c;
+}
+
+// ---------- ⏰ Rappel avant la séance ----------
+function nextMine(){
+  const td=todayStr(),now=new Date(),nm=now.getHours()*60+now.getMinutes();
+  return rows.filter(r=>r.uid===myId()&&r.date===td&&mins(r.start)>nm&&mins(r.start)-nm<=60).sort((a,b)=>a.start.localeCompare(b.start))[0];
+}
+function reminders(){
+  const r=nextMine();if(!r)return;
+  let done=[];try{done=JSON.parse(localStorage.getItem("bf_rem")||"[]")}catch(e){}
+  if(done.includes(r.id))return;
+  try{localStorage.setItem("bf_rem",JSON.stringify(done.concat(r.id).slice(-50)))}catch(e){}
+  if("Notification" in window&&Notification.permission==="granted"){const o={body:"⏰ Ta séance commence à "+r.start+(r.club?" ("+r.club+")":""),icon:"icon-192.png",tag:"rem"+r.id};
+    if(navigator.serviceWorker&&navigator.serviceWorker.controller)navigator.serviceWorker.ready.then(x=>x.showNotification("Gym Crew",o)).catch(()=>{});else try{new Notification("Gym Crew",o)}catch(e){}}
+}
+setInterval(()=>{reminders();if(curV==="home")renderHome()},60000);
+
+// ---------- 📊 Affluence ----------
+let crowdDay=new Date().getDay();
+XV.crowd=()=>{
+  const box=$("#crowd");box.textContent="";box.appendChild(backBtn());
+  if(noShared(box))return;
+  const days=["Dim","Lun","Mar","Mer","Jeu","Ven","Sam"],tg=h("div","tabs");
+  [1,2,3,4,5,6,0].forEach(d=>{const b=h("button",crowdDay===d?"on":"",days[d]);b.style.flexBasis="12%";b.onclick=()=>{crowdDay=d;XV.crowd()};tg.appendChild(b)});
+  const c=h("div","card");c.appendChild(h("b","","📊 Affluence de la team par heure"));c.appendChild(h("p","m","D'après toutes les séances prévues et les check-ins."));c.appendChild(tg);
+  const H={};for(let i=6;i<=23;i++)H[i]=0;
+  const dow=d=>new Date(d+"T12:00:00").getDay();
+  rows.forEach(r=>{if(dow(r.date)===crowdDay){const s=Math.floor(mins(r.start)/60),e=r.end?Math.ceil(mins(r.end)/60):s+2;for(let i=s;i<Math.max(e,s+1);i++)if(H[i]!=null)H[i]++}});
+  ckLog.forEach(x=>{const d=new Date(x.ts);if(d.getDay()===crowdDay&&H[d.getHours()]!=null)H[d.getHours()]++});
+  const mx=Math.max(1,...Object.values(H)),peak=Object.keys(H).reduce((a,b)=>H[b]>H[a]?b:a,"6"),nowH=new Date().getHours(),today=new Date().getDay()===crowdDay;
+  const ch=h("div");ch.style.cssText="display:flex;align-items:flex-end;gap:2px;height:140px;margin-top:6px;border-bottom:1px solid var(--bd)";
+  Object.keys(H).forEach(k=>{const col=h("div");col.style.cssText="flex:1;display:flex;flex-direction:column;justify-content:flex-end;height:100%";
+    const bar=h("div");bar.title=k+" h : "+H[k]+" passage"+(H[k]>1?"s":"");
+    bar.style.cssText="border-radius:4px 4px 0 0;min-height:2px;height:"+Math.round(H[k]/mx*100)+"%;background:var(--ac);opacity:"+(today&&+k===nowH?1:.75)+(today&&+k===nowH?";outline:2px solid var(--tx)":"");
+    col.appendChild(bar);ch.appendChild(col)});
+  c.appendChild(ch);
+  const ax=h("div","m");ax.style.cssText="display:flex;justify-content:space-between";["6h","12h","18h","23h"].forEach(t=>ax.appendChild(h("span","",t)));c.appendChild(ax);
+  c.appendChild(h("p","cm",H[peak]?"👥 Le plus de monde : vers "+peak+" h – "+(+peak+1)+" h":"Pas encore assez de données pour ce jour."));
+  const act=checkins.filter(here).length;c.appendChild(h("p","cm","🟢 En ce moment : "+act+" membre"+(act>1?"s":"")+" à la salle"));
+  box.appendChild(c);
+};
+
+// ---------- ⚖️ Poids & mensurations ----------
+const BODY=[["weight","Poids","kg"],["waist","Tour de taille","cm"],["chest","Poitrine","cm"],["arm","Bras","cm"]];
+XV.body=()=>{
+  const box=$("#body");box.textContent="";box.appendChild(backBtn());
+  if(noShared(box))return;
+  const c=h("div","card");c.appendChild(h("b","","⚖️ Nouvelle mesure"));
+  const dt=h("input");dt.type="date";dt.value=todayStr();dt.style.marginTop="10px";c.appendChild(dt);
+  const ins={};const r1=h("div","row"),r2=h("div","row");
+  BODY.forEach(([k,l,u],i)=>{const d=h("div");d.appendChild(h("label","",l+" ("+u+")"));const x=h("input");x.type="number";x.inputMode="decimal";x.step="0.1";ins[k]=x;d.appendChild(x);(i<2?r1:r2).appendChild(d)});
+  c.append(r1,r2);
+  const st=h("p","note",SECURE?"🔒 Visible seulement par toi.":"Visible par toi dans l'app.");
+  const sv=h("button","go","Enregistrer");sv.onclick=async()=>{const no=cantPost();if(no){st.textContent=no;return}
+    const data={uid:me,date:dt.value||todayStr(),ts:Date.now()};let n=0;BODY.forEach(([k])=>{const v=num(ins[k].value);if(v>0&&v<500){data[k]=v;n++}});
+    if(!n){st.textContent="Entre au moins une mesure.";return}
+    try{await bdCol.add(data);BODY.forEach(([k])=>ins[k].value="");st.textContent="Mesure enregistrée ✅"}catch(e){st.textContent="Échec de l'envoi, réessaie."}};
+  c.append(sv,st);box.appendChild(c);
+  const mine=body.filter(b=>b.uid===me).sort((a,b)=>a.date.localeCompare(b.date)||a.ts-b.ts);
+  const g=h("div","card");g.appendChild(h("b","","📈 Mon suivi"));
+  if(!mine.length)g.appendChild(h("p","note","Aucune mesure pour l'instant."));
+  BODY.forEach(([k,l,u])=>{const pts=mine.filter(b=>b[k]).map(b=>({d:b.date,kg:b[k]}));if(pts.length)g.appendChild(sparkline(pts,l,u))});
+  box.appendChild(g);
+  if(mine.length){const hc=h("div","card");hc.appendChild(h("b","","🗂️ Historique"));
+    mine.slice().reverse().forEach(b=>{const s=h("div","s");s.appendChild(h("div","p",fmtD(b.date)+" · "+BODY.filter(([k])=>b[k]).map(([k,l,u])=>l+" "+b[k]+" "+u).join(" · ")));
+      s.appendChild(delX("Supprimer cette mesure ?",()=>bdCol.doc(b.id).delete()));hc.appendChild(s)});box.appendChild(hc)}
+};
+
+// ---------- ↔️ Photos avant / après ----------
+function compareCard(ph){
+  const ok=ph.filter(x=>typeof x.img==="string"&&x.img.startsWith("data:image/")).sort((a,b)=>a.ts-b.ts);
+  if(ok.length<2)return null;
+  const c=h("div","card");c.appendChild(h("b","","↔️ Avant / Après"));
+  const r=h("div","row");r.style.marginTop="8px";const sa=h("select"),sb=h("select");
+  const lab=x=>new Date(x.ts).toLocaleDateString("fr-FR",{day:"numeric",month:"short",year:"numeric"});
+  ok.forEach((x,i)=>{const o1=h("option","",lab(x));o1.value=i;sa.appendChild(o1);const o2=h("option","",lab(x));o2.value=i;sb.appendChild(o2)});
+  sa.value=0;sb.value=ok.length-1;const da=h("div"),db=h("div");da.appendChild(sa);db.appendChild(sb);r.append(da,db);c.appendChild(r);
+  const st=h("div");st.style.cssText="position:relative;margin-top:10px;border-radius:10px;overflow:hidden;user-select:none";
+  const after=h("img"),before=h("img");after.style.cssText="width:100%;display:block";before.style.cssText="position:absolute;inset:0;width:100%;height:100%;object-fit:cover";
+  const line=h("div");line.style.cssText="position:absolute;top:0;bottom:0;width:3px;background:#fff;box-shadow:0 0 4px rgba(0,0,0,.5);pointer-events:none";
+  const tA=h("span","b","Avant"),tB=h("span","b","Après");tA.style.cssText+=";position:absolute;top:8px;left:8px";tB.style.cssText+=";position:absolute;top:8px;right:8px";
+  st.append(after,before,line,tA,tB);c.appendChild(st);
+  const rg=h("input");rg.type="range";rg.min=0;rg.max=100;rg.value=50;rg.setAttribute("aria-label","Comparer avant et après");rg.style.marginTop="10px";c.appendChild(rg);
+  const draw=()=>{after.src=ok[sb.value].img;before.src=ok[sa.value].img;before.style.clipPath="inset(0 "+(100-rg.value)+"% 0 0)";line.style.left="calc("+rg.value+"% - 1px)"};
+  sa.onchange=sb.onchange=rg.oninput=draw;draw();
+  return c;
+}
+
+// ---------- 🎨 Thème clair / sombre ----------
+function applyTheme(){let t="auto";try{t=localStorage.getItem("bf_theme")||"auto"}catch(e){}
+  if(t==="auto")delete document.documentElement.dataset.theme;else document.documentElement.dataset.theme=t;
+  const m=document.querySelector('meta[name="theme-color"]');if(m)m.content=t==="dark"||(t==="auto"&&matchMedia("(prefers-color-scheme: dark)").matches)?"#161412":"#ff5a00";return t}
+function renderTheme(){
+  const box=$("#acctTheme");box.textContent="";const t=applyTheme();
+  const c=h("div","card");c.appendChild(h("b","","🎨 Apparence"));
+  const tg=h("div","tabs");tg.style.margin="10px 0 0";
+  [["auto","📱 Auto"],["light","☀️ Clair"],["dark","🌙 Sombre"]].forEach(([k,l])=>{const b=h("button",t===k?"on":"",l);b.onclick=()=>{try{localStorage.setItem("bf_theme",k)}catch(e){}renderTheme()};tg.appendChild(b)});
+  c.appendChild(tg);box.appendChild(c);
+}
+applyTheme();
 
 // Panel admin : visible seulement pour le compte dont l'email correspond à ADMIN_HASH (config.js)
 async function checkAdmin(){
@@ -1051,6 +1476,10 @@ $("#add").onclick=async()=>{
   banCol=db.collection("bans");banCol.onSnapshot(s=>{bans=s.docs.map(d=>({id:d.id,...d.data()}));render();badge()},()=>{});
   repCol=db.collection("reports");repCol.onSnapshot(s=>{reports=s.docs.map(d=>({id:d.id,...d.data()}));badge();if(!$("#admin").hidden)renderAdmin()},()=>{});
   ckCol=db.collection("checkins");ckCol.onSnapshot(s=>{checkins=s.docs.map(d=>({id:d.id,...d.data()}));renderHome()},()=>{});
+  const sub=(name,set,views)=>{const c=db.collection(name);c.onSnapshot(s=>{set(s.docs.map(d=>({id:d.id,...d.data()})));views.forEach(soft);renderHome();if(!$("#user").hidden)renderUser();if(!$("#notifs").hidden)renderNotifs()},()=>{});return c};
+  woCol=sub("workouts",v=>workouts=v,["journal","defis"]);pgCol=sub("programs",v=>programs=v,["programs"]);
+  lfgCol=sub("lfg",v=>lfg=v,["team"]);ljCol=sub("lfg_join",v=>lfgJ=v,["team"]);grCol=sub("groups",v=>groups=v,["team"]);gmCol=sub("gmember",v=>gmem=v,["team"]);
+  duCol=sub("duels",v=>duels=v,["defis"]);drCol=sub("duel_resp",v=>duelR=v,["defis"]);ckLogCol=sub("ck_log",v=>ckLog=v,["crowd","defis"]);bdCol=sub("body",v=>body=v,["body"]);
   histCol=db.collection("pr_history");histCol.onSnapshot(s=>{prHist=s.docs.map(d=>({id:d.id,...d.data()}));renderPR();if(!$("#user").hidden)renderUser()},()=>{});
   reCol=db.collection("reactions");reCol.onSnapshot(s=>{reacts=s.docs.map(d=>({id:d.id,...d.data()}));renderPhotos()},()=>{});
   col.onSnapshot(snap=>{rows=snap.docs.map(d=>({id:d.id,...d.data()}));render()},
