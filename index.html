@@ -31,6 +31,18 @@ main{max-width:560px;margin:0 auto;padding:16px 16px 96px}
 .hero svg{width:100px;height:100px;filter:drop-shadow(0 8px 18px rgba(255,90,0,.35))}
 .hero h1{font-size:30px;letter-spacing:.1em;margin:14px 0 6px}
 .hero p{color:var(--mut);margin:0 auto 6px;max-width:320px}
+.hhead{display:flex;align-items:center;gap:12px;padding:4px 0 16px}
+.hhead svg{width:48px;height:48px;flex:none;filter:drop-shadow(0 4px 10px rgba(255,90,0,.3))}
+.hht{flex:1;min-width:0;display:flex;flex-direction:column}.hht b{font-size:20px;letter-spacing:.08em}.hht small{color:var(--mut);font-size:13px}
+.hacc{flex:none;max-width:45%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;border:1px solid var(--bd);background:var(--card);color:var(--tx);border-radius:99px;padding:8px 14px;font-size:14px}
+.qa{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px}
+.qb{position:relative;display:flex;align-items:center;gap:8px;text-align:left;background:var(--card);border:1px solid var(--bd);border-radius:14px;padding:12px;color:var(--tx);font-size:14px;font-weight:600;min-height:56px}
+.qb i{font-style:normal;font-size:22px}.qb.on{background:var(--ac);border-color:var(--ac);color:#fff}
+.cnt{position:absolute;top:-6px;right:-6px;min-width:22px;height:22px;padding:0 6px;border-radius:99px;background:#e0245e;color:#fff;font-size:12px;font-weight:700;display:flex;align-items:center;justify-content:center}
+.ban{display:flex;align-items:center;gap:10px;background:var(--chip);border-radius:12px;padding:10px 12px;margin-bottom:14px;font-size:14px}
+.ban span{flex:1}.ban button{border:0;border-radius:8px;padding:6px 10px;background:var(--ac);color:#fff;font-weight:600}.ban .x{background:none;color:var(--mut)}
+.here{display:flex;align-items:center;gap:8px;padding:8px 10px;margin:8px 0 4px;border-radius:10px;background:var(--bg);font-size:14px}
+.stack{display:flex}.stack .av{border:2px solid var(--card);margin-left:-8px}.stack .av:first-child{margin-left:0}
 .tiles{display:grid;grid-template-columns:1fr 1fr;gap:10px}
 .tile{display:flex;flex-direction:column;align-items:flex-start;gap:3px;text-align:left;background:var(--card);border:1px solid var(--bd);border-radius:14px;padding:14px;color:var(--tx)}
 .tile span{font-size:26px}.tile small{color:var(--mut);font-size:12px}
@@ -77,16 +89,14 @@ button{font:inherit;cursor:pointer}
   <svg width="0" height="0" style="position:absolute" aria-hidden="true"><symbol id="logo" viewBox="0 0 64 64"><rect width="64" height="64" rx="16" fill="#ff5a00"/><g fill="#fff"><rect x="8" y="24" width="6" height="16" rx="2"/><rect x="15" y="19" width="7" height="26" rx="2"/><rect x="22" y="29" width="20" height="6" rx="2"/><rect x="42" y="19" width="7" height="26" rx="2"/><rect x="50" y="24" width="6" height="16" rx="2"/></g></symbol></svg>
   <header class="top" id="topbar" hidden><div class="brand" id="brand"><svg><use href="#logo"/></svg><span>GYM CREW</span></div></header>
   <div id="home">
-    <section class="hero">
+    <section class="hhead">
       <svg><use href="#logo"/></svg>
-      <h1>GYM CREW</h1>
-      <p>La team Basic-Fit : séances, PR et progression, tous ensemble.</p>
-      <button class="sec" id="homeHi" data-go="acct" style="max-width:280px;margin:10px auto 0;display:block" hidden></button>
+      <div class="hht"><b>GYM CREW</b><small>La team Basic-Fit</small></div>
+      <button class="hacc" id="homeHi" data-go="acct" hidden></button>
     </section>
     <div id="homeTop"></div>
     <div class="card" id="homeToday"></div>
-    <div id="homeMid"></div>
-    <button class="go" data-go="plan" style="margin:0 0 14px">📋 Planning · ajouter ma séance</button>
+    <button class="go" data-go="plan" style="margin:0 0 14px">📋 Ajouter ma séance au planning</button>
     <div class="tiles">
       <button class="tile" data-go="cal"><span>📅</span><b>Calendrier</b><small>Qui y va, quand</small></button>
       <button class="tile" data-go="rank"><span>🏆</span><b>Classement</b><small>Top 3 et streaks</small></button>
@@ -130,6 +140,7 @@ button{font:inherit;cursor:pointer}
   <div id="acct" hidden></div>
   <div id="user" hidden></div>
   <div id="chat" hidden></div>
+  <div id="notifs" hidden></div>
   <div id="admin" hidden></div>
   <div id="rank" hidden></div>
   <div id="pr" hidden>
@@ -245,16 +256,32 @@ try{$("#pseudo").value=localStorage.getItem("bf_pseudo")||"";$("#club").value=lo
 
 function renderHome(){
   const hi=$("#homeHi");hi.hidden=!hasFB;const pp=auth&&profiles[auth.uid];
-  hi.textContent=auth?"👋 Salut "+((pp&&pp.pseudo)||"")+" · mon profil":"👤 Se connecter / Créer un compte";
-  const ht=$("#homeTop"),hm=$("#homeMid");ht.textContent="";hm.textContent="";
-  [installCard(),notifCard()].forEach(x=>x&&ht.appendChild(x));[checkinCard()].forEach(x=>x&&hm.appendChild(x));
+  hi.textContent=auth?"👤 "+((pp&&pp.pseudo)||"Mon profil"):"Se connecter";
+  const ht=$("#homeTop");ht.textContent="";
+  const ib=installCard();if(ib)ht.appendChild(ib);
+  // Raccourcis : notifications + check-in
+  const L=notifs(),nw=L.filter(x=>x.ts>seenAt("bf_seen")).length;pushNew(L);
+  const ni=document.querySelector('#nav [data-v="home"] i');if(ni)ni.textContent=nw?"🔔":"🏠";
+  const qa=h("div","qa");
+  const nb=h("button","qb");nb.innerHTML="<i>🔔</i>";nb.appendChild(h("span","",nw?"Nouveautés":"Notifications"));
+  if(nw)nb.appendChild(h("span","cnt",String(nw>9?"9+":nw)));nb.onclick=()=>setView("notifs");qa.appendChild(nb);
+  if(!local){const u=myId(),mine=checkins.some(c=>c.uid===u&&here(c));
+    const cb=h("button","qb"+(mine?" on":""));cb.innerHTML="<i>"+(mine?"👋":"📍")+"</i>";cb.appendChild(h("span","",mine?"Je pars de la salle":"Je suis à la salle"));
+    cb.onclick=()=>toggleCheckin(mine);qa.appendChild(cb)}
+  ht.appendChild(qa);
+  // Carte « Aujourd'hui » : qui est à la salle + séances prévues
   const c=$("#homeToday");c.textContent="";
-  const tod=rows.filter(r=>r.date===todayStr()).sort((a,b)=>a.start.localeCompare(b.start));
   c.appendChild(h("b","","🔥 Aujourd'hui"));
-  if(!tod.length){c.appendChild(h("p","note","Personne n'a encore prévu de séance aujourd'hui. Lance le mouvement !"));return}
-  tod.forEach(r=>{const l=h("div","m",r.start+" · "+r.pseudo+(r.type?" ("+r.type+")":"")+(r.boost&&r.boost!=="none"?" "+(LABELS[r.boost]||""):""));l.style.fontSize="14px";l.style.marginTop="6px";c.appendChild(l)});
+  if(!local){const act=checkins.filter(here).sort((a,b)=>b.ts-a.ts),hb=h("div","here");
+    if(act.length){const st=h("span","stack");act.slice(0,5).forEach(x=>st.appendChild(click(av(x.uid,x.pseudo,26),x.uid,x.pseudo)));hb.appendChild(st);
+      hb.appendChild(h("span","","🟢 "+act.slice(0,3).map(x=>x.pseudo).join(", ")+(act.length>3?" +"+(act.length-3):"")+" "+(act.length>1?"sont":"est")+" à la salle"))}
+    else hb.appendChild(h("span","m","⚪ Personne à la salle pour l'instant"));
+    c.appendChild(hb)}
+  const tod=rows.filter(r=>r.date===todayStr()).sort((a,b)=>a.start.localeCompare(b.start));
+  if(!tod.length){c.appendChild(h("p","note","Aucune séance prévue aujourd'hui. Lance le mouvement !"));return}
+  tod.forEach(r=>{const l=h("div","m",r.start+" · "+r.pseudo+(r.type?" ("+r.type+")":"")+(r.boost&&r.boost!=="none"?" "+(LABELS[r.boost]||""):""));l.style.cssText="font-size:14px;margin-top:6px;color:var(--tx)";c.appendChild(l)});
 }
-function render(){if(!$("#user").hidden)renderUser();if(!$("#admin").hidden)renderAdmin();renderHome();renderCal();renderRank();renderList();renderPR();renderPhotos()}
+function render(){if(!$("#user").hidden)renderUser();if(!$("#notifs").hidden)renderNotifs();if(!$("#admin").hidden)renderAdmin();renderHome();renderCal();renderRank();renderList();renderPR();renderPhotos()}
 function renderList(){
   const list=$("#list");list.textContent="";
   const t=todayStr();
@@ -309,7 +336,7 @@ let calY=new Date().getFullYear(),calM=new Date().getMonth(),selD=todayStr(),ran
 function pad(n){return String(n).padStart(2,"0")}
 let curV="home",prevV="home",admin=false,adTab="reports",adQ="",bans=[],reports=[],checkins=[],prHist=[],banCol=null,repCol=null,ckCol=null,histCol=null;
 function setView(v){if(v!==curV){prevV=curV;curV=v}
-  $("#home").hidden=v!=="home";$("#topbar").hidden=v==="home";window.scrollTo(0,0);$("#form").hidden=$("#list").hidden=v!=="plan";$("#cal").hidden=v!=="cal";$("#rank").hidden=v!=="rank";$("#pr").hidden=v!=="pr";$("#photos").hidden=v!=="photos";if(v==="rank")renderRank();$("#acct").hidden=v!=="acct";$("#user").hidden=v!=="user";$("#chat").hidden=v!=="chat";$("#admin").hidden=v!=="admin";if(v==="acct")renderAcct();if(v==="admin")renderAdmin();
+  $("#home").hidden=v!=="home";$("#topbar").hidden=v==="home";window.scrollTo(0,0);$("#form").hidden=$("#list").hidden=v!=="plan";$("#cal").hidden=v!=="cal";$("#rank").hidden=v!=="rank";$("#pr").hidden=v!=="pr";$("#photos").hidden=v!=="photos";if(v==="rank")renderRank();$("#acct").hidden=v!=="acct";$("#user").hidden=v!=="user";$("#chat").hidden=v!=="chat";$("#admin").hidden=v!=="admin";$("#notifs").hidden=v!=="notifs";if(v==="notifs")renderNotifs();if(v==="acct")renderAcct();if(v==="admin")renderAdmin();
   document.querySelectorAll("#nav button").forEach(b=>b.classList.toggle("on",b.dataset.v===v));
 }
 document.querySelectorAll("#nav button").forEach(b=>b.onclick=()=>setView(b.dataset.v));
@@ -799,20 +826,22 @@ function notifs(){
   checkins.forEach(c=>{if(c.uid!==u&&fol(c.uid)&&here(c))L.push({ts:c.ts,t:"📍 "+c.pseudo+" est à la salle"+(c.club?" ("+c.club+")":""),user:c.uid})});
   return L.filter(x=>x.ts>old).sort((a,b)=>b.ts-a.ts).slice(0,30);
 }
-function notifCard(){
-  const L=notifs(),seen=seenAt("bf_seen"),nw=L.filter(x=>x.ts>seen).length,c=h("div","card");
-  const i=document.querySelector('#nav [data-v="home"] i');if(i)i.textContent=nw?"🔔":"🏠";
-  pushNew(L);
-  if(!L.length&&!myId())return null;
-  c.appendChild(h("b","","🔔 Notifications"+(nw?" ("+nw+" nouvelle"+(nw>1?"s":"")+")":"")));
-  if(!L.length)c.appendChild(h("p","note","Rien de neuf pour l'instant."));
-  L.slice(0,8).forEach(x=>{const r=h("div","m",(x.ts>seen?"🟠 ":"")+x.t);r.style.cssText="font-size:14px;margin-top:8px;cursor:pointer;color:var(--tx)"+(x.ts>seen?";font-weight:600":"");
-    r.onclick=()=>{setSeen("bf_seen",Date.now());x.user?openUser(x.user,pname(x.user)):setView(x.go)};c.appendChild(r)});
-  if(nw){const b=h("button","sec","Tout marquer comme lu");b.onclick=()=>{setSeen("bf_seen",Date.now());renderHome()};c.appendChild(b)}
+function renderNotifs(){
+  const box=$("#notifs");box.textContent="";
+  const L=notifs(),seen=seenAt("bf_seen");setSeen("bf_seen",Date.now());
+  const bk=h("button","sec","← Accueil");bk.style.cssText="width:auto;margin:0 0 12px;padding:8px 14px";bk.onclick=()=>setView("home");box.appendChild(bk);
+  const c=h("div","card");c.appendChild(h("b","","🔔 Notifications"));
+  if(!myId())c.appendChild(h("p","note","Connecte-toi pour recevoir tes notifications."));
+  else if(!L.length)c.appendChild(h("p","note","Rien de neuf pour l'instant."));
+  L.forEach(x=>{const r=h("div","s");r.style.cursor="pointer";
+    const t=h("div","p",x.t);if(x.ts>seen)t.style.fontWeight="600";r.appendChild(t);
+    r.appendChild(h("span","m",(x.ts>seen?"🟠 ":"")+new Date(x.ts).toLocaleDateString("fr-FR",{day:"numeric",month:"short"})));
+    r.onclick=()=>{x.user?openUser(x.user,pname(x.user)):setView(x.go)};c.appendChild(r)});
+  box.appendChild(c);
   if("Notification" in window&&Notification.permission==="default"){
-    const b=h("button","sec","📲 Recevoir les notifications sur ce téléphone");
-    b.onclick=async()=>{try{await Notification.requestPermission()}catch(e){}setSeen("bf_pushed",Date.now());renderHome()};c.appendChild(b)}
-  return c;
+    const b=h("button","sec","📲 Recevoir aussi les notifications sur ce téléphone");
+    b.onclick=async()=>{try{await Notification.requestPermission()}catch(e){}setSeen("bf_pushed",Date.now());renderNotifs()};box.appendChild(b)}
+  renderHome();
 }
 // Notification système quand l'app est ouverte en arrière-plan
 function pushNew(L){
@@ -828,21 +857,13 @@ function pushNew(L){
 
 // ---------- Check-in « Je suis à la salle » ----------
 function here(c){return c&&Date.now()-c.ts<3*3600e3}
-function checkinCard(){
-  if(local)return null;
-  const u=myId(),act=checkins.filter(here).sort((a,b)=>b.ts-a.ts),mine=act.find(c=>c.uid===u);
-  const c=h("div","card");c.appendChild(h("b","","🟢 À la salle maintenant"));
-  if(!act.length)c.appendChild(h("p","note","Personne n'a encore fait son check-in."));
-  act.forEach(x=>{const s=h("div","s");s.appendChild(click(av(x.uid,x.pseudo),x.uid,x.pseudo));
-    s.appendChild(click(h("div","p",x.pseudo+(x.club?" · 📍 "+x.club:"")),x.uid,x.pseudo));
-    s.appendChild(h("span","m","depuis "+new Date(x.ts).toLocaleTimeString("fr-FR",{hour:"2-digit",minute:"2-digit"})));c.appendChild(s)});
-  const b=h("button",mine?"sec":"go",mine?"👋 Je pars de la salle":"📍 Je suis à la salle");
-  b.onclick=async()=>{const no=cantPost();if(no){alert(no);return}
-    try{if(mine)await ckCol.doc(u).delete();
-      else{const ps=myName();if(ps==="Anonyme"){alert("Mets d'abord ton pseudo (onglet Planning ou Profil).");return}
-        let club="";try{club=localStorage.getItem("bf_club")||""}catch(e){}
-        await ckCol.doc(u).set({uid:u,pseudo:clean(ps),club:clean(club),ts:Date.now()})}}catch(e){alert("Check-in impossible, réessaie.")}};
-  c.appendChild(b);return c;
+async function toggleCheckin(mine){
+  const no=cantPost();if(no){alert(no);return}
+  const u=myId();
+  try{if(mine)await ckCol.doc(u).delete();
+    else{const ps=myName();if(ps==="Anonyme"){alert("Mets d'abord ton pseudo (onglet Planning ou Profil).");return}
+      let club="";try{club=localStorage.getItem("bf_club")||""}catch(e){}
+      await ckCol.doc(u).set({uid:u,pseudo:clean(ps),club:clean(club),ts:Date.now()})}}catch(e){alert("Check-in impossible, réessaie.")}
 }
 
 // ---------- Défi du mois ----------
@@ -914,10 +935,9 @@ function installCard(){
   let hide=false;try{hide=localStorage.getItem("bf_noinst")==="1"}catch(e){}
   if(sa||hide)return null;
   const ios=/iphone|ipad|ipod/i.test(navigator.userAgent);if(!instEv&&!ios)return null;
-  const c=h("div","card");c.appendChild(h("b","","📲 Installer Gym Crew sur ton téléphone"));
-  if(instEv){const b=h("button","go","Installer l'app");b.onclick=async()=>{instEv.prompt();try{await instEv.userChoice}catch(e){}instEv=null;renderHome()};c.appendChild(b)}
-  else c.appendChild(h("p","cm","Dans Safari, touche le bouton Partager ⬆️ puis « Sur l'écran d'accueil »."));
-  const x=h("button","sec","Plus tard");x.onclick=()=>{try{localStorage.setItem("bf_noinst","1")}catch(e){}renderHome()};c.appendChild(x);
+  const c=h("div","ban");c.appendChild(h("span","",instEv?"📲 Installe Gym Crew comme une app":"📲 Installe l'app : Partager ⬆️ puis « Sur l'écran d'accueil »"));
+  if(instEv){const b=h("button","","Installer");b.onclick=async()=>{instEv.prompt();try{await instEv.userChoice}catch(e){}instEv=null;renderHome()};c.appendChild(b)}
+  const x=h("button","x","✕");x.title="Masquer";x.onclick=()=>{try{localStorage.setItem("bf_noinst","1")}catch(e){}renderHome()};c.appendChild(x);
   return c;
 }
 if("serviceWorker" in navigator&&location.protocol==="https:")navigator.serviceWorker.register("sw.js").catch(()=>{});
