@@ -31,6 +31,16 @@ Les clés se trouvent dans `config.js`.
 - **📲 App installable** : Android propose « Installer l'app » ; sur iPhone, Safari → Partager → « Sur l'écran d'accueil ».
 - **Temps réel** : les changements arrivent instantanément si le temps réel Supabase est activé (fait par `supabase-securite.sql`), sinon toutes les 6 secondes.
 
+### Entraînement et team (tuiles de l'accueil)
+
+- **📝 Journal** : exercices, séries (kg × reps), volume total, historique ; **⏱️ minuteur de repos** (1:00 à 3:00) qui sonne et vibre, lancé automatiquement à chaque série ajoutée.
+- **📚 Programmes** : programmes partagés par la team (un exercice par ligne, ex. `Squat 4x8`) ; « Faire cette séance » pré-remplit le journal.
+- **🤝 Team** : fil « qui est chaud pour… » avec bouton 🙋 Je viens, et **groupes de discussion**.
+- **⚔️ Défis** : niveau et XP, 12 badges à débloquer, **duels 1 contre 1** (qui fait le plus de séances dans le mois, lancés depuis le profil d'un ami), classement XP.
+- **⚖️ Mon corps** : poids et mensurations avec courbes (visibles seulement par toi en mode sécurisé).
+- **📊 Affluence** : heures où la team va le plus à la salle, par jour de la semaine.
+- **🗓️ Récap de la semaine** (onglet Top) à partager sur WhatsApp, **🧮 calcul du 1RM** (onglet PR), **↔️ avant / après** sur les profils (2 photos ou plus), **⏰ rappel** 1 h avant ta séance, **🎨 thème** clair / sombre / auto (onglet Profil).
+
 ## Modération
 
 - **Filtre automatique** des insultes dans les pseudos, commentaires, notes, légendes et messages (la liste `BAD` est dans `index.html`).

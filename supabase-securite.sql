@@ -13,7 +13,8 @@
 --  - chacun ne peut modifier / supprimer QUE ses propres publications ;
 --  - l'admin peut tout supprimer et bannir ;
 --  - un membre banni ne peut plus rien publier ;
---  - les messages privés ne sont lisibles que par les deux personnes concernées.
+--  - les messages privés ne sont lisibles que par les deux personnes concernées ;
+--  - le poids et les mensurations ne sont lisibles que par leur propriétaire.
 --
 -- Pour tout annuler : exécute la partie « RETOUR ARRIÈRE » en bas du fichier
 -- et remets SB_SECURE=false dans config.js.
@@ -34,15 +35,16 @@ language sql stable security definer set search_path = public as $$
 $$;
 
 -- Le document appartient-il à l'utilisateur connecté ?
+-- (par défaut : le champ "uid" du document doit être celui de l'utilisateur)
 create or replace function public.gc_owner(c text, i text, d jsonb) returns boolean
 language sql stable as $$
   select public.gc_uid() <> '' and case
-    when c in ('sessions','photos','comments','prs','reactions','pr_history','reports') then d->>'uid' = public.gc_uid()
+    when c = 'bans' then false
     when c in ('profiles','checkins') then i = public.gc_uid()
     when c = 'follows' then d->>'from' = public.gc_uid()
     when c like 'dm\_%' then d->>'from' = public.gc_uid() and strpos(c, public.gc_uid()) > 0
     when c like 'inbox\_%' then c = 'inbox_' || public.gc_uid() or i = public.gc_uid()
-    else false
+    else d->>'uid' = public.gc_uid()
   end
 $$;
 
@@ -53,6 +55,7 @@ language sql stable as $$
     when c like 'dm\_%' then public.gc_uid() <> '' and strpos(c, public.gc_uid()) > 0
     when c like 'inbox\_%' then c = 'inbox_' || public.gc_uid()
     when c = 'reports' then public.gc_admin() or d->>'uid' = public.gc_uid()
+    when c = 'body' then d->>'uid' = public.gc_uid()
     else true
   end
 $$;
