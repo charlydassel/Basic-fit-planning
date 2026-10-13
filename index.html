@@ -53,7 +53,7 @@ button{font:inherit;cursor:pointer}
 .tabs button{flex:1 1 28%;padding:9px 4px;border:1px solid var(--bd);background:var(--card);color:var(--tx);border-radius:10px;font-size:14px}
 .tabs .on{background:var(--ac);color:#fff;border-color:var(--ac)}
 .grid{display:grid;grid-template-columns:repeat(7,1fr);gap:4px}
-.c{aspect-ratio:1;border:1px solid var(--bd);border-radius:8px;display:flex;flex-direction:column;align-items:center;justify-content:center;font-size:14px;background:var(--bg);padding:0;color:var(--tx)}
+.c{height:46px;min-width:0;overflow:hidden;border:1px solid var(--bd);border-radius:8px;display:flex;flex-direction:column;align-items:center;justify-content:center;font-size:14px;background:var(--bg);padding:0;color:var(--tx)}
 .c small{font-size:10px}.c.n{background:var(--chip);color:var(--ac);font-weight:700}.c.t{outline:2px solid var(--ac)}.c.sel{background:var(--ac);color:#fff}
 .dh{text-align:center;color:var(--mut);font-size:12px}
 .nav{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;text-transform:capitalize}
@@ -277,6 +277,8 @@ setView("home");
 
 function renderCal(){
   const box=$("#cal");box.textContent="";
+  const ms=calY+"-"+pad(calM+1);
+  if(selD.slice(0,7)!==ms)selD=todayStr().slice(0,7)===ms?todayStr():ms+"-01";
   const card=h("div","card"),nav=h("div","nav");
   const prev=h("button","","‹"),next=h("button","","›");
   prev.onclick=()=>{calM--;if(calM<0){calM=11;calY--}renderCal()};
