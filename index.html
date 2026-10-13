@@ -1394,7 +1394,7 @@ function renderAdmin(){
   const q=h("input");q.placeholder="Filtrer par pseudo ou texte…";q.value=adQ;
   q.oninput=()=>{adQ=q.value;const c=q.selectionStart;renderAdmin();const n=$("#admin input");n.focus();n.setSelectionRange(c,c)};
   head.appendChild(q);box.appendChild(head);
-  const tabs=[["reports","🚩 Signalements",new Set(reports.map(r=>r.target)).size],["photos","📸 Photos",photos.length],["comments","💬 Commentaires",comments.length],["sessions","📋 Séances",rows.length],["prs","🏋️ PR",prs.length],["profiles","👤 Profils",Object.keys(profiles).length]];
+  const tabs=[["reports","🚩 Signalements",new Set(reports.map(r=>r.target)).size],["photos","📸 Photos",photos.length],["comments","💬 Commentaires",comments.length],["sessions","📋 Séances",rows.length],["prs","🏋️ PR",prs.length],["programs","📚 Programmes",programs.length],["profiles","👤 Profils",Object.keys(profiles).length]];
   const tg=h("div","tabs");
   tabs.forEach(([k,l,n])=>{const b=h("button",adTab===k?"on":"",l+" ("+n+")");b.onclick=()=>{adTab=k;renderAdmin()};tg.appendChild(b)});
   box.appendChild(tg);
@@ -1426,6 +1426,12 @@ function renderAdmin(){
   if(adTab==="sessions")rows.slice().sort((a,b)=>(b.date+b.start).localeCompare(a.date+a.start)).filter(r=>hit(r.pseudo,r.note,r.club,r.type)).forEach(r=>{n++;
     line(r.uid,r.pseudo,r.pseudo+" · "+new Date(r.date+"T12:00:00").toLocaleDateString("fr-FR",{day:"numeric",month:"short"})+" "+r.start+(r.type?" · "+r.type:""),[r.club&&"📍 "+r.club,r.note&&"« "+r.note+" »"].filter(Boolean).join(" · "))
       .append(del("Supprimer la séance de "+r.pseudo+" ?",()=>col.doc(r.id).delete()),banBtn(r.uid,r.pseudo)||"")});
+  if(adTab==="programs")programs.slice().sort((a,b)=>b.ts-a.ts).filter(p=>hit(p.pseudo,p.name,...p.days.map(d=>d.name),...p.days.flatMap(d=>d.ex.map(e=>e.name)))).forEach(p=>{n++;
+    const s=line(p.uid,p.pseudo,"📚 "+p.name+" · par "+p.pseudo,p.days.map(d=>d.name+" ("+d.ex.length+" exo"+(d.ex.length>1?"s":"")+")").join(" · ")+" · "+fmt(p.ts));
+    const ds=h("details");ds.style.cssText="flex-basis:100%;font-size:13px;color:var(--mut)";ds.appendChild(h("summary","","Voir le contenu"));
+    p.days.forEach(d=>ds.appendChild(h("div","",d.name+" : "+d.ex.map(e=>e.name+" "+e.sets+"×"+e.reps).join(", "))));
+    s.appendChild(del("Supprimer le programme « "+p.name+" » de "+p.pseudo+" ?",()=>pgCol.doc(p.id).delete()));
+    const bb=banBtn(p.uid,p.pseudo);if(bb)s.appendChild(bb);s.appendChild(ds)});
   if(adTab==="prs")prs.filter(p=>hit(p.pseudo)).forEach(p=>{n++;
     line(p.uid||p.id,p.pseudo,p.pseudo,LIFTS.map(([k,nm])=>nm+" "+(p[k]?p[k]+" kg":"–")).join(" · "))
       .appendChild(del("Supprimer les PR de "+p.pseudo+" ?",()=>prCol.doc(p.id).delete()))});
@@ -1477,7 +1483,7 @@ $("#add").onclick=async()=>{
   repCol=db.collection("reports");repCol.onSnapshot(s=>{reports=s.docs.map(d=>({id:d.id,...d.data()}));badge();if(!$("#admin").hidden)renderAdmin()},()=>{});
   ckCol=db.collection("checkins");ckCol.onSnapshot(s=>{checkins=s.docs.map(d=>({id:d.id,...d.data()}));renderHome()},()=>{});
   const sub=(name,set,views)=>{const c=db.collection(name);c.onSnapshot(s=>{set(s.docs.map(d=>({id:d.id,...d.data()})));views.forEach(soft);renderHome();if(!$("#user").hidden)renderUser();if(!$("#notifs").hidden)renderNotifs()},()=>{});return c};
-  woCol=sub("workouts",v=>workouts=v,["journal","defis"]);pgCol=sub("programs",v=>programs=v,["programs"]);
+  woCol=sub("workouts",v=>workouts=v,["journal","defis"]);pgCol=sub("programs",v=>{programs=v;if(!$("#admin").hidden)renderAdmin()},["programs"]);
   lfgCol=sub("lfg",v=>lfg=v,["team"]);ljCol=sub("lfg_join",v=>lfgJ=v,["team"]);grCol=sub("groups",v=>groups=v,["team"]);gmCol=sub("gmember",v=>gmem=v,["team"]);
   duCol=sub("duels",v=>duels=v,["defis"]);drCol=sub("duel_resp",v=>duelR=v,["defis"]);ckLogCol=sub("ck_log",v=>ckLog=v,["crowd","defis"]);bdCol=sub("body",v=>body=v,["body"]);
   histCol=db.collection("pr_history");histCol.onSnapshot(s=>{prHist=s.docs.map(d=>({id:d.id,...d.data()}));renderPR();if(!$("#user").hidden)renderUser()},()=>{});
