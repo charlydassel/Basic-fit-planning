@@ -1,23 +1,57 @@
+# 💪 Gym Crew · Planning Basic-Fit
 
-# Basic-fit-planning# 💪 Planning Basic-Fit
+Site pour s'organiser à la salle entre amis : planning, agenda, classement, PR (squat / bench / deadlift) avec courbes de progression, photos de progression, messages, check-in « je suis à la salle », défi du mois et panel admin de modération.
 
-Site pour noter ses séances à la salle avec ses amis : planning, calendrier, classement (séances, streak, pré-workout), PR (squat / bench / deadlift) et photos de progression avec commentaires.
+Le site est statique (aucune installation) et s'appuie sur :
+- **Supabase** pour la base de données (table `docs`) ;
+- **Firebase Authentication** pour les comptes (email + mot de passe).
 
-Tout le site tient dans un seul fichier : `index.html` (aucune dépendance à installer).
+Les clés se trouvent dans `config.js`.
 
-## Mettre le site en ligne avec GitHub Pages
+## Fichiers
 
-1. Crée un dépôt sur GitHub et envoie-y `index.html` et `README.md`.
-2. Va dans **Settings → Pages**.
-3. Dans « Build and deployment », choisis **Deploy from a branch**, la branche `main` et le dossier `/ (root)`.
-4. Après une minute, le site est disponible sur `https://TON-PSEUDO.github.io/NOM-DU-DEPOT/`.
+| Fichier | Rôle |
+|---|---|
+| `index.html` | Tout le site |
+| `config.js` | Clés Supabase / Firebase, admin, mode sécurisé |
+| `manifest.webmanifest`, `sw.js`, `icon-*.png`, `apple-touch-icon.png` | Installation comme une app sur le téléphone |
+| `supabase-securite.sql` | Règles de sécurité de la base (à exécuter une fois dans Supabase) |
 
-## ⚠️ Données partagées
+## Mettre le site en ligne (GitHub Pages)
 
-Le partage du planning entre amis (planning, PR, photos, commentaires) repose sur la base de données de Claude (`window.claude` / `db`). Elle n'existe que dans la version hébergée par Claude.
+**Settings → Pages → Deploy from a branch**, branche `main`, dossier `/ (root)`. Le site est disponible sur `https://TON-PSEUDO.github.io/NOM-DU-DEPOT/`.
 
-Hébergé sur GitHub Pages, le site s'ouvre en **mode local** :
-- le planning fonctionne mais n'est visible que sur ton appareil et disparaît au rechargement ;
-- les onglets PR et Photos affichent « Disponible en mode partagé ».
+## Fonctionnalités
 
-Pour avoir un vrai planning partagé sur GitHub Pages, il faut brancher un service de base de données (Firebase, Supabase…) à la place de `claude.use("db")`.
+- **Planning / Agenda / Top** : séances, créneaux communs, classement du mois, streaks, team pré-workout.
+- **🎯 Défi du mois** : 12 séances dans le mois → badge 🏅 visible sur le profil.
+- **🟢 Check-in** : bouton « Je suis à la salle » sur l'accueil (s'efface tout seul après 3 h).
+- **🔔 Notifications** sur l'accueil : commentaires et 🔥 sur tes photos, nouveaux abonnés, quelqu'un qui vient au même créneau, PR battu, ami à la salle. Le téléphone peut aussi afficher une notification quand l'app est ouverte en arrière-plan (pas quand elle est complètement fermée : il faudrait un serveur d'envoi pour ça).
+- **📈 PR** : chaque nouveau record est enregistré et affiché en courbe (onglet PR et profils).
+- **📲 App installable** : Android propose « Installer l'app » ; sur iPhone, Safari → Partager → « Sur l'écran d'accueil ».
+- **Temps réel** : les changements arrivent instantanément si le temps réel Supabase est activé (fait par `supabase-securite.sql`), sinon toutes les 6 secondes.
+
+## Modération
+
+- **Filtre automatique** des insultes dans les pseudos, commentaires, notes, légendes et messages (la liste `BAD` est dans `index.html`).
+- **🚩 Signaler** : bouton sur les photos et commentaires des autres.
+- **🛡️ Panel admin** (onglet Profil, visible seulement pour l'admin) : signalements, photos, commentaires, séances, PR, profils ; suppression, retrait de photo de profil, **🚫 bannissement** (un membre banni ne peut plus rien publier).
+- L'admin est reconnu par l'empreinte SHA-256 de son email (`ADMIN_HASH` dans `config.js`), l'email n'apparaît pas en clair.
+
+## 🔒 Sécuriser la base (recommandé)
+
+Sans cette étape, la clé publique de `config.js` permet à quelqu'un de technique de modifier ou supprimer n'importe quelle donnée, et de lire les messages privés. Le panel admin ne fait que cacher les boutons.
+
+1. **Récupère l'ID du projet Firebase** : console Firebase → ⚙️ Paramètres du projet → « ID du projet ».
+2. **Branche Firebase dans Supabase** : tableau de bord Supabase → Authentication → Sign In / Providers → **Third-party Auth** → *Add provider* → **Firebase** → colle l'ID du projet → enregistre.
+3. **Exécute le script** : Supabase → **SQL Editor** → colle le contenu de `supabase-securite.sql`, remplace `TON_EMAIL_ADMIN` par ton email de connexion au site, puis *Run*.
+4. **Active le mode sécurisé** : dans `config.js`, passe `const SB_SECURE=false;` à `true` et publie.
+
+Ensuite :
+- tout le monde peut voir les publications, mais **il faut être connecté pour publier** ;
+- chacun ne peut modifier/supprimer que ce qu'il a publié ; l'admin peut tout supprimer et bannir ;
+- les messages privés ne sont lisibles que par les deux personnes concernées.
+
+**En cas de problème** : remets `SB_SECURE=false` dans `config.js` et exécute la partie « RETOUR ARRIÈRE » en bas de `supabase-securite.sql`.
+
+> Les séances publiées avant la sécurisation par des personnes **non connectées** ne pourront plus être modifiées par elles (seul l'admin pourra les supprimer).
