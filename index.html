@@ -11,7 +11,7 @@
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="Gym Crew">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
-<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='88' font-size='88'>💪</text></svg>">
+<link rel="icon" type="image/png" href="icon-192.png">
 <style>
 :root{box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);--bg:#fff7f1;--card:#fff;--tx:#1d1d1f;--mut:#6b6b70;--ac:#ff5a00;--bd:#ece3dc;--chip:#ffe9db}
 @media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#161412;--card:#221f1c;--tx:#f5f1ed;--mut:#a39d97;--bd:#363029;--chip:#3a2518}}
@@ -32,7 +32,7 @@ main{max-width:560px;margin:0 auto;padding:16px 16px 96px}
 .hero h1{font-size:30px;letter-spacing:.1em;margin:14px 0 6px}
 .hero p{color:var(--mut);margin:0 auto 6px;max-width:320px}
 .hhead{display:flex;align-items:center;gap:12px;padding:4px 0 16px}
-.hhead svg{width:48px;height:48px;flex:none;filter:drop-shadow(0 4px 10px rgba(255,90,0,.3))}
+.hhead>svg{width:48px;height:48px;flex:none;filter:drop-shadow(0 4px 10px rgba(255,90,0,.3))}
 .hht{flex:1;min-width:0;display:flex;flex-direction:column}.hht b{font-size:20px;letter-spacing:.08em}.hht small{color:var(--mut);font-size:13px}
 .hacc{flex:none;max-width:45%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;border:1px solid var(--bd);background:var(--card);color:var(--tx);border-radius:99px;padding:8px 14px;font-size:14px}
 .qa{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px}
@@ -43,6 +43,17 @@ main{max-width:560px;margin:0 auto;padding:16px 16px 96px}
 .ban span{flex:1}.ban button{border:0;border-radius:8px;padding:6px 10px;background:var(--ac);color:#fff;font-weight:600}.ban .x{background:none;color:var(--mut)}
 .here{display:flex;align-items:center;gap:8px;padding:8px 10px;margin:8px 0 4px;border-radius:10px;background:var(--bg);font-size:14px}
 .stack{display:flex}.stack .av{border:2px solid var(--card);margin-left:-8px}.stack .av:first-child{margin-left:0}
+.ic{width:1.15em;height:1.15em;vertical-align:-.2em;flex:none;display:inline-block}
+.ic+span,.ic+b{margin-left:.35em}
+.ic.gold{color:#d4a017}.ic.silver{color:#9aa3ad}.ic.bronze{color:#b87333}.ic.star{color:#f5b301;fill:#f5b301}
+.dot{display:inline-block;width:.6em;height:.6em;border-radius:50%;vertical-align:.05em;flex:none}.dot.green{background:#22a559}.dot.grey{background:var(--mut);opacity:.5}.dot.red{background:#e0245e}.dot.orange{background:var(--ac)}
+.card>b:first-child>.ic,.card b.h>.ic,.day h2 .ic{color:var(--ac)}
+.medal .ic{width:30px;height:30px}
+#nav button i .ic{width:22px;height:22px}
+#nav button i{position:relative}#nav button i.dotted::after{content:"";position:absolute;top:-1px;right:-4px;width:8px;height:8px;border-radius:50%;background:#e0245e;border:2px solid var(--card)}
+.tile span .ic{width:28px;height:28px;color:var(--ac)}
+.qb i .ic{width:24px;height:24px;color:var(--ac)}.qb.on i .ic{color:#fff}
+.go .ic,.qb.on .ic{color:inherit}
 .tiles{display:grid;grid-template-columns:1fr 1fr;gap:10px}
 .tile{display:flex;flex-direction:column;align-items:flex-start;gap:3px;text-align:left;background:var(--card);border:1px solid var(--bd);border-radius:14px;padding:14px;color:var(--tx)}
 .tile span{font-size:26px}.tile small{color:var(--mut);font-size:12px}
@@ -86,6 +97,7 @@ button{font:inherit;cursor:pointer}
 </head>
 <body>
 <main>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true"><!-- Icônes Lucide (lucide.dev, licence ISC) --><symbol fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" id="i-activity" viewBox="0 0 24 24"><path d="M22 12h-2.48a2 2 0 0 0-1.93 1.46l-2.35 8.36a.25.25 0 0 1-.48 0L9.24 2.18a.25.25 0 0 0-.48 0l-2.35 8.36A2 2 0 0 1 4.49 12H2" /></symbol><symbol fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" id="i-alarm-clock" viewBox="0 0 24 24"><circle cx="12" cy="13" r="8" /> <path d="M12 9v4l2 2" /> <path d="M5 3 2 6" /> <path d="m22 6-3-3" /> <path d="M6.38 18.7 4 21" /> <path d="M17.64 18.67 20 21" /></symbol><symbol fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" id="i-arrow-left" viewBox="0 0 24 24"><path d="m12 19-7-7 7-7" /> <path d="M19 12H5" /></symbol><symbol fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" id="i-arrow-left-right" viewBox="0 0 24 24"><path d="M8 3 4 7l4 4" /> <path d="M4 7h16" /> <path d="m16 21 4-4-4-4" /> <path d="M20 17H4" /></symbol><symbol fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" id="i-award" viewBox="0 0 24 24"><path d="m15.477 12.89 1.515 8.526a.5.5 0 0 1-.81.47l-3.58-2.687a1 1 0 0 0-1.197 0l-3.586 2.686a.5.5 0 0 1-.81-.469l1.514-8.526" /> <circle cx="12" cy="8" r="6" /></symbol><symbol fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" id="i-ban" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" /> <path d="m4.9 4.9 14.2 14.2" /></symbol><symbol fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" id="i-bell" viewBox="0 0 24 24"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9" /> <path d="M10.3 21a1.94 1.94 0 0 0 3.4 0" /></symbol><symbol fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" id="i-biceps-flexed" viewBox="0 0 24 24"><path d="M12.409 13.017A5 5 0 0 1 22 15c0 3.866-4 7-9 7-4.077 0-8.153-.82-10.371-2.462-.426-.316-.631-.832-.62-1.362C2.118 12.723 2.627 2 10 2a3 3 0 0 1 3 3 2 2 0 0 1-2 2c-1.105 0-1.64-.444-2-1" /> <path d="M15 14a5 5 0 0 0-7.584 2" /> <path d="M9.964 6.825C8.019 7.977 9.5 13 8 15" /></symbol><symbol fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" id="i-book-open" viewBox="0 0 24 24"><path d="M12 7v14" /> <path d="M3 18a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1h5a4 4 0 0 1 4 4 4 4 0 0 1 4-4h5a1 1 0 0 1 1 1v13a1 1 0 0 1-1 1h-6a3 3 0 0 0-3 3 3 3 0 0 0-3-3z" /></symbol><symbol fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" id="i-calculator" viewBox="0 0 24 24"><rect width="16" height="20" x="4" y="2" rx="2" /> <line x1="8" x2="16" y1="6" y2="6" /> <line x1="16" x2="16" y1="14" y2="18" /> <path d="M16 10h.01" /> <path d="M12 10h.01" /> <path d="M8 10h.01" /> <path d="M12 14h.01" /> <path d="M8 14h.01" /> <path d="M12 18h.01" /> <path d="M8 18h.01" /></symbol><symbol fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" id="i-calendar" viewBox="0 0 24 24"><path d="M8 2v4" /> <path d="M16 2v4" /> <rect width="18" height="18" x="3" y="4" rx="2" /> <path d="M3 10h18" /></symbol><symbol fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" id="i-calendar-days" viewBox="0 0 24 24"><path d="M8 2v4" /> <path d="M16 2v4" /> <rect width="18" height="18" x="3" y="4" rx="2" /> <path d="M3 10h18" /> <path d="M8 14h.01" /> <path d="M12 14h.01" /> <path d="M16 14h.01" /> <path d="M8 18h.01" /> <path d="M12 18h.01" /> <path d="M16 18h.01" /></symbol><symbol fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" id="i-camera" viewBox="0 0 24 24"><path d="M14.5 4h-5L7 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3l-2.5-3z" /> <circle cx="12" cy="13" r="3" /></symbol><symbol fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" id="i-chart-column" viewBox="0 0 24 24"><path d="M3 3v16a2 2 0 0 0 2 2h16" /> <path d="M18 17V9" /> <path d="M13 17V5" /> <path d="M8 17v-3" /></symbol><symbol fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" id="i-check" viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5" /></symbol><symbol fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" id="i-circle-check" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" /> <path d="m9 12 2 2 4-4" /></symbol><symbol fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" id="i-clipboard-list" viewBox="0 0 24 24"><rect width="8" height="4" x="8" y="2" rx="1" ry="1" /> <path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2" /> <path d="M12 11h4" /> <path d="M12 16h4" /> <path d="M8 11h.01" /> <path d="M8 16h.01" /></symbol><symbol fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" id="i-coffee" viewBox="0 0 24 24"><path d="M10 2v2" /> <path d="M14 2v2" /> <path d="M16 8a1 1 0 0 1 1 1v8a4 4 0 0 1-4 4H7a4 4 0 0 1-4-4V9a1 1 0 0 1 1-1h14a4 4 0 1 1 0 8h-1" /> <path d="M6 2v2" /></symbol><symbol fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" id="i-crown" viewBox="0 0 24 24"><path d="M11.562 3.266a.5.5 0 0 1 .876 0L15.39 8.87a1 1 0 0 0 1.516.294L21.183 5.5a.5.5 0 0 1 .798.519l-2.834 10.246a1 1 0 0 1-.956.734H5.81a1 1 0 0 1-.957-.734L2.02 6.02a.5.5 0 0 1 .798-.519l4.276 3.664a1 1 0 0 0 1.516-.294z" /> <path d="M5 21h14" /></symbol><symbol fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" id="i-cup-soda" viewBox="0 0 24 24"><path d="m6 8 1.75 12.28a2 2 0 0 0 2 1.72h4.54a2 2 0 0 0 2-1.72L18 8" /> <path d="M5 8h14" /> <path d="M7 15a6.47 6.47 0 0 1 5 0 6.47 6.47 0 0 0 5 0" /> <path d="m12 8 1-6h2" /></symbol><symbol fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" id="i-door-open" viewBox="0 0 24 24"><path d="M13 4h3a2 2 0 0 1 2 2v14" /> <path d="M2 20h3" /> <path d="M13 20h9" /> <path d="M10 12v.01" /> <path d="M13 4.562v16.157a1 1 0 0 1-1.242.97L5 20V5.562a2 2 0 0 1 1.515-1.94l4-1A2 2 0 0 1 13 4.561Z" /></symbol><symbol fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" id="i-dumbbell" viewBox="0 0 24 24"><path d="M14.4 14.4 9.6 9.6" /> <path d="M18.657 21.485a2 2 0 1 1-2.829-2.828l-1.767 1.768a2 2 0 1 1-2.829-2.829l6.364-6.364a2 2 0 1 1 2.829 2.829l-1.768 1.767a2 2 0 1 1 2.828 2.829z" /> <path d="m21.5 21.5-1.4-1.4" /> <path d="M3.9 3.9 2.5 2.5" /> <path d="M6.404 12.768a2 2 0 1 1-2.829-2.829l1.768-1.767a2 2 0 1 1-2.828-2.829l2.828-2.828a2 2 0 1 1 2.829 2.828l1.767-1.768a2 2 0 1 1 2.829 2.829z" /></symbol><symbol fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" id="i-flag" viewBox="0 0 24 24"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z" /> <line x1="4" x2="4" y1="22" y2="15" /></symbol><symbol fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" id="i-flame" viewBox="0 0 24 24"><path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 2.5z" /></symbol><symbol fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" id="i-folder" viewBox="0 0 24 24"><path d="M20 20a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-7.9a2 2 0 0 1-1.69-.9L9.6 3.9A2 2 0 0 0 7.93 3H4a2 2 0 0 0-2 2v13a2 2 0 0 0 2 2Z" /></symbol><symbol fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" id="i-gem" viewBox="0 0 24 24"><path d="M6 3h12l4 6-10 13L2 9Z" /> <path d="M11 3 8 9l4 13 4-13-3-6" /> <path d="M2 9h20" /></symbol><symbol fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" id="i-hand" viewBox="0 0 24 24"><path d="M18 11V6a2 2 0 0 0-2-2a2 2 0 0 0-2 2" /> <path d="M14 10V4a2 2 0 0 0-2-2a2 2 0 0 0-2 2v2" /> <path d="M10 10.5V6a2 2 0 0 0-2-2a2 2 0 0 0-2 2v8" /> <path d="M18 8a2 2 0 1 1 4 0v6a8 8 0 0 1-8 8h-2c-2.8 0-4.5-.86-5.99-2.34l-3.6-3.6a2 2 0 0 1 2.83-2.82L7 15" /></symbol><symbol fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" id="i-handshake" viewBox="0 0 24 24"><path d="m11 17 2 2a1 1 0 1 0 3-3" /> <path d="m14 14 2.5 2.5a1 1 0 1 0 3-3l-3.88-3.88a3 3 0 0 0-4.24 0l-.88.88a1 1 0 1 1-3-3l2.81-2.81a5.79 5.79 0 0 1 7.06-.87l.47.28a2 2 0 0 0 1.42.25L21 4" /> <path d="m21 3 1 11h-2" /> <path d="M3 3 2 14l6.5 6.5a1 1 0 1 0 3-3" /> <path d="M3 4h8" /></symbol><symbol fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" id="i-house" viewBox="0 0 24 24"><path d="M15 21v-8a1 1 0 0 0-1-1h-4a1 1 0 0 0-1 1v8" /> <path d="M3 10a2 2 0 0 1 .709-1.528l7-5.999a2 2 0 0 1 2.582 0l7 5.999A2 2 0 0 1 21 10v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" /></symbol><symbol fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" id="i-image" viewBox="0 0 24 24"><rect width="18" height="18" x="3" y="3" rx="2" ry="2" /> <circle cx="9" cy="9" r="2" /> <path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21" /></symbol><symbol fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" id="i-lock" viewBox="0 0 24 24"><rect width="18" height="11" x="3" y="11" rx="2" ry="2" /> <path d="M7 11V7a5 5 0 0 1 10 0v4" /></symbol><symbol fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" id="i-mail" viewBox="0 0 24 24"><rect width="20" height="16" x="2" y="4" rx="2" /> <path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7" /></symbol><symbol fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" id="i-mail-open" viewBox="0 0 24 24"><path d="M21.2 8.4c.5.38.8.97.8 1.6v10a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V10a2 2 0 0 1 .8-1.6l8-6a2 2 0 0 1 2.4 0l8 6Z" /> <path d="m22 10-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 10" /></symbol><symbol fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" id="i-map-pin" viewBox="0 0 24 24"><path d="M20 10c0 4.993-5.539 10.193-7.399 11.799a1 1 0 0 1-1.202 0C9.539 20.193 4 14.993 4 10a8 8 0 0 1 16 0" /> <circle cx="12" cy="10" r="3" /></symbol><symbol fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" id="i-medal" viewBox="0 0 24 24"><path d="M7.21 15 2.66 7.14a2 2 0 0 1 .13-2.2L4.4 2.8A2 2 0 0 1 6 2h12a2 2 0 0 1 1.6.8l1.6 2.14a2 2 0 0 1 .14 2.2L16.79 15" /> <path d="M11 12 5.12 2.2" /> <path d="m13 12 5.88-9.8" /> <path d="M8 7h8" /> <circle cx="12" cy="17" r="5" /> <path d="M12 18v-2h-.5" /></symbol><symbol fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" id="i-megaphone" viewBox="0 0 24 24"><path d="m3 11 18-5v12L3 14v-3z" /> <path d="M11.6 16.8a3 3 0 1 1-5.8-1.6" /></symbol><symbol fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" id="i-message-circle" viewBox="0 0 24 24"><path d="M7.9 20A9 9 0 1 0 4 16.1L2 22Z" /></symbol><symbol fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" id="i-moon" viewBox="0 0 24 24"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z" /></symbol><symbol fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" id="i-notebook-pen" viewBox="0 0 24 24"><path d="M13.4 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-7.4" /> <path d="M2 6h4" /> <path d="M2 10h4" /> <path d="M2 14h4" /> <path d="M2 18h4" /> <path d="M21.378 5.626a1 1 0 1 0-3.004-3.004l-5.01 5.012a2 2 0 0 0-.506.854l-.837 2.87a.5.5 0 0 0 .62.62l2.87-.837a2 2 0 0 0 .854-.506z" /></symbol><symbol fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" id="i-palette" viewBox="0 0 24 24"><circle cx="13.5" cy="6.5" r=".5" fill="currentColor" /> <circle cx="17.5" cy="10.5" r=".5" fill="currentColor" /> <circle cx="8.5" cy="7.5" r=".5" fill="currentColor" /> <circle cx="6.5" cy="12.5" r=".5" fill="currentColor" /> <path d="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10c.926 0 1.648-.746 1.648-1.688 0-.437-.18-.835-.437-1.125-.29-.289-.438-.652-.438-1.125a1.64 1.64 0 0 1 1.668-1.668h1.996c3.051 0 5.555-2.503 5.555-5.554C21.965 6.012 17.461 2 12 2z" /></symbol><symbol fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" id="i-play" viewBox="0 0 24 24"><polygon points="6 3 20 12 6 21 6 3" /></symbol><symbol fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" id="i-plus" viewBox="0 0 24 24"><path d="M5 12h14" /> <path d="M12 5v14" /></symbol><symbol fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" id="i-scale" viewBox="0 0 24 24"><path d="m16 16 3-8 3 8c-.87.65-1.92 1-3 1s-2.13-.35-3-1Z" /> <path d="m2 16 3-8 3 8c-.87.65-1.92 1-3 1s-2.13-.35-3-1Z" /> <path d="M7 21h10" /> <path d="M12 3v18" /> <path d="M3 7h2c2 0 5-1 7-2 2 1 5 2 7 2h2" /></symbol><symbol fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" id="i-share" viewBox="0 0 24 24"><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8" /> <polyline points="16 6 12 2 8 6" /> <line x1="12" x2="12" y1="2" y2="15" /></symbol><symbol fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" id="i-shield" viewBox="0 0 24 24"><path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z" /></symbol><symbol fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" id="i-smartphone" viewBox="0 0 24 24"><rect width="14" height="20" x="5" y="2" rx="2" ry="2" /> <path d="M12 18h.01" /></symbol><symbol fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" id="i-sparkles" viewBox="0 0 24 24"><path d="M9.937 15.5A2 2 0 0 0 8.5 14.063l-6.135-1.582a.5.5 0 0 1 0-.962L8.5 9.936A2 2 0 0 0 9.937 8.5l1.582-6.135a.5.5 0 0 1 .963 0L14.063 8.5A2 2 0 0 0 15.5 9.937l6.135 1.581a.5.5 0 0 1 0 .964L15.5 14.063a2 2 0 0 0-1.437 1.437l-1.582 6.135a.5.5 0 0 1-.963 0z" /> <path d="M20 3v4" /> <path d="M22 5h-4" /> <path d="M4 17v2" /> <path d="M5 18H3" /></symbol><symbol fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" id="i-square" viewBox="0 0 24 24"><rect width="18" height="18" x="3" y="3" rx="2" /></symbol><symbol fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" id="i-star" viewBox="0 0 24 24"><path d="M11.525 2.295a.53.53 0 0 1 .95 0l2.31 4.679a2.123 2.123 0 0 0 1.595 1.16l5.166.756a.53.53 0 0 1 .294.904l-3.736 3.638a2.123 2.123 0 0 0-.611 1.878l.882 5.14a.53.53 0 0 1-.771.56l-4.618-2.428a2.122 2.122 0 0 0-1.973 0L6.396 21.01a.53.53 0 0 1-.77-.56l.881-5.139a2.122 2.122 0 0 0-.611-1.879L2.16 9.795a.53.53 0 0 1 .294-.906l5.165-.755a2.122 2.122 0 0 0 1.597-1.16z" /></symbol><symbol fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" id="i-sun" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4" /> <path d="M12 2v2" /> <path d="M12 20v2" /> <path d="m4.93 4.93 1.41 1.41" /> <path d="m17.66 17.66 1.41 1.41" /> <path d="M2 12h2" /> <path d="M20 12h2" /> <path d="m6.34 17.66-1.41 1.41" /> <path d="m19.07 4.93-1.41 1.41" /></symbol><symbol fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" id="i-sunrise" viewBox="0 0 24 24"><path d="M12 2v8" /> <path d="m4.93 10.93 1.41 1.41" /> <path d="M2 18h2" /> <path d="M20 18h2" /> <path d="m19.07 10.93-1.41 1.41" /> <path d="M22 22H2" /> <path d="m8 6 4-4 4 4" /> <path d="M16 18a4 4 0 0 0-8 0" /></symbol><symbol fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" id="i-swords" viewBox="0 0 24 24"><polyline points="14.5 17.5 3 6 3 3 6 3 17.5 14.5" /> <line x1="13" x2="19" y1="19" y2="13" /> <line x1="16" x2="20" y1="16" y2="20" /> <line x1="19" x2="21" y1="21" y2="19" /> <polyline points="14.5 6.5 18 3 21 3 21 6 17.5 9.5" /> <line x1="5" x2="9" y1="14" y2="18" /> <line x1="7" x2="4" y1="17" y2="20" /> <line x1="3" x2="5" y1="19" y2="21" /></symbol><symbol fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" id="i-target" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" /> <circle cx="12" cy="12" r="6" /> <circle cx="12" cy="12" r="2" /></symbol><symbol fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" id="i-timer" viewBox="0 0 24 24"><line x1="10" x2="14" y1="2" y2="2" /> <line x1="12" x2="15" y1="14" y2="11" /> <circle cx="12" cy="14" r="8" /></symbol><symbol fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" id="i-trash-2" viewBox="0 0 24 24"><path d="M3 6h18" /> <path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6" /> <path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2" /> <line x1="10" x2="10" y1="11" y2="17" /> <line x1="14" x2="14" y1="11" y2="17" /></symbol><symbol fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" id="i-trending-up" viewBox="0 0 24 24"><polyline points="22 7 13.5 15.5 8.5 10.5 2 17" /> <polyline points="16 7 22 7 22 13" /></symbol><symbol fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" id="i-triangle-alert" viewBox="0 0 24 24"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3" /> <path d="M12 9v4" /> <path d="M12 17h.01" /></symbol><symbol fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" id="i-trophy" viewBox="0 0 24 24"><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6" /> <path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18" /> <path d="M4 22h16" /> <path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22" /> <path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22" /> <path d="M18 2H6v7a6 6 0 0 0 12 0V2Z" /></symbol><symbol fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" id="i-user" viewBox="0 0 24 24"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2" /> <circle cx="12" cy="7" r="4" /></symbol><symbol fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" id="i-users" viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" /> <circle cx="9" cy="7" r="4" /> <path d="M22 21v-2a4 4 0 0 0-3-3.87" /> <path d="M16 3.13a4 4 0 0 1 0 7.75" /></symbol><symbol fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" id="i-x" viewBox="0 0 24 24"><path d="M18 6 6 18" /> <path d="m6 6 12 12" /></symbol><symbol fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" id="i-zap" viewBox="0 0 24 24"><path d="M4 14a1 1 0 0 1-.78-1.63l9.9-10.2a.5.5 0 0 1 .86.46l-1.92 6.02A1 1 0 0 0 13 10h7a1 1 0 0 1 .78 1.63l-9.9 10.2a.5.5 0 0 1-.86-.46l1.92-6.02A1 1 0 0 0 11 14z" /></symbol></svg>
   <svg width="0" height="0" style="position:absolute" aria-hidden="true"><symbol id="logo" viewBox="0 0 64 64"><rect width="64" height="64" rx="16" fill="#ff5a00"/><g fill="#fff"><rect x="8" y="24" width="6" height="16" rx="2"/><rect x="15" y="19" width="7" height="26" rx="2"/><rect x="22" y="29" width="20" height="6" rx="2"/><rect x="42" y="19" width="7" height="26" rx="2"/><rect x="50" y="24" width="6" height="16" rx="2"/></g></symbol></svg>
   <header class="top" id="topbar" hidden><div class="brand" id="brand"><svg><use href="#logo"/></svg><span>GYM CREW</span></div></header>
   <div id="home">
@@ -98,12 +110,12 @@ button{font:inherit;cursor:pointer}
     <div class="card" id="homeToday"></div>
     <button class="go" data-go="plan" style="margin:0 0 14px">📋 Ajouter ma séance au planning</button>
     <div class="tiles">
-      <button class="tile" data-go="journal"><span>📝</span><b>Journal</b><small>Séances, séries, minuteur</small></button>
-      <button class="tile" data-go="programs"><span>📚</span><b>Programmes</b><small>Partagés par la team</small></button>
-      <button class="tile" data-go="team"><span>🤝</span><b>Team</b><small>Partenaires et groupes</small></button>
-      <button class="tile" data-go="defis"><span>⚔️</span><b>Défis</b><small>Niveaux, badges, duels</small></button>
-      <button class="tile" data-go="body"><span>⚖️</span><b>Mon corps</b><small>Poids et mensurations</small></button>
-      <button class="tile" data-go="crowd"><span>📊</span><b>Affluence</b><small>Quand il y a du monde</small></button>
+      <button class="tile" data-go="journal"><span data-ic="notebook-pen"></span><b>Journal</b><small>Séances, séries, minuteur</small></button>
+      <button class="tile" data-go="programs"><span data-ic="book-open"></span><b>Programmes</b><small>Partagés par la team</small></button>
+      <button class="tile" data-go="team"><span data-ic="handshake"></span><b>Team</b><small>Partenaires et groupes</small></button>
+      <button class="tile" data-go="defis"><span data-ic="swords"></span><b>Défis</b><small>Niveaux, badges, duels</small></button>
+      <button class="tile" data-go="body"><span data-ic="scale"></span><b>Mon corps</b><small>Poids et mensurations</small></button>
+      <button class="tile" data-go="crowd"><span data-ic="chart-column"></span><b>Affluence</b><small>Quand il y a du monde</small></button>
     </div>
   </div>
 
@@ -119,10 +131,10 @@ button{font:inherit;cursor:pointer}
     <label for="boost">Pré-workout / énergisant pour cette séance ?</label>
     <select id="boost">
       <option value="none">Non, rien</option>
-      <option value="pre">⚡ Pré-workout</option>
-      <option value="cafe">☕ Café</option>
-      <option value="energy">🥤 Boisson énergisante</option>
-      <option value="autre">✨ Autre énergisant</option>
+      <option value="pre">Pré-workout</option>
+      <option value="cafe">Café</option>
+      <option value="energy">Boisson énergisante</option>
+      <option value="autre">Autre énergisant</option>
     </select>
     <label for="rep">Répéter chaque semaine</label>
     <select id="rep"><option value="1">Une seule fois</option><option value="4">Pendant 4 semaines</option><option value="8">Pendant 8 semaines</option><option value="12">Pendant 12 semaines</option></select>
@@ -178,7 +190,7 @@ button{font:inherit;cursor:pointer}
     <div id="phList"></div>
   </div>
 </main>
-<nav id="nav"><button data-v="home" class="on"><i>🏠</i>Accueil</button><button data-v="plan"><i>📋</i>Planning</button><button data-v="cal"><i>📅</i>Agenda</button><button data-v="rank"><i>🏆</i>Top</button><button data-v="pr"><i>🏋️</i>PR</button><button data-v="photos"><i>📸</i>Photos</button><button data-v="acct"><i>👤</i>Profil</button></nav>
+<nav id="nav"><button data-v="home" class="on"><i data-ic="house"></i>Accueil</button><button data-v="plan"><i data-ic="clipboard-list"></i>Planning</button><button data-v="cal"><i data-ic="calendar"></i>Agenda</button><button data-v="rank"><i data-ic="trophy"></i>Top</button><button data-v="pr"><i data-ic="dumbbell"></i>PR</button><button data-v="photos"><i data-ic="camera"></i>Photos</button><button data-v="acct"><i data-ic="user"></i>Profil</button></nav>
 
 <script src="config.js"></script>
 <script>
@@ -258,25 +270,37 @@ function sbDb(){
 let rows=[],col=null,me=null,local=false;
 
 function todayStr(){const d=new Date();return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0")}
-function h(tag,cls,txt){const e=document.createElement(tag);if(cls)e.className=cls;if(txt!=null)e.textContent=txt;return e}
+// Icônes : les pictos écrits dans les textes sont remplacés par des icônes SVG (Lucide)
+const EMO={"✅":"circle-check","⚔️":"swords","⚔":"swords","🔥":"flame","📚":"book-open","🥇":"medal:gold","🥈":"medal:silver","🥉":"medal:bronze","💪":"biceps-flexed","🤝":"handshake","🏋️":"dumbbell","🏋":"dumbbell","📸":"camera","🚩":"flag","💬":"message-circle","🏅":"award","⚡":"zap","📲":"smartphone","⭐":"star:star","👥":"users","➕":"plus","🚫":"ban","📝":"notebook-pen","📊":"chart-column","👤":"user","📍":"map-pin","🙋":"hand","🗑️":"trash-2","🗑":"trash-2","📋":"clipboard-list","⚖️":"scale","⚖":"scale","🏆":"trophy","⏰":"alarm-clock","🔔":"bell","👋":"door-open","📈":"trending-up","⏱️":"timer","⏱":"timer","☕":"coffee","🥤":"cup-soda","✨":"sparkles","🏠":"house","🟢":"dot:green","🛡️":"shield","🛡":"shield","✉️":"mail","✉":"mail","⚠️":"triangle-alert","⚠":"triangle-alert","⏹️":"square","⏹":"square","🧮":"calculator","🗓️":"calendar-days","🗓":"calendar-days","↔️":"arrow-left-right","↔":"arrow-left-right","🎨":"palette","📅":"calendar","⚪":"dot:grey","👑":"crown","📧":"mail","📬":"mail-open","🏃":"activity","🔴":"dot:red","🟠":"dot:orange","🎯":"target","⬆️":"share","⬆":"share","📣":"megaphone","🌅":"sunrise","🦉":"moon","💎":"gem","🔒":"lock","🗂️":"folder","🗂":"folder","📱":"smartphone","☀️":"sun","☀":"sun","🌙":"moon","🖼️":"image","🖼":"image","▶️":"play","▶":"play"};
+const EMORE=new RegExp("("+Object.keys(EMO).sort((a,b)=>b.length-a.length).map(k=>k.replace(/[.*+?^${}()|[\]\\]/g,"\\$&")).join("|")+")\\uFE0F?\\s?","gu");
+function ic(name,cls){const [n,c]=name.split(":");
+  if(n==="dot"){const d=document.createElement("span");d.className="dot "+c;return d}
+  const ns="http://www.w3.org/2000/svg",sv=document.createElementNS(ns,"svg"),u=document.createElementNS(ns,"use");
+  sv.setAttribute("class","ic"+(c?" "+c:"")+(cls?" "+cls:""));sv.setAttribute("aria-hidden","true");u.setAttribute("href","#i-"+n);sv.appendChild(u);return sv}
+function rich(e,txt){txt=String(txt);EMORE.lastIndex=0;if(!EMORE.test(txt)){e.textContent=txt;return e}
+  e.textContent="";let last=0;EMORE.lastIndex=0;let m;
+  while((m=EMORE.exec(txt))){if(m.index>last)e.appendChild(document.createTextNode(txt.slice(last,m.index)));
+    const i=ic(EMO[m[1]]);e.appendChild(i);if(m[0].length>m[1].length&&/\s$/.test(m[0]))i.style.marginRight=".35em";last=m.index+m[0].length}
+  if(last<txt.length)e.appendChild(document.createTextNode(txt.slice(last)));return e}
+function h(tag,cls,txt){const e=document.createElement(tag);if(cls)e.className=cls;if(txt!=null)rich(e,txt);return e}
 
 $("#date").value=todayStr();
 try{$("#pseudo").value=localStorage.getItem("bf_pseudo")||"";$("#club").value=localStorage.getItem("bf_club")||""}catch(e){}
 
 function renderHome(){
   const hi=$("#homeHi");hi.hidden=!hasFB;const pp=auth&&profiles[auth.uid];
-  hi.textContent=auth?"👤 "+((pp&&pp.pseudo)||"Mon profil"):"Se connecter";
+  rich(hi,auth?"👤 "+((pp&&pp.pseudo)||"Mon profil"):"👤 Se connecter");
   const ht=$("#homeTop");ht.textContent="";
   const ib=installCard();if(ib)ht.appendChild(ib);
   const nx=nextMine();if(nx){const b=h("div","ban");b.appendChild(h("span","","⏰ Ta séance commence à "+nx.start+(nx.club?" · "+nx.club:"")));ht.appendChild(b)}
   // Raccourcis : notifications + check-in
   const L=notifs(),nw=L.filter(x=>x.ts>seenAt("bf_seen")).length;pushNew(L);
-  const ni=document.querySelector('#nav [data-v="home"] i');if(ni)ni.textContent=nw?"🔔":"🏠";
+  navIc("home",nw?"bell":"house",!!nw);
   const qa=h("div","qa");
-  const nb=h("button","qb");nb.innerHTML="<i>🔔</i>";nb.appendChild(h("span","",nw?"Nouveautés":"Notifications"));
+  const nb=h("button","qb");const ni2=h("i");ni2.appendChild(ic("bell"));nb.appendChild(ni2);nb.appendChild(h("span","",nw?"Nouveautés":"Notifications"));
   if(nw)nb.appendChild(h("span","cnt",String(nw>9?"9+":nw)));nb.onclick=()=>setView("notifs");qa.appendChild(nb);
   if(!local){const u=myId(),mine=checkins.some(c=>c.uid===u&&here(c));
-    const cb=h("button","qb"+(mine?" on":""));cb.innerHTML="<i>"+(mine?"👋":"📍")+"</i>";cb.appendChild(h("span","",mine?"Je pars de la salle":"Je suis à la salle"));
+    const cb=h("button","qb"+(mine?" on":""));const ci2=h("i");ci2.appendChild(ic(mine?"door-open":"map-pin"));cb.appendChild(ci2);cb.appendChild(h("span","",mine?"Je pars de la salle":"Je suis à la salle"));
     cb.onclick=()=>toggleCheckin(mine);qa.appendChild(cb)}
   ht.appendChild(qa);
   // Carte « Aujourd'hui » : qui est à la salle + séances prévues
@@ -354,6 +378,11 @@ function setView(v){if(v!==curV){prevV=curV;curV=v}
 document.querySelectorAll("#nav button").forEach(b=>b.onclick=()=>setView(b.dataset.v));
 document.querySelectorAll("[data-go]").forEach(b=>b.onclick=()=>setView(b.dataset.go));
 $("#brand").onclick=()=>setView("home");
+function navIc(v,name,dot){const i=document.querySelector('#nav [data-v="'+v+'"] i');if(!i)return;i.textContent="";i.appendChild(ic(name));i.classList.toggle("dotted",!!dot)}
+document.querySelectorAll("[data-ic]").forEach(el=>{el.textContent="";el.appendChild(ic(el.dataset.ic))});
+(function(){const w=document.createTreeWalker(document.querySelector("main"),NodeFilter.SHOW_TEXT),L=[];let n;
+  while((n=w.nextNode())){EMORE.lastIndex=0;if(n.parentNode.closest("option,script,style")||!EMORE.test(n.nodeValue))continue;L.push(n)}
+  L.forEach(t=>{const sp=rich(document.createElement("span"),t.nodeValue);t.parentNode.replaceChild(sp,t)})})();
 setView("home");
 
 function renderCal(){
@@ -462,7 +491,7 @@ $("#prSave").onclick=async()=>{
   keep(pseudo);
   try{await prCol.doc(id).set(data);
     for(const[k]of LIFTS)if(data[k]&&data[k]!==old[k])await histCol.add({uid:me,pseudo:data.pseudo,lift:k,kg:data[k],date:todayStr(),ts:Date.now()});
-    st.textContent="PR enregistrés 💪";["#prSquat","#prBench","#prDead"].forEach(s=>$(s).value="")}
+    st.textContent="PR enregistrés";["#prSquat","#prBench","#prDead"].forEach(s=>$(s).value="")}
   catch(e){st.textContent="Échec de l'envoi, réessaie."}
 };
 
@@ -514,7 +543,7 @@ $("#phAdd").onclick=async()=>{
   try{
     const img=await shrink(f);
     await phCol.add({pseudo:clean(pseudo),img,note:clean($("#phNote").value.trim()),uid:me,ts:Date.now()});
-    $("#phFile").value="";$("#phNote").value="";st.textContent="Photo publiée ✅";
+    $("#phFile").value="";$("#phNote").value="";st.textContent="Photo publiée";
   }catch(e){st.textContent="Impossible d'envoyer cette photo (format ou connexion)."}
 };
 
@@ -613,7 +642,7 @@ function renderAcct(){
     sv.onclick=async()=>{
       const v=clean(ps.value.trim());if(!v){st.textContent="Mets un pseudo.";return}
       try{let photo=pr.photo||"";if(fl.files[0])photo=await avatarShrink(fl.files[0]);
-        await profCol.doc(auth.uid).set({uid:auth.uid,pseudo:v,photo});applyProfile(v);st.textContent="Profil enregistré ✅"}
+        await profCol.doc(auth.uid).set({uid:auth.uid,pseudo:v,photo});applyProfile(v);st.textContent="Profil enregistré"}
       catch(e){st.textContent="Impossible d'enregistrer le profil."}
     };
     if(isAdmin()){const ad=h("button","go","🛡️ Panel admin");ad.onclick=()=>setView("admin");card.appendChild(ad)}
@@ -650,7 +679,7 @@ function renderAcct(){
   const fg=h("button","sec","Mot de passe oublié ?");card.appendChild(fg);
   fg.onclick=async()=>{
     const email=em.value.trim();if(!email){st.textContent="Écris ton email d'abord.";return}
-    try{await fb("sendOobCode",{requestType:"PASSWORD_RESET",email});st.textContent="Email de réinitialisation envoyé 📧"}catch(e){st.textContent=fbMsg(e)}
+    try{await fb("sendOobCode",{requestType:"PASSWORD_RESET",email});st.textContent="Email de réinitialisation envoyé"}catch(e){st.textContent=fbMsg(e)}
   };
   card.appendChild(st);
 }
@@ -661,7 +690,7 @@ function click(el,u,name){el.style.cursor="pointer";el.classList.add("ck");
     const d=matchMedia("(prefers-reduced-motion:reduce)").matches?0:320;setTimeout(()=>{on.forEach(x=>x.classList.remove("tap"));openUser(u,name)},d)};
   return el}
 function fol(u){return !!(auth&&u&&follows.some(f=>f.from===auth.uid&&f.to===u))}
-function badge(){const n=inbox.filter(x=>x.unread).length,i=document.querySelector('#nav [data-v="acct"] i');if(i)i.textContent=n?"📬":isAdmin()&&reports.length?"🚩":"👤"}
+function badge(){const n=inbox.filter(x=>x.unread).length,r=isAdmin()&&reports.length;navIc("acct",n?"mail":r?"flag":"user",!!(n||r))}
 function subInbox(){
   if(inboxSub){inboxSub();inboxSub=null}
   inbox=[];badge();
@@ -813,7 +842,7 @@ async function report(type,it){
   const why=prompt("Pourquoi signales-tu ce contenu ? (optionnel)","");if(why===null)return;
   try{await repCol.add({uid:me,by:myName(),type,target:it.id,author:it.pseudo||"",authorUid:it.uid||"",text:(type==="photo"?it.note:it.text)||"",why:clean(why).slice(0,120),ts:Date.now()});
     try{localStorage.setItem("bf_rep",JSON.stringify(repDone().concat(it.id).slice(-200)))}catch(e){}
-    alert("Merci, l'admin va regarder ✅");renderPhotos()}
+    alert("Merci, l'admin va regarder");renderPhotos()}
   catch(e){alert("Signalement non envoyé, réessaie.")}
 }
 function banBtn(u,name){
@@ -1006,7 +1035,7 @@ XV.journal=()=>{
     if(!ex.length){st.textContent="Ajoute au moins un exercice avec une série.";return}
     const ps=myName();
     try{await woCol.add({uid:me,pseudo:clean(ps==="Anonyme"?"Membre":ps),date:todayStr(),title:clean(jd.title.trim()),ex,vol:volume(ex),ts:Date.now()});
-      jd={title:"",ex:[]};jdSave();XV.journal();$("#jStatus").textContent="Séance enregistrée 💪"}catch(e){st.textContent="Échec de l'envoi, réessaie."}};
+      jd={title:"",ex:[]};jdSave();XV.journal();$("#jStatus").textContent="Séance enregistrée"}catch(e){st.textContent="Échec de l'envoi, réessaie."}};
   c.appendChild(sv);c.appendChild(st);box.appendChild(c);
   const done=h("p","note","");done.id="jStatus";box.appendChild(done);
   box.appendChild(timerCard());
@@ -1030,15 +1059,15 @@ function tickRest(){
   if(el)el.textContent=rest.end?mmss(left):mmss(rest.dur);
   if(rest.end&&left<=0){clearInterval(rest.t);rest.end=0;beep();try{navigator.vibrate&&navigator.vibrate([300,120,300])}catch(e){}
     if(document.hidden&&"Notification" in window&&Notification.permission==="granted")try{new Notification("Gym Crew",{body:"⏱️ Repos terminé, à toi !",icon:"icon-192.png"})}catch(e){}
-    const b=$("#restB");if(b)b.textContent="▶️ Lancer";if(el)el.textContent="GO 💪"}
+    const b=$("#restB");if(b)rich(b,"▶️ Lancer");if(el)el.textContent="GO"}
 }
-function startRest(d){if(d)rest.dur=d;try{localStorage.setItem("bf_rest",rest.dur)}catch(e){}clearInterval(rest.t);rest.end=Date.now()+rest.dur*1000;rest.t=setInterval(tickRest,250);tickRest();const b=$("#restB");if(b)b.textContent="⏹️ Stop"}
+function startRest(d){if(d)rest.dur=d;try{localStorage.setItem("bf_rest",rest.dur)}catch(e){}clearInterval(rest.t);rest.end=Date.now()+rest.dur*1000;rest.t=setInterval(tickRest,250);tickRest();const b=$("#restB");if(b)rich(b,"⏹️ Stop")}
 function timerCard(){
   const c=h("div","card");c.appendChild(h("b","","⏱️ Minuteur de repos"));
   const t=h("div","",mmss(rest.dur));t.id="restT";t.style.cssText="font-size:44px;font-weight:800;text-align:center;font-variant-numeric:tabular-nums;margin:6px 0";c.appendChild(t);
   const tg=h("div","tabs");[60,90,120,180].forEach(d=>{const b=h("button",rest.dur===d?"on":"",mmss(d));b.onclick=()=>{startRest(d);XV.journal()};tg.appendChild(b)});c.appendChild(tg);
   const b=h("button","go",rest.end?"⏹️ Stop":"▶️ Lancer");b.id="restB";b.style.marginTop="0";
-  b.onclick=()=>{if(rest.end){clearInterval(rest.t);rest.end=0;b.textContent="▶️ Lancer";tickRest()}else startRest()};c.appendChild(b);
+  b.onclick=()=>{if(rest.end){clearInterval(rest.t);rest.end=0;rich(b,"▶️ Lancer");tickRest()}else startRest()};c.appendChild(b);
   c.appendChild(h("p","m","Se lance aussi tout seul quand tu ajoutes une série. Sonne et vibre à la fin."));
   if(rest.end)setTimeout(tickRest,0);
   return c;
@@ -1079,7 +1108,7 @@ XV.programs=()=>{
     const name=clean(nm.value.trim());if(!name){st.textContent="Donne un nom au programme.";return}
     const ds=[...days.children].map((d,i)=>({name:clean(d.querySelector(".dn").value.trim()||"Jour "+(i+1)),ex:d.querySelector(".dt").value.split("\n").map(l=>l.trim()).filter(Boolean).map(parseLine).map(e=>({...e,name:clean(e.name)})).slice(0,20)})).filter(d=>d.ex.length);
     if(!ds.length){st.textContent="Ajoute au moins un exercice.";return}
-    try{await pgCol.add({uid:me,pseudo:clean(myName()),name,days:ds,ts:Date.now()});st.textContent="Programme partagé ✅";XV.programs()}catch(e){st.textContent="Échec de l'envoi, réessaie."}};
+    try{await pgCol.add({uid:me,pseudo:clean(myName()),name,days:ds,ts:Date.now()});st.textContent="Programme partagé";XV.programs()}catch(e){st.textContent="Échec de l'envoi, réessaie."}};
   c.appendChild(sv);c.appendChild(st);box.appendChild(c);
 };
 
@@ -1114,7 +1143,7 @@ XV.team=()=>{
   const st=h("p","note","");
   const go=h("button","go","Publier");go.onclick=async()=>{const no=cantPost();if(no){st.textContent=no;return}
     const t=clean(tx.value.trim());if(!t||!dt.value){st.textContent="Écris ton message.";return}
-    try{await lfgCol.add({uid:me,pseudo:clean(myName()),text:t,date:dt.value,time:tm.value||"",ts:Date.now()});tx.value="";st.textContent="Publié ✅"}catch(e){st.textContent="Échec de l'envoi, réessaie."}};
+    try{await lfgCol.add({uid:me,pseudo:clean(myName()),text:t,date:dt.value,time:tm.value||"",ts:Date.now()});tx.value="";st.textContent="Publié"}catch(e){st.textContent="Échec de l'envoi, réessaie."}};
   f.append(go,st);box.appendChild(f);
   const td=todayStr(),list=lfg.filter(x=>x.date>=td).sort((a,b)=>(a.date+a.time).localeCompare(b.date+b.time));
   const c=h("div","card");c.appendChild(h("b","","📣 Propositions"));
@@ -1246,7 +1275,7 @@ async function challenge(u,name){
   const ym=todayStr().slice(0,7);
   if(duels.some(d=>d.ym===ym&&((d.from===auth.uid&&d.to===u)||(d.to===auth.uid&&d.from===u))&&duelRes(d)!=="no")){alert("Vous avez déjà un duel ce mois-ci.");return}
   if(!confirm("Défier "+name+" : qui fera le plus de séances ce mois-ci ?"))return;
-  try{await duCol.add({uid:auth.uid,from:auth.uid,fromName:clean(myName()),to:u,toName:name,ym,ts:Date.now()});alert("Défi envoyé ⚔️");setView("defis")}catch(e){alert("Défi non envoyé.")}
+  try{await duCol.add({uid:auth.uid,from:auth.uid,fromName:clean(myName()),to:u,toName:name,ym,ts:Date.now()});alert("Défi envoyé");setView("defis")}catch(e){alert("Défi non envoyé.")}
 }
 // ---------- 🗓️ Récap de la semaine (onglet Top) ----------
 function recapCard(){
@@ -1322,7 +1351,7 @@ XV.body=()=>{
   const sv=h("button","go","Enregistrer");sv.onclick=async()=>{const no=cantPost();if(no){st.textContent=no;return}
     const data={uid:me,date:dt.value||todayStr(),ts:Date.now()};let n=0;BODY.forEach(([k])=>{const v=num(ins[k].value);if(v>0&&v<500){data[k]=v;n++}});
     if(!n){st.textContent="Entre au moins une mesure.";return}
-    try{await bdCol.add(data);BODY.forEach(([k])=>ins[k].value="");st.textContent="Mesure enregistrée ✅"}catch(e){st.textContent="Échec de l'envoi, réessaie."}};
+    try{await bdCol.add(data);BODY.forEach(([k])=>ins[k].value="");st.textContent="Mesure enregistrée"}catch(e){st.textContent="Échec de l'envoi, réessaie."}};
   c.append(sv,st);box.appendChild(c);
   const mine=body.filter(b=>b.uid===me).sort((a,b)=>a.date.localeCompare(b.date)||a.ts-b.ts);
   const g=h("div","card");g.appendChild(h("b","","📈 Mon suivi"));
@@ -1457,7 +1486,7 @@ $("#add").onclick=async()=>{
   const data={pseudo:clean(pseudo),date,start,end:$("#end").value||"",boost:$("#boost").value,type:$("#type").value,club:clean($("#club").value.trim()),note:clean($("#note").value.trim()),spot:$("#spot").checked,uid:me,ts:Date.now()};
   if(local){rows.push({id:"l"+Date.now(),...data});render();return}
   const n=+$("#rep").value||1;
-  try{for(let i=0;i<n;i++){const d=new Date(date+"T12:00:00");d.setDate(d.getDate()+7*i);await col.add({...data,date:d.getFullYear()+"-"+pad(d.getMonth()+1)+"-"+pad(d.getDate())})}$("#status").textContent=n>1?"Ajouté pour "+n+" semaines ✅":"Ajouté ✅"}
+  try{for(let i=0;i<n;i++){const d=new Date(date+"T12:00:00");d.setDate(d.getDate()+7*i);await col.add({...data,date:d.getFullYear()+"-"+pad(d.getMonth()+1)+"-"+pad(d.getDate())})}$("#status").textContent=n>1?"Ajouté pour "+n+" semaines":"Ajouté"}
   catch(e){$("#status").textContent="Échec de l'envoi, réessaie."}
 };
 
