@@ -1424,7 +1424,8 @@ applyTheme();
 // Demande : friend_req (id = de_à, appartient à l'expéditeur). Réponse : friend_ok (même id, appartient au destinataire, ok:true/false).
 function frId(a,b){return a+"_"+b}
 // Réponse valable seulement si elle est plus récente que la demande (on peut redemander après un refus)
-function frAns(r){return fok.find(o=>o.id===r.id&&o.uid===r.to&&o.ts>=r.ts)}
+function frAns(r){return fok.find(o=>o.id===r.id&&o.uid===r.to&&(o.reqTs!=null?o.reqTs===r.ts:o.ts>=r.ts))}
+function frReq(u){return freq.find(r=>r.id===frId(u,auth.uid))}
 function frState(u){
   if(!auth||!u||u===auth.uid)return "self";
   const me1=auth.uid,out=freq.find(r=>r.id===frId(me1,u)),inc=freq.find(r=>r.id===frId(u,me1));
@@ -1437,19 +1438,22 @@ function frState(u){
 function friendIds(u){u=u||(auth&&auth.uid);if(!u)return[];const L=new Set();
   freq.forEach(r=>{const o=frAns(r);if(!o||!o.ok)return;if(r.from===u)L.add(r.to);if(r.to===u)L.add(r.from)});return[...L]}
 function isFriend(u){return friendIds().includes(u)}
+function frErr(e){const c=String(e&&e.message);return c==="401"||c==="403"?"La base a refusé l'action (droits Supabase). Vérifie que le dernier script de sécurité a bien été exécuté dans Supabase.":"Action impossible, réessaie."}
+function frRefresh(){const a=document.activeElement;if(a&&a.blur)a.blur();if(!$("#friends").hidden)XV.friends();if(!$("#user").hidden)renderUser();frBadge()}
 async function frAction(u,name){
   if(!auth){setView("acct");return}const no=cantPost();if(no){alert(no);return}
   const me1=auth.uid,st=frState(u),mn=clean(myName());
   try{
     if(st==="none"){await frCol.doc(frId(me1,u)).set({uid:me1,from:me1,to:u,fromName:mn,toName:name||"",ts:Date.now()})}
     else if(st==="sent"){await frCol.doc(frId(me1,u)).delete()}
-    else if(st==="incoming"){await foCol.doc(frId(u,me1)).set({uid:me1,ok:true,ts:Date.now()})}
+    else if(st==="incoming"){await foCol.doc(frId(u,me1)).set({uid:me1,ok:true,reqTs:frReq(u).ts,ts:Date.now()})}
     else if(st==="friend"){if(!confirm("Retirer "+name+" de tes amis ?"))return;
       if(freq.some(r=>r.id===frId(me1,u)))await frCol.doc(frId(me1,u)).delete();
-      if(freq.some(r=>r.id===frId(u,me1)))await foCol.doc(frId(u,me1)).set({uid:me1,ok:false,ts:Date.now()})}
-  }catch(e){alert("Action impossible, réessaie.")}
+      if(frReq(u))await foCol.doc(frId(u,me1)).set({uid:me1,ok:false,reqTs:frReq(u).ts,ts:Date.now()})}
+  }catch(e){alert(frErr(e))}
+  frRefresh();
 }
-async function frDecline(u){try{await foCol.doc(frId(u,auth.uid)).set({uid:auth.uid,ok:false,ts:Date.now()})}catch(e){alert("Action impossible.")}}
+async function frDecline(u){try{await foCol.doc(frId(u,auth.uid)).set({uid:auth.uid,ok:false,reqTs:frReq(u).ts,ts:Date.now()})}catch(e){alert(frErr(e))}frRefresh()}
 function frBtn(u,name,big){
   const st=frState(u);if(st==="self")return null;
   const L={none:["user-plus","Ajouter",true],sent:["clock","Demande envoyée",false],incoming:["user-check","Accepter",true],friend:["user-check","Ami",false]}[st];
