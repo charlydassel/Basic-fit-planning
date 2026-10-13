@@ -226,57 +226,94 @@ function token(){
 }
 function sbDb(){
   const H={apikey:SB_KEY,"Content-Type":"application/json"};if(SB_KEY.startsWith("eyJ"))H.Authorization="Bearer "+SB_KEY;
-  const enc=encodeURIComponent,cache={},subs={};
+  const enc=encodeURIComponent,cache={},subs={},sent={};
   const call=async(qs,method,body,extra)=>{
     const hd={...H,...extra};if(SECURE){const t=await token();if(t)hd.Authorization="Bearer "+t}
     const r=await fetch(SB_URL+"/rest/v1/docs"+qs,{method,headers:hd,body:body?JSON.stringify(body):undefined});
     if(!r.ok)throw new Error(r.status);
     const t=await r.text();return t?JSON.parse(t):null;
   };
+  // Cache local (IndexedDB) : en rouvrant l'app, seuls les documents modifiés sont retéléchargés (photos comprises).
+  // Les données privées (messages, mensurations, signalements) ne sont jamais gardées sur l'appareil.
+  const PRIV=c=>/^(dm_|inbox_|gm_)/.test(c)||c==="body"||c==="reports";
+  let idb=null;
+  const idbP=new Promise(ok=>{try{const r=indexedDB.open("gymcrew",1);r.onupgradeneeded=()=>r.result.createObjectStore("c");r.onsuccess=()=>{idb=r.result;ok()};r.onerror=()=>ok()}catch(e){ok()}});
+  const load=c=>idbP.then(()=>new Promise(ok=>{if(!idb||PRIV(c))return ok(null);try{const q=idb.transaction("c").objectStore("c").get(c);q.onsuccess=()=>ok(q.result||null);q.onerror=()=>ok(null)}catch(e){ok(null)}}));
+  const saveT={};
+  const save=c=>{if(PRIV(c))return;clearTimeout(saveT[c]);saveT[c]=setTimeout(()=>{try{idb&&idb.transaction("c","readwrite").objectStore("c").put(cache[c]||{},c)}catch(e){}},1500)};
   const notify=c=>{
     const m=cache[c]||{},docs=Object.keys(m).map(id=>({id,data:()=>m[id].data}));
-    (subs[c]||[]).forEach(s=>{s.sent=true;s.next({docs})});
+    sent[c]=true;(subs[c]||[]).forEach(s=>s.next({docs}));save(c);
   };
-  const pull=async c=>{
-    const base="?collection=eq."+enc(c),m=cache[c]=cache[c]||{};
-    const meta=await call(base+"&select=id,updated_at","GET");
-    const live=new Set(meta.map(r=>r.id));let changed=false;
-    Object.keys(m).forEach(id=>{if(!live.has(id)){delete m[id];changed=true}});
-    const need=meta.filter(r=>!m[r.id]||m[r.id].u!==r.updated_at).map(r=>r.id);
-    for(let i=0;i<need.length;i+=40){
-      const part=need.slice(i,i+40).map(x=>'"'+x+'"').join(",");
-      const rows=await call(base+"&id=in.("+part+")&select=id,data,updated_at","GET");
-      rows.forEach(r=>{m[r.id]={u:r.updated_at,data:r.data}});changed=true;
+  const fetchDocs=async(c,ids)=>{
+    const m=cache[c]=cache[c]||{};
+    for(let i=0;i<ids.length;i+=40){
+      const part=ids.slice(i,i+40).map(x=>'"'+x+'"').join(",");
+      const rows=await call("?collection=eq."+enc(c)+"&id=in.("+enc(part)+")&select=id,data,updated_at","GET");
+      rows.forEach(r=>{m[r.id]={u:r.updated_at,data:r.data}});
     }
-    if(changed||(subs[c]||[]).some(s=>!s.sent))notify(c);
   };
-  // Temps réel Supabase : un changement déclenche une mise à jour immédiate ; le sondage ralentit dès que le temps réel a prouvé qu'il marche
+  // Synchronisation groupée : UNE requête pour toutes les collections suivies (identifiants + dates seulement),
+  // puis téléchargement des seuls documents nouveaux ou modifiés.
+  let lastFull=0,running=null,pending=new Set();
+  const live=()=>Object.keys(subs).filter(c=>subs[c].length);
+  const sync=async(only)=>{
+    const cs=only||live();if(!cs.length)return;
+    const meta=await call("?select=collection,id,updated_at&collection=in.("+enc(cs.map(x=>'"'+x+'"').join(","))+")","GET");
+    const by={};cs.forEach(c=>by[c]=[]);meta.forEach(r=>{(by[r.collection]=by[r.collection]||[]).push(r)});
+    for(const c of cs){
+      const m=cache[c]=cache[c]||{},ids=new Set(by[c].map(r=>r.id));let ch=false;
+      Object.keys(m).forEach(id=>{if(!ids.has(id)){delete m[id];ch=true}});
+      const need=by[c].filter(r=>!m[r.id]||(m[r.id].u!==r.updated_at&&Date.parse(m[r.id].u)!==Date.parse(r.updated_at))).map(r=>r.id);
+      if(need.length){await fetchDocs(c,need);ch=true}
+      if(ch||!sent[c])notify(c);
+    }
+    if(!only)lastFull=Date.now();
+  };
+  const fail=cs=>cs.forEach(c=>(subs[c]||[]).forEach(s=>s.err&&s.err()));
+  const fullSync=()=>{if(running)return running;const cs=live();running=sync().catch(()=>fail(cs)).finally(()=>{running=null});return running};
+  // Nouvelles collections suivies : regroupées en une seule requête
+  const flush=()=>{const cs=[...pending].filter(c=>subs[c]&&subs[c].length);pending.clear();if(cs.length)sync(cs).catch(()=>fail(cs))};
+  let flushT=null;
+  // Temps réel Supabase : les changements arrivent avec leur contenu, sans requête supplémentaire
   let rtOK=false,n=0;
   const rt=()=>{try{
-    const ws=new WebSocket(SB_URL.replace(/^http/,"ws")+"/realtime/v1/websocket?apikey="+enc(SB_KEY)+"&vsn=1.0.0");let hb=null;
+    const ws=new WebSocket(SB_URL.replace(/^http/,"ws")+"/realtime/v1/websocket?apikey="+enc(SB_KEY)+"&vsn=1.0.0");let hb=null,joinRef=null;
     ws.onopen=async()=>{const pl={config:{postgres_changes:[{event:"*",schema:"public",table:"docs"}]}};if(SECURE){const t=await token();if(t)pl.access_token=t}
-      ws.send(JSON.stringify({topic:"realtime:gymcrew",event:"phx_join",payload:pl,ref:String(++n)}));
+      joinRef=String(++n);ws.send(JSON.stringify({topic:"realtime:gymcrew",event:"phx_join",payload:pl,ref:joinRef}));
       hb=setInterval(()=>ws.send(JSON.stringify({topic:"phoenix",event:"heartbeat",payload:{},ref:String(++n)})),25000)};
-    ws.onmessage=e=>{try{const m=JSON.parse(e.data);if(m.event!=="postgres_changes")return;
-      const d=m.payload&&m.payload.data,c=d&&((d.record&&d.record.collection)||(d.old_record&&d.old_record.collection));
-      rtOK=true;if(c&&subs[c]&&subs[c].length)pull(c).catch(()=>{})}catch(x){}};
-    ws.onclose=()=>{clearInterval(hb);rtOK=false;setTimeout(rt,15000)};
+    ws.onmessage=e=>{try{const m=JSON.parse(e.data);
+      if(m.event==="phx_reply"&&m.ref===joinRef){rtOK=m.payload&&m.payload.status==="ok";return}
+      if(m.event!=="postgres_changes")return;
+      rtOK=true;const d=m.payload&&m.payload.data;if(!d)return;
+      const rec=d.record&&d.record.collection?d.record:null,old=d.old_record||{},c=(rec&&rec.collection)||old.collection;
+      if(!c||!cache[c])return;
+      if(d.type==="DELETE"){if(old.id&&cache[c][old.id]){delete cache[c][old.id];notify(c)}return}
+      if(rec&&rec.data!==undefined){cache[c][rec.id]={u:rec.updated_at,data:rec.data};notify(c)}
+      else if(rec&&rec.id)fetchDocs(c,[rec.id]).then(()=>notify(c)).catch(()=>{});
+    }catch(x){}};
+    ws.onclose=()=>{clearInterval(hb);rtOK=false;setTimeout(rt,30000)};
   }catch(e){}};
   if(window.WebSocket)rt();
+  // Filet de sécurité : resynchronisation complète toutes les 5 min si le temps réel marche, sinon toutes les 45 s
+  setInterval(()=>{if(!document.hidden&&Date.now()-lastFull>(rtOK?300e3:45e3))fullSync()},15000);
+  document.addEventListener("visibilitychange",()=>{if(!document.hidden&&Date.now()-lastFull>20e3)fullSync()});
+  const put=(c,id,data)=>{(cache[c]=cache[c]||{})[id]={u:new Date().toISOString(),data};notify(c)};
   return{collection(c){return{
     onSnapshot(next,err){
-      const s={next,sent:false};(subs[c]=subs[c]||[]).push(s);
-      let k=0;const tick=()=>{if(!document.hidden&&(!rtOK||k++%5===0))pull(c).catch(()=>err&&err())};
-      tick();const t=setInterval(tick,6000);
-      return()=>{clearInterval(t);subs[c]=(subs[c]||[]).filter(x=>x!==s)};
+      const s={next,err};(subs[c]=subs[c]||[]).push(s);
+      if(cache[c])next({docs:Object.keys(cache[c]).map(id=>({id,data:()=>cache[c][id].data}))});
+      else load(c).then(v=>{if(v&&!cache[c]){cache[c]=v;if(subs[c]&&subs[c].includes(s))notify(c)}});
+      pending.add(c);clearTimeout(flushT);flushT=setTimeout(flush,60);
+      return()=>{subs[c]=(subs[c]||[]).filter(x=>x!==s)};
     },
     add(data){
       const id=Date.now().toString(36)+Math.random().toString(36).slice(2,8);
-      return call("","POST",{collection:c,id,data,updated_at:new Date().toISOString()},{Prefer:"return=minimal"}).then(()=>pull(c));
+      return call("","POST",{collection:c,id,data,updated_at:new Date().toISOString()},{Prefer:"return=minimal"}).then(()=>put(c,id,data));
     },
     doc(id){return{
-      set(data){return call("?on_conflict=collection,id","POST",{collection:c,id,data,updated_at:new Date().toISOString()},{Prefer:"resolution=merge-duplicates,return=minimal"}).then(()=>pull(c))},
-      delete(){return call("?collection=eq."+enc(c)+"&id=eq."+enc(id),"DELETE",null,{Prefer:"return=minimal"}).then(()=>pull(c))}
+      set(data){return call("?on_conflict=collection,id","POST",{collection:c,id,data,updated_at:new Date().toISOString()},{Prefer:"resolution=merge-duplicates,return=minimal"}).then(()=>put(c,id,data))},
+      delete(){return call("?collection=eq."+enc(c)+"&id=eq."+enc(id),"DELETE",null,{Prefer:"return=minimal"}).then(()=>{if(cache[c]&&cache[c][id]){delete cache[c][id];notify(c)}})}
     }}
   }}};
 }
