@@ -1,8 +1,8 @@
 // Service worker Gym Crew : permet l'installation et un affichage hors connexion.
 // Réseau d'abord, en contournant le cache HTTP du navigateur (sinon l'app installée peut garder une ancienne version),
 // cache en secours hors connexion. Les données (Supabase, Firebase) ne passent jamais par ici.
-const CACHE="gymcrew-v3";
-const SHELL=["./","index.html","config.js","manifest.webmanifest","icon-192.png","icon-512.png","fonts/anton.woff2","fonts/barlow-condensed-400.woff2","fonts/barlow-condensed-600.woff2","fonts/barlow-condensed-700.woff2"];
+const CACHE="gymcrew-v4";
+const SHELL=["./","index.html","config.js","manifest.webmanifest","icon-192.png","icon-512.png","fonts/creepster.woff2","fonts/anton.woff2","fonts/barlow-condensed-400.woff2","fonts/barlow-condensed-600.woff2","fonts/barlow-condensed-700.woff2"];
 self.addEventListener("install",e=>{e.waitUntil(caches.open(CACHE).then(c=>c.addAll(SHELL.map(u=>new Request(u,{cache:"reload"})))).catch(()=>{}));self.skipWaiting()});
 self.addEventListener("activate",e=>{e.waitUntil(caches.keys().then(k=>Promise.all(k.filter(x=>x!==CACHE).map(x=>caches.delete(x)))).then(()=>self.clients.claim()))});
 self.addEventListener("fetch",e=>{
