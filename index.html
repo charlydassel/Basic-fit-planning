@@ -1619,7 +1619,7 @@ function rideRow(x){
 
 // ---------- 🏢 Mes salles ----------
 // Chacun choisit ses salles Basic-Fit ; l'agenda, le planning et l'accueil peuvent n'afficher que les séances dans ces salles.
-function gymKey(x){return String(x||"").toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g,"").replace(/basic[\s-]*fit/g,"").replace(/[^a-z0-9]+/g," ").trim()}
+function gymKey(x){return String(x||"").toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g,"").replace(/basic[\s-]*fit/g,"").replace(/24\s*\/\s*7/g," ").replace(/\b(brussels|bruxelles|brussel)\b/g," ").replace(/\bch\b\.?/g,"chaussee").replace(/\bav\b\.?/g,"avenue").replace(/\bbd\b\.?/g,"boulevard").replace(/[^a-z0-9]+/g," ").trim()}
 function myGyms(){const p=auth&&profiles[auth.uid];if(p&&Array.isArray(p.gyms))return p.gyms;try{return JSON.parse(localStorage.getItem("bf_gyms")||"[]")}catch(e){return[]}}
 async function saveGyms(L){
   L=[...new Map(L.map(x=>[gymKey(x),x.trim()])).values()].filter(x=>gymKey(x)).slice(0,10);
@@ -1653,25 +1653,54 @@ function gymBar(){
   if(f!=="all"&&hid)w.appendChild(h("p","m",hid+" séance"+(hid>1?"s":"")+" dans d'autres salles masquée"+(hid>1?"s":"")+"."));
   return w;
 }
+// Salles Basic-Fit de la Région de Bruxelles-Capitale (d'après basic-fit.com, octobre 2026). On peut toujours ajouter une autre salle à la main.
+const BF_BXL=[
+ ["Bruxelles","Arts-Loi 24/7","Avenue des Arts 47"],["Bruxelles","Berlaymont","Rue Archimède 73"],["Bruxelles","Gare Centrale 24/7","Rue Ravenstein 50"],
+ ["Bruxelles","Madou 24/7","Avenue des Arts 3"],["Bruxelles","Rue Neuve 24/7","Rue Saint-Michel 29"],["Bruxelles","Rue Antoine Dansaert Ladies","Rue Antoine Dansaert 25"],
+ ["Bruxelles","Schuman 24/7","Avenue de Cortenbergh 29"],["Bruxelles","Yser 24/7","Boulevard Baudouin 27"],["Bruxelles","Chaussée d'Anvers Ladies","Chaussée d'Anvers 59"],
+ ["Bruxelles","Simonis Blvd Léopold II","Boulevard Léopold II 271"],
+ ["Ixelles","Avenue Louise 24/7","Avenue Louise 225"],["Ixelles","Avenue Louise Ladies","Avenue Louise 375"],["Ixelles","Chaussée d'Ixelles 24/7","Chaussée d'Ixelles 4"],["Ixelles","Ixelles VUB 24/7","Boulevard du Triomphe, accès 8 (VUB)"],
+ ["Etterbeek","Etterbeek Place Jourdan","Place Jourdan 23"],["Etterbeek","Etterbeek Saint-Pierre","Chaussée Saint-Pierre 284"],
+ ["Saint-Gilles","Saint-Gilles Hôtel des Monnaies 24/7","Place Julien Dillens 1"],["Saint-Gilles","Saint-Gilles Rue Moris","Rue Moris 13"],
+ ["Saint-Josse","Saint-Josse Rogier 24/7","Rue des Croisades 19"],
+ ["Schaerbeek","Schaerbeek Chaussée de Louvain 24/7","Chaussée de Louvain 656"],["Evere","Evere Ch. de Louvain","Chaussée de Louvain 1000"],
+ ["Anderlecht","Anderlecht Van Kalken 24/7","Avenue Frans Van Kalken 2"],["Anderlecht","Anderlecht Bd Sylvain Dupuis 24/7","Boulevard Sylvain Dupuis 433"],["Anderlecht","Anderlecht Rue de Birmingham 24/7","Rue de Birmingham 112"],
+ ["Molenbeek","Molenbeek Ch. de Ninove Ladies","Chaussée de Ninove 281"],["Berchem-Sainte-Agathe","Berchem-Ste-Agathe Ch. de Gand","Chaussée de Gand 1257"],
+ ["Uccle","Uccle Ch. d'Alsemberg","Chaussée d'Alsemberg 396"],["Uccle","Uccle Bascule 24/7","Rue Vanderkindere 465"],["Uccle","Uccle Stalle 24/7","Rue de l'Étoile 99"],
+ ["Forest","Forest Van Volxem 24/7","Avenue Van Volxem 388"],["Forest","Forest Neerstalle","Chaussée de Neerstalle 24"],
+ ["Auderghem","Auderghem Chaussée de Wavre 24/7","Chaussée de Wavre 1509"],["Auderghem","Auderghem Hankar","Chaussée de Wavre 1210"],
+ ["Woluwe-Saint-Lambert","Woluwe-St-Lambert Av. Georges Henri","Avenue Georges Henri 164"],["Woluwe-Saint-Lambert","Woluwe-St-Lambert Marcel Thiry","Avenue Marcel Thiry 79"]];
+let gymQ="";
 function gymsCard(){
   const c=h("div","card");c.appendChild(h("b","","🏢 Mes salles Basic-Fit"));
-  c.appendChild(h("p","m","L'agenda et le planning peuvent n'afficher que les séances dans ces salles."));
-  const G=myGyms();
-  if(!G.length)c.appendChild(h("p","note","Aucune salle choisie."));
-  G.forEach((g,i)=>{const s=h("div","s");s.appendChild(ic("building-2"));s.appendChild(h("div","p",g));
-    const x=h("button","x","✕");x.title="Retirer";x.onclick=()=>saveGyms(G.filter((_,j)=>j!==i));s.appendChild(x);c.appendChild(s)});
-  const r=h("div","cf");const i=h("input");i.placeholder="Ajouter une salle (ex : Lille Centre)";i.maxLength=40;i.setAttribute("list","gymsDL");
+  c.appendChild(h("p","m","Coche les salles où tu vas : l'agenda et le planning peuvent n'afficher que les séances dans ces salles."));
+  const G=myGyms(),mine=new Set(G.map(gymKey));
+  if(G.length){const ch=h("div","chips");ch.style.flexWrap="wrap";
+    G.forEach((g,i)=>{const b=h("button","chip on");b.appendChild(document.createTextNode(g+" "));b.appendChild(ic("x"));b.title="Retirer";b.onclick=()=>saveGyms(G.filter((_,j)=>j!==i));ch.appendChild(b)});c.appendChild(ch)}
+  else c.appendChild(h("p","note","Aucune salle choisie."));
+  // Recherche dans la liste des salles de Bruxelles
+  const sw=h("div");sw.style.cssText="position:relative;margin-top:6px";const si=ic("search");si.style.cssText="position:absolute;left:12px;top:50%;transform:translateY(-50%);color:var(--mut)";
+  const q=h("input");q.placeholder="Rechercher une salle ou une commune…";q.value=gymQ;q.style.paddingLeft="38px";q.setAttribute("aria-label","Rechercher une salle");sw.append(si,q);c.appendChild(sw);
+  const list=h("div");list.style.cssText="max-height:340px;overflow-y:auto;margin-top:8px;border:1px solid var(--bd);border-radius:10px;padding:0 10px";c.appendChild(list);
+  const draw=()=>{list.textContent="";const f=gymKey(gymQ);let last=null,n=0;
+    BF_BXL.filter(([com,name,adr])=>!f||gymKey(com+" "+name+" "+adr).includes(f)).forEach(([com,name,adr])=>{n++;
+      if(com!==last){last=com;const hd=h("div","m",com);hd.style.cssText="font-weight:700;text-transform:uppercase;letter-spacing:.05em;padding:10px 0 2px";list.appendChild(hd)}
+      const on=mine.has(gymKey(name)),r=h("label","");r.style.cssText="display:flex;align-items:center;gap:10px;padding:8px 0;margin:0;color:var(--tx);cursor:pointer;border-top:1px solid var(--bd)";
+      const cb=h("input");cb.type="checkbox";cb.checked=on;cb.style.cssText="width:20px;height:20px;flex:none;accent-color:var(--ac)";
+      cb.onchange=()=>{if(cb.checked&&G.length>=10){cb.checked=false;alert("10 salles maximum.");return}saveGyms(cb.checked?G.concat(name):G.filter(g=>gymKey(g)!==gymKey(name)))};
+      const t=h("div","p");t.appendChild(h("div","",name));t.appendChild(h("div","m",adr));r.append(cb,t);list.appendChild(r)});
+    if(!n)list.appendChild(h("p","note","Aucune salle trouvée. Ajoute-la à la main ci-dessous."))};
+  q.oninput=()=>{gymQ=q.value;draw()};draw();
+  // Autre salle (hors Bruxelles ou manquante)
+  const r=h("div","cf");const i=h("input");i.placeholder="Autre salle (hors liste)";i.maxLength=40;i.setAttribute("list","gymsDL");
   let dl=$("#gymsDL");if(!dl){dl=h("datalist");dl.id="gymsDL";document.body.appendChild(dl)}dl.textContent="";knownGyms().forEach(g=>{const o=h("option");o.value=g;dl.appendChild(o)});
   const b=h("button","","Ajouter");const add=()=>{const v=clean(i.value.trim());if(!v)return;saveGyms(G.concat(v))};b.onclick=add;i.onkeydown=e=>{if(e.key==="Enter")add()};
   r.append(i,b);c.appendChild(r);
-  const sug=knownGyms().slice(0,6);
-  if(sug.length){c.appendChild(h("p","m","Salles de la team :"));const ch=h("div","chips");ch.style.flexWrap="wrap";
-    sug.forEach(g=>{const s=h("button","chip","+ "+g);s.onclick=()=>saveGyms(G.concat(g));ch.appendChild(s)});c.appendChild(ch)}
   return c;
 }
 // Champ « Salle » du formulaire de séance : propose mes salles et pré-remplit la première
 function fillClub(){const G=myGyms();let dl=$("#clubDL");if(!dl){dl=h("datalist");dl.id="clubDL";document.body.appendChild(dl);$("#club").setAttribute("list","clubDL")}
-  dl.textContent="";G.concat(knownGyms()).forEach(g=>{const o=h("option");o.value=g;dl.appendChild(o)});
+  dl.textContent="";[...new Map(G.concat(BF_BXL.map(x=>x[1]),knownGyms()).map(g=>[gymKey(g),g])).values()].forEach(g=>{const o=h("option");o.value=g;dl.appendChild(o)});
   if(!$("#club").value&&G.length)$("#club").value=G[0]}
 
 // Panel admin : visible seulement pour le compte dont l'email correspond à ADMIN_HASH (config.js)
