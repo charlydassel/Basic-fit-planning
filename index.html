@@ -95,6 +95,18 @@ label{display:block;font-size:14.5px;color:var(--mut);margin:10px 0 4px}
 input,select{width:100%;padding:10px;border-radius:10px;border:1px solid var(--bd);background:var(--bg);color:var(--tx);font:inherit}
 .row{display:flex;gap:10px}.row>div{flex:1;min-width:0}
 button{font:inherit;cursor:pointer}
+/* Retour visuel au toucher : le bouton s'enfonce légèrement, puis un anneau mauve s'efface autour */
+html{-webkit-tap-highlight-color:transparent}
+button,.tile,.mitem,.chip,.qb{transition:transform .12s ease,filter .12s ease;-webkit-user-select:none;user-select:none;touch-action:manipulation}
+button:active,.tile:active,.mitem:active,.chip:active{transform:scale(.96);filter:brightness(.93)}
+.fx{animation:fxring .45s ease-out}
+@keyframes fxring{0%{box-shadow:0 0 0 0 rgba(91,42,134,.45)}100%{box-shadow:0 0 0 10px rgba(91,42,134,0)}}
+:root[data-theme="dark"] .fx{animation-name:fxringd}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .fx{animation-name:fxringd}}
+@keyframes fxringd{0%{box-shadow:0 0 0 0 rgba(138,79,216,.6)}100%{box-shadow:0 0 0 10px rgba(138,79,216,0)}}
+#nav button.fx{animation:none}#nav button.fx i{animation:navpop .35s ease-out}
+@keyframes navpop{0%{transform:scale(1)}40%{transform:scale(.8)}75%{transform:scale(1.12)}100%{transform:scale(1)}}
+@media (prefers-reduced-motion:reduce){button:active,.tile:active,.mitem:active,.chip:active{transform:none}.fx,#nav button.fx i{animation:none}}
 .go{width:100%;margin-top:14px;padding:12px;border:0;border-radius:10px;background:var(--ac);color:#fff;font-weight:600}
 .day h2{font-size:15px;text-transform:capitalize;margin:0 0 8px;display:flex;justify-content:space-between}
 .day h2 span{color:var(--mut);font-weight:400;font-size:13px;text-transform:none}
@@ -1073,7 +1085,15 @@ if("serviceWorker" in navigator&&location.protocol==="https:")navigator.serviceW
 // L'app installée sur l'écran d'accueil reste ouverte en arrière-plan et ne se recharge pas toute seule.
 // Au retour dans l'app (et toutes les 15 min), on vérifie s'il existe une nouvelle version et on propose de l'installer.
 // APP_VERSION doit changer à chaque mise à jour du site.
-const APP_VERSION="2026-10-13.7";
+const APP_VERSION="2026-10-13.8";
+// Retour au toucher : anneau autour de l'élément touché + petite vibration (Android ; l'iPhone ne permet pas la vibration aux sites)
+document.addEventListener("touchstart",()=>{},{passive:true}); // active l'effet :active sur iPhone
+document.addEventListener("pointerdown",e=>{
+  const t=e.target.closest&&e.target.closest("button,.tile,.mitem,.chip,label");if(!t||t.disabled)return;
+  t.classList.remove("fx");void t.offsetWidth;t.classList.add("fx");clearTimeout(t._fx);t._fx=setTimeout(()=>t.classList.remove("fx"),500);
+  try{if(navigator.vibrate&&!matchMedia("(prefers-reduced-motion:reduce)").matches)navigator.vibrate(8)}catch(x){}
+},{passive:true});
+
 if(/[?&]u=\d+/.test(location.search))try{history.replaceState(null,"",location.pathname+location.hash)}catch(e){}
 let updShown=false;
 async function checkUpdate(){
