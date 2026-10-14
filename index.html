@@ -13,9 +13,15 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
 <link rel="icon" type="image/png" href="icon-192.png">
 <style>
-:root{box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);--bg:#f5f5f5;--card:#fff;--tx:#0d0d0d;--mut:#5f5f66;--ac:#5b2a86;--bd:#e4e4e7;--chip:#eee5f6;--chiptx:#5b2a86}
-@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0b0b0b;--card:#161616;--tx:#f5f5f5;--mut:#a1a1aa;--ac:#8a4fd8;--bd:#2b2b2b;--chip:#2b1a3d;--chiptx:#c9a7f5}}
-:root[data-theme="dark"]{--bg:#0b0b0b;--card:#161616;--tx:#f5f5f5;--mut:#a1a1aa;--ac:#8a4fd8;--bd:#2b2b2b;--chip:#2b1a3d;--chiptx:#c9a7f5}
+:root{box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);--bg:#f5f5f5;--card:#fff;--tx:#0d0d0d;--mut:#5f5f66;--ac:var(--acA);--bd:#e4e4e7;--chip:var(--chipL);--chiptx:var(--acA)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0b0b0b;--card:#161616;--tx:#f5f5f5;--mut:#a1a1aa;--ac:var(--acB);--bd:#2b2b2b;--chip:var(--chipD);--chiptx:var(--acS)}}
+:root[data-theme="dark"]{--bg:#0b0b0b;--card:#161616;--tx:#f5f5f5;--mut:#a1a1aa;--ac:var(--acB);--bd:#2b2b2b;--chip:var(--chipD);--chiptx:var(--acS)}
+/* Couleur d'accent au choix (Profil → Apparence) */
+:root{--acA:#5b2a86;--acB:#8a4fd8;--acD:#2b1240;--acS:#c9a7f5;--chipL:#eee5f6;--chipD:#2b1a3d}
+:root[data-accent="vert"]{--acA:#2f7a00;--acB:#5fc400;--acD:#0f2a00;--acS:#b9f28a;--chipL:#e7f6d9;--chipD:#1c2f0d}
+:root[data-accent="rouge"]{--acA:#a4161a;--acB:#e0303a;--acD:#3a0809;--acS:#f4a3a6;--chipL:#f7e3e4;--chipD:#3a1214}
+:root[data-accent="bleu"]{--acA:#1d4ed8;--acB:#4f8cff;--acD:#0b1e4f;--acS:#a9c4ff;--chipL:#e3ecfd;--chipD:#142245}
+:root[data-accent="orange"]{--acA:#c2410c;--acB:#ff7a1a;--acD:#3d1403;--acS:#ffc199;--chipL:#fdeadf;--chipD:#3a1c0c}
 *{box-sizing:border-box}
 html,body{margin:0}
 @font-face{font-family:"Creepster";src:url(fonts/creepster.woff2) format("woff2");font-display:swap}
@@ -34,11 +40,11 @@ main{max-width:560px;margin:0 auto;padding:16px 16px 116px}
 .brand{display:inline-flex;align-items:center;gap:10px;font-weight:800;letter-spacing:.08em;cursor:pointer}
 .brand svg{width:34px;height:34px}
 .hero{text-align:center;padding:20px 0 12px}
-.hero svg{width:100px;height:100px;filter:drop-shadow(0 8px 18px rgba(91,42,134,.35))}
+.hero svg{width:100px;height:100px;filter:drop-shadow(0 8px 18px color-mix(in srgb,var(--acA) 35%,transparent))}
 .hero h1{font-size:30px;letter-spacing:.1em;margin:14px 0 6px}
 .hero p{color:var(--mut);margin:0 auto 6px;max-width:320px}
 .hhead{display:flex;align-items:center;gap:12px;padding:4px 0 16px}
-.hhead>svg{width:48px;height:48px;flex:none;filter:drop-shadow(0 4px 10px rgba(91,42,134,.3))}
+.hhead>svg{width:48px;height:48px;flex:none;filter:drop-shadow(0 4px 10px color-mix(in srgb,var(--acA) 30%,transparent))}
 .hht{flex:1;min-width:0;display:flex;flex-direction:column}.hht b{font-size:20px;letter-spacing:.08em}.hht small{color:var(--mut);font-size:13px}
 .hacc{flex:none;max-width:45%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;border:1px solid var(--bd);background:var(--card);color:var(--tx);border-radius:99px;padding:8px 14px;font-size:14px}
 .qa{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px}
@@ -101,22 +107,22 @@ body{background:radial-gradient(120% 340px at 50% -60px,color-mix(in srgb,var(--
 main .card,main .mitem,main .qb,main .tbtn,main .hacc{background:var(--glass);-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px)}
 .neon{color:var(--neon);font-family:"Creepster","Anton",Impact,sans-serif;letter-spacing:.03em}
 /* Carte « Ma prochaine séance » */
-main .card.next{position:relative;overflow:hidden;border:0;color:#fff;background:linear-gradient(135deg,#5b2a86,#2b1240);box-shadow:0 10px 30px rgba(91,42,134,.35)}
+main .card.next{position:relative;overflow:hidden;border:0;color:#fff;background:linear-gradient(135deg,var(--acA),var(--acD));box-shadow:0 10px 30px color-mix(in srgb,var(--acA) 35%,transparent)}
 .next::after{content:"";position:absolute;right:-40px;top:-40px;width:160px;height:160px;border-radius:50%;background:rgba(255,255,255,.07)}
 .next .m,.next small{color:rgba(255,255,255,.75)}.next b.k{font-family:"Creepster","Anton",Impact,sans-serif;font-weight:400;font-size:13px;letter-spacing:.08em;text-transform:uppercase;color:rgba(255,255,255,.8)}
 .next .big{font-family:"Creepster","Anton",Impact,sans-serif;font-size:34px;line-height:1.05;margin:4px 0 2px}.next .cd{color:#a6ff3d;font-family:"Creepster","Anton",Impact,sans-serif;font-size:18px}
-.next .go{background:#fff;color:#2b1240}.next .ic{color:#fff}
+.next .go{background:#fff;color:var(--acD)}.next .ic{color:#fff}
 /* Avatars façon stories */
 .stories{display:flex;gap:12px;overflow-x:auto;padding:2px 2px 12px;margin:0 -2px 6px;scrollbar-width:none}.stories::-webkit-scrollbar{display:none}
 .story{flex:none;width:62px;text-align:center;border:0;background:none;padding:0;color:var(--tx)}
-.story .ring{display:inline-flex;padding:3px;border-radius:50%;background:var(--bd)}.story .ring.live{background:conic-gradient(#a6ff3d,#8a4fd8,#a6ff3d)}
+.story .ring{display:inline-flex;padding:3px;border-radius:50%;background:var(--bd)}.story .ring.live{background:conic-gradient(#a6ff3d,var(--acB),#a6ff3d)}
 .story .ring .av{border:2px solid var(--bg)}.story small{display:block;font-size:12px;margin-top:4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 /* Menu de l'accueil en tuiles compactes */
 .mgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
 .mtile{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;min-height:84px;padding:10px 4px;border-radius:14px;border:1px solid var(--bd);background:var(--glass);color:var(--tx);font-family:"Creepster","Anton",Impact,sans-serif;text-transform:uppercase;letter-spacing:.04em;font-size:13px;text-align:center}
 .mtile .ic{width:26px;height:26px;color:var(--ac)}
 /* Carte de joueur */
-main .card.player{text-align:center;position:relative;overflow:hidden}.player::before{content:"";position:absolute;left:0;right:0;top:0;height:90px;background:linear-gradient(135deg,var(--ac),#2b1240)}
+main .card.player{text-align:center;position:relative;overflow:hidden}.player .pban{position:absolute!important;left:0;right:0;top:0;height:90px}.player::before{display:none;content:"";position:absolute;left:0;right:0;top:0;height:90px;background:linear-gradient(135deg,var(--ac),var(--acD))}
 .player>*{position:relative}.player .av{border:4px solid var(--card);margin-top:30px;box-shadow:0 6px 20px rgba(0,0,0,.25)}
 .lvl{display:inline-block;margin-top:6px;padding:3px 10px;border-radius:99px;background:var(--ac);color:#fff;font-family:"Creepster","Anton",Impact,sans-serif;letter-spacing:.05em;font-size:14px}
 .stats3{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:12px 0 4px}.stats3 div{background:var(--bg);border-radius:12px;padding:10px 4px}
@@ -125,7 +131,7 @@ main .card.player{text-align:center;position:relative;overflow:hidden}.player::b
 .podium{display:flex;align-items:flex-end;justify-content:center;gap:8px;margin:14px 0 4px}
 .podium .pl{flex:1;max-width:130px;text-align:center;border:0;background:none;color:var(--tx);padding:0}
 .podium .col{margin-top:6px;border-radius:12px 12px 4px 4px;display:flex;flex-direction:column;align-items:center;justify-content:flex-start;padding-top:8px;color:#fff;font-family:"Creepster","Anton",Impact,sans-serif;font-size:26px}
-.podium .p1 .col{height:110px;background:linear-gradient(180deg,#8a4fd8,#5b2a86)}.podium .p2 .col{height:80px;background:linear-gradient(180deg,#7b6b8f,#4a3d5c)}.podium .p3 .col{height:62px;background:linear-gradient(180deg,#8e6a52,#5c4030)}
+.podium .p1 .col{height:110px;background:linear-gradient(180deg,var(--acB),var(--acA))}.podium .p2 .col{height:80px;background:linear-gradient(180deg,#7b6b8f,#4a3d5c)}.podium .p3 .col{height:62px;background:linear-gradient(180deg,#8e6a52,#5c4030)}
 .podium .col small{font-family:"Barlow Condensed",sans-serif;font-size:13px;opacity:.85}.podium .nm{font-size:14px;margin-top:4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 /* PR en grosses cartes */
 .prgrid{display:grid;grid-template-columns:1fr;gap:10px;margin-top:10px}
@@ -135,6 +141,13 @@ main .card.player{text-align:center;position:relative;overflow:hidden}.player::b
 .vin{animation:vin .26s cubic-bezier(.2,.8,.2,1)}.vback{animation:vback .26s cubic-bezier(.2,.8,.2,1)}
 @keyframes vin{from{opacity:0;transform:translateX(28px)}to{opacity:1;transform:none}}@keyframes vback{from{opacity:0;transform:translateX(-28px)}to{opacity:1;transform:none}}
 @media (prefers-reduced-motion:reduce){.vin,.vback{animation:none}}
+.av{position:relative}.av.online::after{content:"";position:absolute;right:-1px;bottom:-1px;width:28%;height:28%;min-width:8px;min-height:8px;border-radius:50%;background:#22c55e;border:2px solid var(--card)}
+.sw2{width:44px;height:30px;border-radius:8px;border:2px solid transparent;flex:none}.sw2.on{border-color:var(--tx)}
+.icopt{display:flex;flex-direction:column;align-items:center;gap:4px;border:2px solid transparent;background:none;border-radius:16px;padding:4px;color:var(--tx)}.icopt img{width:56px;height:56px;border-radius:14px;box-shadow:0 2px 8px rgba(0,0,0,.2)}.icopt.on{border-color:var(--ac)}.icopt small{font-size:12px}
+#nav .navplus{flex:none;width:54px;height:54px;max-width:none;margin:-22px 6px 0;border-radius:50%;background:var(--ac);color:#fff;box-shadow:0 6px 18px color-mix(in srgb,var(--ac) 45%,transparent);justify-content:center}
+#nav .navplus i .ic{width:28px;height:28px}
+.tbtn.dotted,.hacc.dotted{position:relative}.tbtn.dotted::after,.hacc.dotted::after{content:"";position:absolute;top:4px;right:4px;width:9px;height:9px;border-radius:50%;background:#e0245e;border:2px solid var(--card)}
+.sheet .card{max-height:80vh;overflow-y:auto}
 .tiles{display:grid;grid-template-columns:1fr 1fr;gap:10px}
 .tile{display:flex;flex-direction:column;align-items:flex-start;gap:3px;text-align:left;background:var(--card);border:1px solid var(--bd);border-radius:14px;padding:14px;color:var(--tx)}
 .tile span{font-size:26px}.tile small{color:var(--mut);font-size:12px}
@@ -153,10 +166,10 @@ html{-webkit-tap-highlight-color:transparent}
 button,.tile,.mitem,.chip,.qb{transition:transform .12s ease,filter .12s ease;-webkit-user-select:none;user-select:none;touch-action:manipulation}
 button:active,.tile:active,.mitem:active,.chip:active{transform:scale(.96);filter:brightness(.93)}
 .fx{animation:fxring .45s ease-out}
-@keyframes fxring{0%{box-shadow:0 0 0 0 rgba(91,42,134,.45)}100%{box-shadow:0 0 0 10px rgba(91,42,134,0)}}
+@keyframes fxring{0%{box-shadow:0 0 0 0 color-mix(in srgb,var(--acA) 45%,transparent)}100%{box-shadow:0 0 0 10px transparent}}
 :root[data-theme="dark"] .fx{animation-name:fxringd}
 @media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .fx{animation-name:fxringd}}
-@keyframes fxringd{0%{box-shadow:0 0 0 0 rgba(138,79,216,.6)}100%{box-shadow:0 0 0 10px rgba(138,79,216,0)}}
+@keyframes fxringd{0%{box-shadow:0 0 0 0 color-mix(in srgb,var(--acB) 60%,transparent)}100%{box-shadow:0 0 0 10px transparent}}
 #nav button.fx{animation:none}#nav button.fx i{animation:navpop .35s ease-out}
 @keyframes navpop{0%{transform:scale(1)}40%{transform:scale(.8)}75%{transform:scale(1.12)}100%{transform:scale(1)}}
 @media (prefers-reduced-motion:reduce){button:active,.tile:active,.mitem:active,.chip:active{transform:none}.fx,#nav button.fx i{animation:none}}
@@ -191,8 +204,8 @@ button:active,.tile:active,.mitem:active,.chip:active{transform:scale(.96);filte
 <body>
 <main>
 <svg width="0" height="0" style="position:absolute" aria-hidden="true"><!-- Icônes Lucide (lucide.dev, licence ISC) --><symbol fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" id="i-activity" viewBox="0 0 24 24"><path d="M22 12h-2.48a2 2 0 0 0-1.93 1.46l-2.35 8.36a.25.25 0 0 1-.48 0L9.24 2.18a.25.25 0 0 0-.48 0l-2.35 8.36A2 2 0 0 1 4.49 12H2" /></symbol><symbol fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" id="i-alarm-clock" viewBox="0 0 24 24"><circle cx="12" cy="13" r="8" /> <path d="M12 9v4l2 2" /> <path d="M5 3 2 6" /> <path d="m22 6-3-3" /> <path d="M6.38 18.7 4 21" /> <path d="M17.64 18.67 20 21" /></symbol><symbol fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" id="i-arrow-left" viewBox="0 0 24 24"><path d="m12 19-7-7 7-7" /> <path d="M19 12H5" /></symbol><symbol fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" id="i-arrow-left-right" viewBox="0 0 24 24"><path d="M8 3 4 7l4 4" /> <path d="M4 7h16" /> <path d="m16 21 4-4-4-4" /> <path d="M20 17H4" /></symbol><symbol fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" id="i-award" viewBox="0 0 24 24"><path d="m15.477 12.89 1.515 8.526a.5.5 0 0 1-.81.47l-3.58-2.687a1 1 0 0 0-1.197 0l-3.586 2.686a.5.5 0 0 1-.81-.469l1.514-8.526" /> <circle cx="12" cy="8" r="6" /></symbol><symbol fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" id="i-ban" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" /> <path d="m4.9 4.9 14.2 14.2" /></symbol><symbol fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" id="i-bell" viewBox="0 0 24 24"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9" /> <path d="M10.3 21a1.94 1.94 0 0 0 3.4 0" /></symbol><symbol fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" id="i-biceps-flexed" viewBox="0 0 24 24"><path d="M12.409 13.017A5 5 0 0 1 22 15c0 3.866-4 7-9 7-4.077 0-8.153-.82-10.371-2.462-.426-.316-.631-.832-.62-1.362C2.118 12.723 2.627 2 10 2a3 3 0 0 1 3 3 2 2 0 0 1-2 2c-1.105 0-1.64-.444-2-1" /> <path d="M15 14a5 5 0 0 0-7.584 2" /> <path d="M9.964 6.825C8.019 7.977 9.5 13 8 15" /></symbol><symbol fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" id="i-book-open" viewBox="0 0 24 24"><path d="M12 7v14" /> <path d="M3 18a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1h5a4 4 0 0 1 4 4 4 4 0 0 1 4-4h5a1 1 0 0 1 1 1v13a1 1 0 0 1-1 1h-6a3 3 0 0 0-3 3 3 3 0 0 0-3-3z" /></symbol><symbol fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" id="i-calculator" viewBox="0 0 24 24"><rect width="16" height="20" x="4" y="2" rx="2" /> <line x1="8" x2="16" y1="6" y2="6" /> <line x1="16" x2="16" y1="14" y2="18" /> <path d="M16 10h.01" /> <path d="M12 10h.01" /> <path d="M8 10h.01" /> <path d="M12 14h.01" /> <path d="M8 14h.01" /> <path d="M12 18h.01" /> <path d="M8 18h.01" /></symbol><symbol fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" id="i-calendar" viewBox="0 0 24 24"><path d="M8 2v4" /> <path d="M16 2v4" /> <rect width="18" height="18" x="3" y="4" rx="2" /> <path d="M3 10h18" /></symbol><symbol fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" id="i-calendar-days" viewBox="0 0 24 24"><path d="M8 2v4" /> <path d="M16 2v4" /> <rect width="18" height="18" x="3" y="4" rx="2" /> <path d="M3 10h18" /> <path d="M8 14h.01" /> <path d="M12 14h.01" /> <path d="M16 14h.01" /> <path d="M8 18h.01" /> <path d="M12 18h.01" /> <path d="M16 18h.01" /></symbol><symbol fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" id="i-camera" viewBox="0 0 24 24"><path d="M14.5 4h-5L7 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3l-2.5-3z" /> <circle cx="12" cy="13" r="3" /></symbol><symbol fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" id="i-chart-column" viewBox="0 0 24 24"><path d="M3 3v16a2 2 0 0 0 2 2h16" /> <path d="M18 17V9" /> <path d="M13 17V5" /> <path d="M8 17v-3" /></symbol><symbol fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" id="i-check" viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5" /></symbol><symbol fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" id="i-circle-check" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" /> <path d="m9 12 2 2 4-4" /></symbol><symbol fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" id="i-clipboard-list" viewBox="0 0 24 24"><rect width="8" height="4" x="8" y="2" rx="1" ry="1" /> <path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2" /> <path d="M12 11h4" /> <path d="M12 16h4" /> <path d="M8 11h.01" /> <path d="M8 16h.01" /></symbol><symbol fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" id="i-coffee" viewBox="0 0 24 24"><path d="M10 2v2" /> <path d="M14 2v2" /> <path d="M16 8a1 1 0 0 1 1 1v8a4 4 0 0 1-4 4H7a4 4 0 0 1-4-4V9a1 1 0 0 1 1-1h14a4 4 0 1 1 0 8h-1" /> <path d="M6 2v2" /></symbol><symbol fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" id="i-crown" viewBox="0 0 24 24"><path d="M11.562 3.266a.5.5 0 0 1 .876 0L15.39 8.87a1 1 0 0 0 1.516.294L21.183 5.5a.5.5 0 0 1 .798.519l-2.834 10.246a1 1 0 0 1-.956.734H5.81a1 1 0 0 1-.957-.734L2.02 6.02a.5.5 0 0 1 .798-.519l4.276 3.664a1 1 0 0 0 1.516-.294z" /> <path d="M5 21h14" /></symbol><symbol fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" id="i-cup-soda" viewBox="0 0 24 24"><path d="m6 8 1.75 12.28a2 2 0 0 0 2 1.72h4.54a2 2 0 0 0 2-1.72L18 8" /> <path d="M5 8h14" /> <path d="M7 15a6.47 6.47 0 0 1 5 0 6.47 6.47 0 0 0 5 0" /> <path d="m12 8 1-6h2" /></symbol><symbol fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" id="i-door-open" viewBox="0 0 24 24"><path d="M13 4h3a2 2 0 0 1 2 2v14" /> <path d="M2 20h3" /> <path d="M13 20h9" /> <path d="M10 12v.01" /> <path d="M13 4.562v16.157a1 1 0 0 1-1.242.97L5 20V5.562a2 2 0 0 1 1.515-1.94l4-1A2 2 0 0 1 13 4.561Z" /></symbol><symbol fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" id="i-dumbbell" viewBox="0 0 24 24"><path d="M14.4 14.4 9.6 9.6" /> <path d="M18.657 21.485a2 2 0 1 1-2.829-2.828l-1.767 1.768a2 2 0 1 1-2.829-2.829l6.364-6.364a2 2 0 1 1 2.829 2.829l-1.768 1.767a2 2 0 1 1 2.828 2.829z" /> <path d="m21.5 21.5-1.4-1.4" /> <path d="M3.9 3.9 2.5 2.5" /> <path d="M6.404 12.768a2 2 0 1 1-2.829-2.829l1.768-1.767a2 2 0 1 1-2.828-2.829l2.828-2.828a2 2 0 1 1 2.829 2.828l1.767-1.768a2 2 0 1 1 2.829 2.829z" /></symbol><symbol fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" id="i-flag" viewBox="0 0 24 24"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z" /> <line x1="4" x2="4" y1="22" y2="15" /></symbol><symbol fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" id="i-flame" viewBox="0 0 24 24"><path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 2.5z" /></symbol><symbol fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" id="i-folder" viewBox="0 0 24 24"><path d="M20 20a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-7.9a2 2 0 0 1-1.69-.9L9.6 3.9A2 2 0 0 0 7.93 3H4a2 2 0 0 0-2 2v13a2 2 0 0 0 2 2Z" /></symbol><symbol fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" id="i-gem" viewBox="0 0 24 24"><path d="M6 3h12l4 6-10 13L2 9Z" /> <path d="M11 3 8 9l4 13 4-13-3-6" /> <path d="M2 9h20" /></symbol><symbol fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" id="i-hand" viewBox="0 0 24 24"><path d="M18 11V6a2 2 0 0 0-2-2a2 2 0 0 0-2 2" /> <path d="M14 10V4a2 2 0 0 0-2-2a2 2 0 0 0-2 2v2" /> <path d="M10 10.5V6a2 2 0 0 0-2-2a2 2 0 0 0-2 2v8" /> <path d="M18 8a2 2 0 1 1 4 0v6a8 8 0 0 1-8 8h-2c-2.8 0-4.5-.86-5.99-2.34l-3.6-3.6a2 2 0 0 1 2.83-2.82L7 15" /></symbol><symbol fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" id="i-handshake" viewBox="0 0 24 24"><path d="m11 17 2 2a1 1 0 1 0 3-3" /> <path d="m14 14 2.5 2.5a1 1 0 1 0 3-3l-3.88-3.88a3 3 0 0 0-4.24 0l-.88.88a1 1 0 1 1-3-3l2.81-2.81a5.79 5.79 0 0 1 7.06-.87l.47.28a2 2 0 0 0 1.42.25L21 4" /> <path d="m21 3 1 11h-2" /> <path d="M3 3 2 14l6.5 6.5a1 1 0 1 0 3-3" /> <path d="M3 4h8" /></symbol><symbol fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" id="i-house" viewBox="0 0 24 24"><path d="M15 21v-8a1 1 0 0 0-1-1h-4a1 1 0 0 0-1 1v8" /> <path d="M3 10a2 2 0 0 1 .709-1.528l7-5.999a2 2 0 0 1 2.582 0l7 5.999A2 2 0 0 1 21 10v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" /></symbol><symbol fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" id="i-image" viewBox="0 0 24 24"><rect width="18" height="18" x="3" y="3" rx="2" ry="2" /> <circle cx="9" cy="9" r="2" /> <path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21" /></symbol><symbol fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" id="i-lock" viewBox="0 0 24 24"><rect width="18" height="11" x="3" y="11" rx="2" ry="2" /> <path d="M7 11V7a5 5 0 0 1 10 0v4" /></symbol><symbol fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" id="i-mail" viewBox="0 0 24 24"><rect width="20" height="16" x="2" y="4" rx="2" /> <path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7" /></symbol><symbol fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" id="i-mail-open" viewBox="0 0 24 24"><path d="M21.2 8.4c.5.38.8.97.8 1.6v10a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V10a2 2 0 0 1 .8-1.6l8-6a2 2 0 0 1 2.4 0l8 6Z" /> <path d="m22 10-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 10" /></symbol><symbol fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" id="i-map-pin" viewBox="0 0 24 24"><path d="M20 10c0 4.993-5.539 10.193-7.399 11.799a1 1 0 0 1-1.202 0C9.539 20.193 4 14.993 4 10a8 8 0 0 1 16 0" /> <circle cx="12" cy="10" r="3" /></symbol><symbol fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" id="i-medal" viewBox="0 0 24 24"><path d="M7.21 15 2.66 7.14a2 2 0 0 1 .13-2.2L4.4 2.8A2 2 0 0 1 6 2h12a2 2 0 0 1 1.6.8l1.6 2.14a2 2 0 0 1 .14 2.2L16.79 15" /> <path d="M11 12 5.12 2.2" /> <path d="m13 12 5.88-9.8" /> <path d="M8 7h8" /> <circle cx="12" cy="17" r="5" /> <path d="M12 18v-2h-.5" /></symbol><symbol fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" id="i-megaphone" viewBox="0 0 24 24"><path d="m3 11 18-5v12L3 14v-3z" /> <path d="M11.6 16.8a3 3 0 1 1-5.8-1.6" /></symbol><symbol fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" id="i-message-circle" viewBox="0 0 24 24"><path d="M7.9 20A9 9 0 1 0 4 16.1L2 22Z" /></symbol><symbol fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" id="i-moon" viewBox="0 0 24 24"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z" /></symbol><symbol fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" id="i-notebook-pen" viewBox="0 0 24 24"><path d="M13.4 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-7.4" /> <path d="M2 6h4" /> <path d="M2 10h4" /> <path d="M2 14h4" /> <path d="M2 18h4" /> <path d="M21.378 5.626a1 1 0 1 0-3.004-3.004l-5.01 5.012a2 2 0 0 0-.506.854l-.837 2.87a.5.5 0 0 0 .62.62l2.87-.837a2 2 0 0 0 .854-.506z" /></symbol><symbol fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" id="i-palette" viewBox="0 0 24 24"><circle cx="13.5" cy="6.5" r=".5" fill="currentColor" /> <circle cx="17.5" cy="10.5" r=".5" fill="currentColor" /> <circle cx="8.5" cy="7.5" r=".5" fill="currentColor" /> <circle cx="6.5" cy="12.5" r=".5" fill="currentColor" /> <path d="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10c.926 0 1.648-.746 1.648-1.688 0-.437-.18-.835-.437-1.125-.29-.289-.438-.652-.438-1.125a1.64 1.64 0 0 1 1.668-1.668h1.996c3.051 0 5.555-2.503 5.555-5.554C21.965 6.012 17.461 2 12 2z" /></symbol><symbol fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" id="i-play" viewBox="0 0 24 24"><polygon points="6 3 20 12 6 21 6 3" /></symbol><symbol fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" id="i-plus" viewBox="0 0 24 24"><path d="M5 12h14" /> <path d="M12 5v14" /></symbol><symbol fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" id="i-scale" viewBox="0 0 24 24"><path d="m16 16 3-8 3 8c-.87.65-1.92 1-3 1s-2.13-.35-3-1Z" /> <path d="m2 16 3-8 3 8c-.87.65-1.92 1-3 1s-2.13-.35-3-1Z" /> <path d="M7 21h10" /> <path d="M12 3v18" /> <path d="M3 7h2c2 0 5-1 7-2 2 1 5 2 7 2h2" /></symbol><symbol fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" id="i-share" viewBox="0 0 24 24"><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8" /> <polyline points="16 6 12 2 8 6" /> <line x1="12" x2="12" y1="2" y2="15" /></symbol><symbol fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" id="i-shield" viewBox="0 0 24 24"><path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z" /></symbol><symbol fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" id="i-smartphone" viewBox="0 0 24 24"><rect width="14" height="20" x="5" y="2" rx="2" ry="2" /> <path d="M12 18h.01" /></symbol><symbol fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" id="i-sparkles" viewBox="0 0 24 24"><path d="M9.937 15.5A2 2 0 0 0 8.5 14.063l-6.135-1.582a.5.5 0 0 1 0-.962L8.5 9.936A2 2 0 0 0 9.937 8.5l1.582-6.135a.5.5 0 0 1 .963 0L14.063 8.5A2 2 0 0 0 15.5 9.937l6.135 1.581a.5.5 0 0 1 0 .964L15.5 14.063a2 2 0 0 0-1.437 1.437l-1.582 6.135a.5.5 0 0 1-.963 0z" /> <path d="M20 3v4" /> <path d="M22 5h-4" /> <path d="M4 17v2" /> <path d="M5 18H3" /></symbol><symbol fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" id="i-square" viewBox="0 0 24 24"><rect width="18" height="18" x="3" y="3" rx="2" /></symbol><symbol fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" id="i-star" viewBox="0 0 24 24"><path d="M11.525 2.295a.53.53 0 0 1 .95 0l2.31 4.679a2.123 2.123 0 0 0 1.595 1.16l5.166.756a.53.53 0 0 1 .294.904l-3.736 3.638a2.123 2.123 0 0 0-.611 1.878l.882 5.14a.53.53 0 0 1-.771.56l-4.618-2.428a2.122 2.122 0 0 0-1.973 0L6.396 21.01a.53.53 0 0 1-.77-.56l.881-5.139a2.122 2.122 0 0 0-.611-1.879L2.16 9.795a.53.53 0 0 1 .294-.906l5.165-.755a2.122 2.122 0 0 0 1.597-1.16z" /></symbol><symbol fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" id="i-sun" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4" /> <path d="M12 2v2" /> <path d="M12 20v2" /> <path d="m4.93 4.93 1.41 1.41" /> <path d="m17.66 17.66 1.41 1.41" /> <path d="M2 12h2" /> <path d="M20 12h2" /> <path d="m6.34 17.66-1.41 1.41" /> <path d="m19.07 4.93-1.41 1.41" /></symbol><symbol fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" id="i-sunrise" viewBox="0 0 24 24"><path d="M12 2v8" /> <path d="m4.93 10.93 1.41 1.41" /> <path d="M2 18h2" /> <path d="M20 18h2" /> <path d="m19.07 10.93-1.41 1.41" /> <path d="M22 22H2" /> <path d="m8 6 4-4 4 4" /> <path d="M16 18a4 4 0 0 0-8 0" /></symbol><symbol fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" id="i-swords" viewBox="0 0 24 24"><polyline points="14.5 17.5 3 6 3 3 6 3 17.5 14.5" /> <line x1="13" x2="19" y1="19" y2="13" /> <line x1="16" x2="20" y1="16" y2="20" /> <line x1="19" x2="21" y1="21" y2="19" /> <polyline points="14.5 6.5 18 3 21 3 21 6 17.5 9.5" /> <line x1="5" x2="9" y1="14" y2="18" /> <line x1="7" x2="4" y1="17" y2="20" /> <line x1="3" x2="5" y1="19" y2="21" /></symbol><symbol fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" id="i-target" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" /> <circle cx="12" cy="12" r="6" /> <circle cx="12" cy="12" r="2" /></symbol><symbol fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" id="i-timer" viewBox="0 0 24 24"><line x1="10" x2="14" y1="2" y2="2" /> <line x1="12" x2="15" y1="14" y2="11" /> <circle cx="12" cy="14" r="8" /></symbol><symbol fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" id="i-trash-2" viewBox="0 0 24 24"><path d="M3 6h18" /> <path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6" /> <path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2" /> <line x1="10" x2="10" y1="11" y2="17" /> <line x1="14" x2="14" y1="11" y2="17" /></symbol><symbol fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" id="i-trending-up" viewBox="0 0 24 24"><polyline points="22 7 13.5 15.5 8.5 10.5 2 17" /> <polyline points="16 7 22 7 22 13" /></symbol><symbol fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" id="i-triangle-alert" viewBox="0 0 24 24"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3" /> <path d="M12 9v4" /> <path d="M12 17h.01" /></symbol><symbol fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" id="i-trophy" viewBox="0 0 24 24"><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6" /> <path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18" /> <path d="M4 22h16" /> <path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22" /> <path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22" /> <path d="M18 2H6v7a6 6 0 0 0 12 0V2Z" /></symbol><symbol fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" id="i-user" viewBox="0 0 24 24"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2" /> <circle cx="12" cy="7" r="4" /></symbol><symbol fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" id="i-users" viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" /> <circle cx="9" cy="7" r="4" /> <path d="M22 21v-2a4 4 0 0 0-3-3.87" /> <path d="M16 3.13a4 4 0 0 1 0 7.75" /></symbol><symbol fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" id="i-x" viewBox="0 0 24 24"><path d="M18 6 6 18" /> <path d="m6 6 12 12" /></symbol><symbol fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" id="i-zap" viewBox="0 0 24 24"><path d="M4 14a1 1 0 0 1-.78-1.63l9.9-10.2a.5.5 0 0 1 .86.46l-1.92 6.02A1 1 0 0 0 13 10h7a1 1 0 0 1 .78 1.63l-9.9 10.2a.5.5 0 0 1-.86-.46l1.92-6.02A1 1 0 0 0 11 14z" /></symbol><symbol fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" id="i-user-plus" viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" /> <circle cx="9" cy="7" r="4" /> <line x1="19" x2="19" y1="8" y2="14" /> <line x1="22" x2="16" y1="11" y2="11" /></symbol><symbol fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" id="i-user-check" viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" /> <circle cx="9" cy="7" r="4" /> <polyline points="16 11 18 13 22 9" /></symbol><symbol fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" id="i-user-minus" viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" /> <circle cx="9" cy="7" r="4" /> <line x1="22" x2="16" y1="11" y2="11" /></symbol><symbol fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" id="i-search" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8" /> <path d="m21 21-4.3-4.3" /></symbol><symbol fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" id="i-user-x" viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" /> <circle cx="9" cy="7" r="4" /> <line x1="17" x2="22" y1="8" y2="13" /> <line x1="22" x2="17" y1="8" y2="13" /></symbol><symbol fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" id="i-clock" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" /> <polyline points="12 6 12 12 16 14" /></symbol><symbol fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" id="i-car" viewBox="0 0 24 24"><path d="M19 17h2c.6 0 1-.4 1-1v-3c0-.9-.7-1.7-1.5-1.9C18.7 10.6 16 10 16 10s-1.3-1.4-2.2-2.3c-.5-.4-1.1-.7-1.8-.7H5c-.6 0-1.1.4-1.4.9l-1.4 2.9A3.7 3.7 0 0 0 2 12v4c0 .6.4 1 1 1h2" /> <circle cx="7" cy="17" r="2" /> <path d="M9 17h6" /> <circle cx="17" cy="17" r="2" /></symbol><symbol fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" id="i-navigation" viewBox="0 0 24 24"><polygon points="3 11 22 2 13 21 11 13 3 11" /></symbol><symbol fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" id="i-users-round" viewBox="0 0 24 24"><path d="M18 21a8 8 0 0 0-16 0" /> <circle cx="10" cy="8" r="5" /> <path d="M22 20c0-3.37-2-6.5-4-8a5 5 0 0 0-.45-8.3" /></symbol><symbol fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" id="i-building-2" viewBox="0 0 24 24"><path d="M6 22V4a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v18Z" /> <path d="M6 12H4a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2h2" /> <path d="M18 9h2a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2h-2" /> <path d="M10 6h4" /> <path d="M10 10h4" /> <path d="M10 14h4" /> <path d="M10 18h4" /></symbol><symbol fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" id="i-settings-2" viewBox="0 0 24 24"><path d="M20 7h-9" /> <path d="M14 17H5" /> <circle cx="17" cy="17" r="3" /> <circle cx="7" cy="7" r="3" /></symbol><symbol fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" id="i-filter" viewBox="0 0 24 24"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3" /></symbol><symbol fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" id="i-layout-grid" viewBox="0 0 24 24"><rect width="7" height="7" x="3" y="3" rx="1" /> <rect width="7" height="7" x="14" y="3" rx="1" /> <rect width="7" height="7" x="14" y="14" rx="1" /> <rect width="7" height="7" x="3" y="14" rx="1" /></symbol><symbol fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" id="i-circle-help" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" /> <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3" /> <path d="M12 17h.01" /></symbol><symbol fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" id="i-chevron-right" viewBox="0 0 24 24"><path d="m9 18 6-6-6-6" /></symbol><symbol fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" id="i-log-in" viewBox="0 0 24 24"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4" /> <polyline points="10 17 15 12 10 7" /> <line x1="15" x2="3" y1="12" y2="12" /></symbol><symbol fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" id="i-rotate-ccw" viewBox="0 0 24 24"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8" /> <path d="M3 3v5h5" /></symbol><symbol fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" id="i-locate-fixed" viewBox="0 0 24 24"><line x1="2" x2="5" y1="12" y2="12" /> <line x1="19" x2="22" y1="12" y2="12" /> <line x1="12" x2="12" y1="2" y2="5" /> <line x1="12" x2="12" y1="19" y2="22" /> <circle cx="12" cy="12" r="7" /> <circle cx="12" cy="12" r="3" /></symbol><symbol fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" id="i-map-pin-check" viewBox="0 0 24 24"><path d="M19.43 12.935c.357-.967.57-1.955.57-2.935a8 8 0 0 0-16 0c0 4.993 5.539 10.193 7.399 11.799a1 1 0 0 0 1.202 0 32.197 32.197 0 0 0 .813-.728" /> <circle cx="12" cy="10" r="3" /> <path d="m16 18 2 2 4-4" /></symbol><symbol fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" id="i-map-pin-off" viewBox="0 0 24 24"><path d="M12.75 7.09a3 3 0 0 1 2.16 2.16" /> <path d="M17.072 17.072c-1.634 2.17-3.527 3.912-4.471 4.727a1 1 0 0 1-1.202 0C9.539 20.193 4 14.993 4 10a8 8 0 0 1 1.432-4.568" /> <path d="m2 2 20 20" /> <path d="M8.475 2.818A8 8 0 0 1 20 10c0 1.183-.31 2.377-.81 3.533" /> <path d="M9.13 9.13a3 3 0 0 0 3.74 3.74" /></symbol></svg>
-  <svg width="0" height="0" style="position:absolute" aria-hidden="true"><symbol id="logo" viewBox="0 0 64 64"><rect width="64" height="64" rx="16" fill="#5b2a86"/><g fill="#fff"><rect x="8" y="24" width="6" height="16" rx="2"/><rect x="15" y="19" width="7" height="26" rx="2"/><rect x="22" y="29" width="20" height="6" rx="2"/><rect x="42" y="19" width="7" height="26" rx="2"/><rect x="50" y="24" width="6" height="16" rx="2"/></g></symbol></svg>
-  <header class="top" id="topbar" hidden><div class="brand" id="brand"><svg><use href="#logo"/></svg><span>GYM CREW</span></div><b id="pgTitle"></b><button class="tbtn" id="findBtn" aria-label="Chercher une fonction"><i data-ic="search"></i></button></header>
+  <svg width="0" height="0" style="position:absolute" aria-hidden="true"><symbol id="logo" viewBox="0 0 64 64"><rect width="64" height="64" rx="16" fill="#5b2a86" style="fill:var(--acA,#5b2a86)"/><g fill="#fff"><rect x="8" y="24" width="6" height="16" rx="2"/><rect x="15" y="19" width="7" height="26" rx="2"/><rect x="22" y="29" width="20" height="6" rx="2"/><rect x="42" y="19" width="7" height="26" rx="2"/><rect x="50" y="24" width="6" height="16" rx="2"/></g></symbol></svg>
+  <header class="top" id="topbar" hidden><div class="brand" id="brand"><svg><use href="#logo"/></svg><span>GYM CREW</span></div><b id="pgTitle"></b><button class="tbtn" id="findBtn" aria-label="Chercher une fonction"><i data-ic="search"></i></button><button class="tbtn" id="meBtn" aria-label="Mon profil"><i data-ic="user"></i></button></header>
   <div class="seg" id="seg" hidden></div>
   <div id="home">
     <section class="hhead">
@@ -284,7 +297,7 @@ button:active,.tile:active,.mitem:active,.chip:active{transform:scale(.96);filte
     <div id="phList"></div>
   </div>
 </main>
-<nav id="nav"><button data-v="home" class="on"><i data-ic="house"></i>Accueil</button><button data-v="g-seances"><i data-ic="calendar"></i>Séances</button><button data-v="g-stats"><i data-ic="trophy"></i>Stats</button><button data-v="g-social"><i data-ic="users"></i>Social</button><button data-v="acct"><i data-ic="user"></i>Profil</button></nav>
+<nav id="nav"><button data-v="home" class="on"><i data-ic="house"></i>Accueil</button><button data-v="g-seances"><i data-ic="calendar"></i>Séances</button><button class="navplus" id="navPlus" aria-label="Actions rapides"><i data-ic="plus"></i></button><button data-v="g-stats"><i data-ic="trophy"></i>Stats</button><button data-v="g-social"><i data-ic="users"></i>Social</button></nav>
 
 <script src="config.js"></script>
 <script>
@@ -526,15 +539,15 @@ function setView(v){const changed=v!==curV,wasPrev=v===prevV;if(changed){prevV=c
   if(changed)setTimeout(()=>{try{animView(v)}catch(e){}},0);
   $("#home").hidden=v!=="home";$("#topbar").hidden=v==="home";window.scrollTo(0,0);$("#form").hidden=$("#list").hidden=v!=="plan";$("#cal").hidden=v!=="cal";$("#rank").hidden=v!=="rank";$("#pr").hidden=v!=="pr";$("#photos").hidden=v!=="photos";if(v==="rank")renderRank();$("#acct").hidden=v!=="acct";$("#user").hidden=v!=="user";$("#chat").hidden=v!=="chat";$("#admin").hidden=v!=="admin";$("#notifs").hidden=v!=="notifs";if(v==="notifs")renderNotifs();$("#acctTheme").hidden=v!=="acct";if(v==="acct"){renderTheme();try{setTimeout(autoGeocode,500)}catch(e){}}Object.keys(XV).forEach(k=>{$("#"+k).hidden=v!==k});if(XV[v])XV[v]();if(v==="acct")renderAcct();if(v==="admin")renderAdmin();
   const g=grpOf(v);if(g)lastSub[g]=v;
-  document.querySelectorAll("#nav button").forEach(b=>b.classList.toggle("on",b.dataset.v===v||b.dataset.v===g));
+  document.querySelectorAll("#nav button[data-v]").forEach(b=>b.classList.toggle("on",b.dataset.v===v||(!!g&&b.dataset.v===g)));
   const sg=$("#seg");sg.hidden=!g;sg.textContent="";
   if(g)NAVG[g].forEach(x=>{const b=h("button",x===v?"on":"",SUBL[x]);if(x==="friends"&&segDot)b.classList.add("dotted");b.onclick=()=>setView(x);sg.appendChild(b)});
 }
-document.querySelectorAll("#nav button").forEach(b=>b.onclick=()=>{const g=b.dataset.v;setView(NAVG[g]?(lastSub[g]||NAVG[g][0]):g)});
+document.querySelectorAll("#nav button[data-v]").forEach(b=>b.onclick=()=>{const g=b.dataset.v;setView(NAVG[g]?(lastSub[g]||NAVG[g][0]):g)});
 document.querySelectorAll("[data-go]").forEach(b=>b.onclick=()=>setView(b.dataset.go));
-$("#brand").onclick=()=>setView("home");$("#findBtn").onclick=()=>setView("menu");
+$("#brand").onclick=()=>setView("home");$("#findBtn").onclick=()=>setView("menu");$("#meBtn").onclick=()=>setView("acct");$("#navPlus").onclick=plusSheet;
 function frBadge(){const n=auth?freq.filter(r=>r.to===auth.uid&&frState(r.from)==="incoming").length:0;navIc("friends","users",n>0)}
-function navIc(v,name,dot){if(v==="friends"){segDot=!!dot;const sb=[...document.querySelectorAll("#seg button")].find(b=>b.textContent==="Amis");if(sb)sb.classList.toggle("dotted",segDot);v="g-social";name="users"}
+function navIc(v,name,dot){if(v==="acct"){[$("#meBtn"),$("#homeHi")].forEach(b=>b&&b.classList.toggle("dotted",!!dot));const i=$("#meBtn i");if(i){i.textContent="";i.appendChild(ic(name))}return}if(v==="friends"){segDot=!!dot;const sb=[...document.querySelectorAll("#seg button")].find(b=>b.textContent==="Amis");if(sb)sb.classList.toggle("dotted",segDot);v="g-social";name="users"}
   const i=document.querySelector('#nav [data-v="'+v+'"] i');if(!i)return;i.textContent="";i.appendChild(ic(name));i.classList.toggle("dotted",!!dot)}
 document.querySelectorAll("[data-ic]").forEach(el=>{el.textContent="";el.appendChild(ic(el.dataset.ic))});
 (function(){const w=document.createTreeWalker(document.querySelector("main"),NodeFilter.SHOW_TEXT),L=[];let n;
@@ -756,7 +769,7 @@ async function fb(ep,body){
 function saveAuth(){try{if(auth)localStorage.setItem("bf_auth",JSON.stringify(auth));else localStorage.removeItem("bf_auth")}catch(e){}}
 function applyProfile(name){["#pseudo","#prPseudo","#phPseudo"].forEach(x=>$(x).value=name);keep(name)}
 function av(u,name,sz){
-  sz=sz||28;const pr=profiles[u],e=h("span","av");
+  sz=sz||28;const pr=profiles[u],e=h("span","av");if(u){e.dataset.u=u;if(isOnline(u)&&u!==myId())e.classList.add("online")}
   e.style.width=e.style.height=sz+"px";e.style.fontSize=Math.round(sz*.45)+"px";
   if(pr&&typeof pr.photo==="string"&&pr.photo.startsWith("data:image/"))e.style.backgroundImage="url("+pr.photo+")";
   else e.textContent=(name||"?").trim().charAt(0).toUpperCase();
@@ -1149,7 +1162,7 @@ if("serviceWorker" in navigator&&location.protocol==="https:")navigator.serviceW
 // L'app installée sur l'écran d'accueil reste ouverte en arrière-plan et ne se recharge pas toute seule.
 // Au retour dans l'app (et toutes les 15 min), on vérifie s'il existe une nouvelle version et on propose de l'installer.
 // APP_VERSION doit changer à chaque mise à jour du site.
-const APP_VERSION="2026-10-13.12";
+const APP_VERSION="2026-10-14.1";
 // Retour au toucher : anneau autour de l'élément touché + petite vibration (Android ; l'iPhone ne permet pas la vibration aux sites)
 document.addEventListener("touchstart",()=>{},{passive:true}); // active l'effet :active sur iPhone
 document.addEventListener("pointerdown",e=>{
@@ -1582,16 +1595,23 @@ function compareCard(ph){
 // ---------- 🎨 Thème clair / sombre ----------
 function applyTheme(){let t="auto";try{t=localStorage.getItem("bf_theme")||"auto"}catch(e){}
   if(t==="auto")delete document.documentElement.dataset.theme;else document.documentElement.dataset.theme=t;
-  const m=document.querySelector('meta[name="theme-color"]');if(m)m.content=t==="dark"||(t==="auto"&&matchMedia("(prefers-color-scheme: dark)").matches)?"#0b0b0b":"#5b2a86";return t}
+  const a=accent();if(a==="mauve")delete document.documentElement.dataset.accent;else document.documentElement.dataset.accent=a;
+  const m=document.querySelector('meta[name="theme-color"]');if(m)m.content=t==="dark"||(t==="auto"&&matchMedia("(prefers-color-scheme: dark)").matches)?"#0b0b0b":getComputedStyle(document.documentElement).getPropertyValue("--acA").trim();return t}
 function renderTheme(){
   const box=$("#acctTheme");box.textContent="";if(!local){box.appendChild(gymsCard());box.appendChild(autoGeoCard())}const t=applyTheme();
   const c=h("div","card");c.appendChild(h("b","","🎨 Apparence"));
   const tg=h("div","tabs");tg.style.margin="10px 0 0";
   [["auto","📱 Auto"],["light","☀️ Clair"],["dark","🌙 Sombre"]].forEach(([k,l])=>{const b=h("button",t===k?"on":"",l);b.onclick=()=>{try{localStorage.setItem("bf_theme",k)}catch(e){}renderTheme()};tg.appendChild(b)});
   c.appendChild(tg);
+  c.appendChild(h("p","m","Couleur de l'app :"));const sw=h("div","chips");sw.style.flexWrap="wrap";
+  ACCENTS.forEach(([k,l,col])=>{const b=h("button","chip"+(accent()===k?" on":""));const d=h("span","dot");d.style.cssText="width:14px;height:14px;background:"+col;b.appendChild(d);b.appendChild(h("span","",l));
+    b.onclick=()=>{try{localStorage.setItem("bf_accent",k)}catch(e){}applyTheme();applyIcon();renderTheme();render()};sw.appendChild(b)});c.appendChild(sw);
+  if(auth){const r=h("div","s");r.style.flexWrap="nowrap";r.appendChild(h("div","p","Montrer aux autres quand je suis en ligne"));const t2=h("button","sw");t2.setAttribute("role","switch");t2.setAttribute("aria-checked",ghost()?"false":"true");t2.setAttribute("aria-label","Montrer quand je suis en ligne");
+    t2.onclick=()=>{try{ghost()?localStorage.removeItem("bf_ghost"):localStorage.setItem("bf_ghost","1")}catch(e){}if(ghost()&&prCol2&&auth)prCol2.doc(auth.uid).delete().catch(()=>{});else beat();renderTheme()};r.appendChild(t2);c.appendChild(r)}
   const g=h("button","sec");g.appendChild(ic("circle-help"));g.appendChild(h("span","","Revoir le guide de l'app"));g.onclick=()=>tour(0);c.appendChild(g);
   const up=h("button","sec");up.appendChild(ic("rotate-ccw"));up.appendChild(h("span","","Forcer la mise à jour de l'app"));up.onclick=hardReload;c.appendChild(up);
   c.appendChild(h("p","note","Version "+APP_VERSION));
+  {const bc=bannerCard();if(bc)box.appendChild(bc)}box.appendChild(iconCard());
   box.appendChild(c);
 }
 applyTheme();
@@ -1920,7 +1940,7 @@ const TOUR=[
  ["building-2","1. Choisis tes salles","Coche les Basic-Fit où tu vas : l'agenda n'affichera que les gens qui vont dans les mêmes salles que toi.",["acct","Choisir mes salles"]],
  ["clipboard-list","2. Ajoute ta séance","Dans « Séances », indique quand tu vas à la salle. Tes amis voient que tu y vas et peuvent te rejoindre.",["plan","Ajouter une séance"]],
  ["users","3. Retrouve ta team","Ajoute tes amis, propose un covoiturage, partage tes PR et tes photos de progression.",["friends","Trouver mes amis"]],
- ["search","Tout est simple à retrouver","En bas : les 5 onglets principaux. Sur l'accueil (ou avec la loupe en haut), cherche n'importe quelle fonction : « covoit », « PR », « poids »…",null]];
+ ["search","Tout est simple à retrouver","En bas : les onglets principaux et le bouton ➕ pour tout faire en un geste. Ton profil est en haut à droite. Avec la loupe, cherche n'importe quelle fonction : « covoit », « PR », « poids »…",null]];
 function tour(i){
   document.querySelectorAll(".tour").forEach(x=>x.remove());if(i>=TOUR.length||i<0){try{localStorage.setItem("bf_tour","1")}catch(e){}return}
   const [icn,t,txt,act]=TOUR[i],o=h("div","tour");o.setAttribute("role","dialog");o.setAttribute("aria-modal","true");o.setAttribute("aria-label",t);
@@ -2090,7 +2110,7 @@ function swipe(el,o){
   el.addEventListener("touchmove",e=>{if(!on)return;const t=e.touches[0],ddx=t.clientX-x0,ddy=t.clientY-y0;
     if(lock==null&&(Math.abs(ddx)>8||Math.abs(ddy)>8))lock=Math.abs(ddx)>Math.abs(ddy)?"x":"y";if(lock!=="x")return;
     if((ddx<0&&!o.left)||(ddx>0&&!o.right))return;dx=ddx;e.preventDefault();
-    el.style.transform="translateX("+dx+"px)";el.style.background=dx<0?"rgba(224,36,94,"+Math.min(.25,-dx/400)+")":"rgba(138,79,216,"+Math.min(.25,dx/400)+")";
+    el.style.transform="translateX("+dx+"px)";el.style.background=dx<0?"rgba(224,36,94,"+Math.min(.25,-dx/400)+")":"color-mix(in srgb,var(--acB) "+Math.round(Math.min(25,dx/4))+"%,transparent)";
     el.dataset.hint=dx<-90?o.leftLabel:dx>90?o.rightLabel:""},{passive:false});
   el.addEventListener("touchend",()=>{if(!on)return;on=false;el.style.transition="transform .2s,background .2s";el.style.transform="";el.style.background="";
     if(dx<-90&&o.left)o.left();else if(dx>90&&o.right)o.right();dx=0},{passive:true});
@@ -2109,7 +2129,7 @@ function swipe(el,o){
 function confetti(){
   if(matchMedia("(prefers-reduced-motion:reduce)").matches)return;
   const c=document.createElement("canvas");c.className="confetti";c.width=innerWidth*devicePixelRatio;c.height=innerHeight*devicePixelRatio;document.body.appendChild(c);
-  const g=c.getContext("2d"),C=["#8a4fd8","#5b2a86","#ffffff","#f5b301","#c9a7f5"],P=[];g.scale(devicePixelRatio,devicePixelRatio);
+  const g=c.getContext("2d"),cs=getComputedStyle(document.documentElement),C=[cs.getPropertyValue("--acB").trim()||"#8a4fd8",cs.getPropertyValue("--acA").trim()||"#5b2a86","#ffffff","#f5b301",cs.getPropertyValue("--acS").trim()||"#c9a7f5"],P=[];g.scale(devicePixelRatio,devicePixelRatio);
   for(let i=0;i<140;i++)P.push({x:innerWidth/2+(Math.random()-.5)*80,y:innerHeight*.35,vx:(Math.random()-.5)*12,vy:-Math.random()*14-4,r:Math.random()*6+4,a:Math.random()*6,va:(Math.random()-.5)*.3,c:C[i%C.length]});
   let t=0;(function f(){t++;g.clearRect(0,0,innerWidth,innerHeight);P.forEach(p=>{p.vy+=.35;p.vx*=.99;p.x+=p.vx;p.y+=p.vy;p.a+=p.va;g.save();g.translate(p.x,p.y);g.rotate(p.a);g.fillStyle=p.c;g.globalAlpha=Math.max(0,1-t/110);g.fillRect(-p.r/2,-p.r/4,p.r,p.r/2);g.restore()});
     if(t<110)requestAnimationFrame(f);else c.remove()})();
@@ -2185,7 +2205,7 @@ function storiesRow(){
 }
 // ---------- Carte de joueur (profil) ----------
 function playerCard(u,name){
-  const c=h("div","card player");c.appendChild(av(u,name,92));
+  const c=h("div","card player");const bn=h("div","pban");bn.style.background=bannerCss((profiles[u]||{}).banner);c.appendChild(bn);c.appendChild(av(u,name,92));
   const nm=h("b","",name);nm.style.cssText="display:block;font-size:24px;margin-top:8px;font-family:Creepster,Anton,Impact,sans-serif;font-weight:400;letter-spacing:.04em";c.appendChild(nm);
   const xp=xpOf(u,name),L=level(xp);c.appendChild(h("span","lvl","Niveau "+L.l));
   const f=ownF(u,name),td=todayStr(),past=rows.filter(r=>f(r)&&r.date<=td),ws=new Set(past.map(r=>wk(r.date))),cw=wk(td);let w=ws.has(cw)?cw:cw-1,sk=0;while(ws.has(w)){sk++;w--}
@@ -2199,6 +2219,89 @@ function animView(v){
   const back=v==="home"||(v===prevV);el.classList.remove("vin","vback");void el.offsetWidth;el.classList.add(back?"vback":"vin");
   if(v==="plan"){const l=$("#list");l.classList.remove("vin","vback");void l.offsetWidth;l.classList.add("vin")}
 }
+
+// =================== Personnalisation & navigation ===================
+const ACCENTS=[["mauve","Mauve","#5b2a86"],["vert","Vert","#2f7a00"],["rouge","Rouge","#a4161a"],["bleu","Bleu","#1d4ed8"],["orange","Orange","#c2410c"]];
+function accent(){try{return localStorage.getItem("bf_accent")||"mauve"}catch(e){return"mauve"}}
+// ---------- 🟢 Présence « en ligne » ----------
+// Chaque app ouverte signale sa présence une fois par minute ; les avatars des personnes en ligne ont une pastille verte.
+let presence={},prCol2=null,presT=null;
+function ghost(){try{return localStorage.getItem("bf_ghost")==="1"}catch(e){return false}}
+function isOnline(u){const p=presence[u];return !!(p&&Date.now()-p.ts<150000)}
+function paintPresence(){document.querySelectorAll(".av[data-u]").forEach(e=>e.classList.toggle("online",isOnline(e.dataset.u)&&e.dataset.u!==myId()))}
+function beat(){if(!prCol2||!auth||ghost()||document.hidden||local)return;prCol2.doc(auth.uid).set({uid:auth.uid,ts:Date.now()}).catch(()=>{})}
+function startPresence(db){prCol2=db.collection("presence");prCol2.onSnapshot(s=>{presence={};s.docs.forEach(d=>presence[d.id]=d.data());paintPresence()},()=>{});
+  beat();clearInterval(presT);presT=setInterval(()=>{beat();paintPresence()},60000);document.addEventListener("visibilitychange",()=>{if(!document.hidden)beat()})}
+// ---------- 🖼️ Bannière de profil ----------
+const BANNERS={g1:"linear-gradient(135deg,var(--ac),var(--acD))",g2:"linear-gradient(135deg,#ff7a1a,#a4161a)",g3:"linear-gradient(135deg,#1d4ed8,#06b6d4)",g4:"linear-gradient(135deg,#5fc400,#0f2a00)",g5:"linear-gradient(135deg,#3b3b3b,#0b0b0b)",g6:"linear-gradient(135deg,#a6ff3d,#8a4fd8)"};
+function bannerCss(b){if(typeof b==="string"&&b.startsWith("data:image/"))return "center/cover no-repeat url("+b+")";return BANNERS[b]||BANNERS.g1}
+function bannerCard(){
+  if(!auth||local)return null;const pr=profiles[auth.uid]||{},cur=pr.banner||"g1";
+  const c=h("div","card");c.appendChild(h("b","","🖼️ Bannière de mon profil"));
+  const pv=h("div","");pv.style.cssText="height:70px;border-radius:12px;margin:10px 0;background:"+bannerCss(cur);c.appendChild(pv);
+  const g=h("div","chips");g.style.flexWrap="wrap";
+  Object.keys(BANNERS).forEach(k=>{const b=h("button","sw2"+(cur===k?" on":""));b.style.background=BANNERS[k];b.setAttribute("aria-label","Bannière "+k);b.onclick=()=>saveBanner(k);g.appendChild(b)});
+  const ph=h("label","chip");ph.appendChild(ic("image"));ph.appendChild(h("span","","Ma photo"));const fi=h("input");fi.type="file";fi.accept="image/*";fi.hidden=true;
+  fi.onchange=async()=>{if(!fi.files[0])return;toast("Préparation de la photo…");try{saveBanner(await bannerShrink(fi.files[0]))}catch(e){alert("Photo illisible.")}};ph.appendChild(fi);g.appendChild(ph);
+  c.appendChild(g);return c;
+}
+function bannerShrink(file){return new Promise((ok,ko)=>{const fr=new FileReader();fr.onerror=ko;fr.onload=()=>{const im=new Image();im.onerror=ko;im.onload=()=>{
+  const W=900,H=300,cv=document.createElement("canvas");cv.width=W;cv.height=H;const r=Math.max(W/im.width,H/im.height),w=im.width*r,hh=im.height*r;
+  cv.getContext("2d").drawImage(im,(W-w)/2,(H-hh)/2,w,hh);let q=.75,d=cv.toDataURL("image/jpeg",q);while(d.length>150000&&q>.35){q-=.1;d=cv.toDataURL("image/jpeg",q)}ok(d)};im.src=fr.result};fr.readAsDataURL(file)})}
+async function saveBanner(b){const no=cantPost();if(no){alert(no);return}const pr=profiles[auth.uid]||{};
+  try{await profCol.doc(auth.uid).set({...pr,uid:auth.uid,pseudo:pr.pseudo||myName(),photo:pr.photo||"",banner:b});profiles[auth.uid]={...pr,banner:b};toast("Bannière enregistrée");renderTheme()}catch(e){alert("Enregistrement impossible.")}}
+// ---------- 📱 Icône de l'app ----------
+const ICONS=[["accent","Ma couleur"],["noir","Noir"],["blanc","Blanc"],["degrade","Dégradé"],["neon","Néon"]];
+function iconPng(kind,size){
+  const c=document.createElement("canvas");c.width=c.height=size;const g=c.getContext("2d"),s=size/64,cs=getComputedStyle(document.documentElement);
+  const A=cs.getPropertyValue("--acA").trim()||"#5b2a86",B=cs.getPropertyValue("--acB").trim()||"#8a4fd8",D=cs.getPropertyValue("--acD").trim()||"#2b1240";
+  let bg=A,fg="#fff";
+  if(kind==="noir"){bg="#0b0b0b";fg=B}else if(kind==="blanc"){bg="#ffffff";fg=A}else if(kind==="neon"){bg="#0b0b0b";fg="#a6ff3d"}
+  if(kind==="degrade"){const gr=g.createLinearGradient(0,0,size,size);gr.addColorStop(0,B);gr.addColorStop(1,D);bg=gr}
+  g.fillStyle=bg;g.fillRect(0,0,size,size);g.fillStyle=fg;
+  [[8,24,6,16],[15,19,7,26],[22,29,20,6],[42,19,7,26],[50,24,6,16]].forEach(([x,y,w,hh])=>{g.beginPath();g.roundRect?g.roundRect(x*s,y*s,w*s,hh*s,2*s):g.rect(x*s,y*s,w*s,hh*s);g.fill()});
+  return c.toDataURL("image/png");
+}
+function applyIcon(){let k="";try{k=localStorage.getItem("bf_icon")||""}catch(e){}if(!k)return;
+  const big=iconPng(k,180),fav=iconPng(k,64);
+  const set=(rel,href)=>{let l=document.querySelector('link[rel="'+rel+'"]');if(!l){l=document.createElement("link");l.rel=rel;document.head.appendChild(l)}l.href=href};
+  set("apple-touch-icon",big);set("icon",fav);
+  try{const m={name:"Gym Crew · Basic-Fit",short_name:"Gym Crew",start_url:location.href.split("?")[0].replace(/index\.html$/,""),display:"standalone",background_color:"#0b0b0b",theme_color:getComputedStyle(document.documentElement).getPropertyValue("--acA").trim(),icons:[{src:iconPng(k,192),sizes:"192x192",type:"image/png"},{src:iconPng(k,512),sizes:"512x512",type:"image/png"}]};
+    set("manifest",URL.createObjectURL(new Blob([JSON.stringify(m)],{type:"application/manifest+json"})))}catch(e){}
+}
+function iconCard(){
+  let cur="";try{cur=localStorage.getItem("bf_icon")||""}catch(e){}
+  const c=h("div","card");c.appendChild(h("b","","📱 Icône de l'app"));
+  const g=h("div","chips");g.style.cssText="flex-wrap:wrap;gap:12px;margin-top:10px";
+  ICONS.forEach(([k,l])=>{const b=h("button","icopt"+((cur||"accent")===k?" on":""));const im=h("img");im.src=iconPng(k,96);im.alt="";b.appendChild(im);b.appendChild(h("small","",l));
+    b.onclick=()=>{try{localStorage.setItem("bf_icon",k)}catch(e){}applyIcon();renderTheme();toast("Icône choisie")};g.appendChild(b)});
+  c.appendChild(g);
+  c.appendChild(h("p","m","Pour voir la nouvelle icône sur l'écran d'accueil : supprime l'app de l'écran d'accueil puis ajoute-la à nouveau (Safari → Partager → « Sur l'écran d'accueil »)."));
+  return c;
+}
+// ---------- ➕ Bouton central d'actions rapides ----------
+function plusSheet(){
+  document.querySelectorAll(".sheet").forEach(x=>x.remove());
+  const o=h("div","tour sheet"),c=h("div","card");c.appendChild(h("h3","","Que veux-tu faire ?"));
+  const u=myId(),mine=checkins.some(x=>x.uid===u&&here(x));
+  const A=[["clipboard-list","Ajouter une séance",()=>{setView("plan");setTimeout(()=>{$("#date").focus()},300)}],
+    [mine?"door-open":"map-pin",mine?"Je pars de la salle":"Je suis à la salle",()=>toggleCheckin(mine)],
+    ["notebook-pen","Noter ma séance (journal)",()=>setView("journal")],
+    ["dumbbell","Enregistrer un PR",()=>{setView("pr");setTimeout(()=>$("#prSquat").focus(),300)}],
+    ["camera","Publier une photo",()=>{setView("photos");setTimeout(()=>$("#phFile").click(),300)}],
+    ["car","Proposer un covoiturage",()=>setView("rides")]];
+  A.forEach(([i,l,f])=>{const b=h("button","mitem");b.appendChild(ic(i));const d=h("div");d.appendChild(h("b","",l));b.appendChild(d);b.onclick=()=>{o.remove();f()};c.appendChild(b)});
+  const x=h("button","sec","Fermer");x.onclick=()=>o.remove();c.appendChild(x);
+  o.appendChild(c);o.onclick=e=>{if(e.target===o)o.remove()};document.body.appendChild(o);
+}
+// ---------- 👈 Retour en glissant depuis le bord gauche ----------
+function goBack(){if(curV==="home")return;const v=(["user","chat"].includes(curV)&&["user","chat"].includes(prevV))||prevV===curV||!prevV?"home":prevV;setView(v)}
+(function(){let x0=null,y0=0,dx=0,lock=null;const M=()=>document.querySelector("main");
+  addEventListener("touchstart",e=>{const t=e.touches[0];if(t.clientX>22||curV==="home"||document.querySelector(".tour")){x0=null;return}x0=t.clientX;y0=t.clientY;dx=0;lock=null;M().style.transition="none"},{passive:true});
+  addEventListener("touchmove",e=>{if(x0==null)return;const t=e.touches[0],ddx=t.clientX-x0,ddy=t.clientY-y0;if(lock==null&&(Math.abs(ddx)>8||Math.abs(ddy)>8))lock=Math.abs(ddx)>Math.abs(ddy)?"x":"y";
+    if(lock!=="x"){x0=null;M().style.transform="";return}dx=Math.max(0,ddx);M().style.transform="translateX("+dx*.6+"px)";M().style.opacity=String(1-Math.min(.4,dx/600))},{passive:true});
+  addEventListener("touchend",()=>{if(x0==null)return;x0=null;const m=M();m.style.transition="transform .2s,opacity .2s";m.style.transform="";m.style.opacity="";if(dx>90)goBack();dx=0},{passive:true});
+})();
 
 // Panel admin : visible seulement pour le compte dont l'email correspond à ADMIN_HASH (config.js)
 async function checkAdmin(){
@@ -2301,6 +2404,7 @@ $("#add").onclick=async()=>{
 };
 
 (async()=>{
+  try{applyIcon()}catch(e){}
   setTimeout(geoStart,2500);setTimeout(netBanner,500);
   renderHomeMenu();pageTitle(curV);
   try{if(!localStorage.getItem("bf_tour"))setTimeout(()=>{if(!document.querySelector(".tour"))tour(0)},700)}catch(e){}
@@ -2332,6 +2436,7 @@ $("#add").onclick=async()=>{
   lfgCol=sub("lfg",v=>lfg=v,["team"]);ljCol=sub("lfg_join",v=>lfgJ=v,["team"]);grCol=sub("groups",v=>groups=v,["team"]);gmCol=sub("gmember",v=>gmem=v,["team"]);
   duCol=sub("duels",v=>duels=v,["defis"]);drCol=sub("duel_resp",v=>duelR=v,["defis"]);ckLogCol=sub("ck_log",v=>ckLog=v,["crowd","defis"]);bdCol=sub("body",v=>body=v,["body"]);
   histCol=db.collection("pr_history");histCol.onSnapshot(s=>{prHist=s.docs.map(d=>({id:d.id,...d.data()}));renderPR();if(!$("#user").hidden)renderUser()},()=>{});
+  startPresence(db);
   reCol=db.collection("reactions");reCol.onSnapshot(s=>{reacts=s.docs.map(d=>({id:d.id,...d.data()}));renderPhotos()},()=>{});
   col.onSnapshot(snap=>{rows=snap.docs.map(d=>({id:d.id,...d.data()}));dataReady=true;render()},
     ()=>{$("#status").textContent="Connexion au planning perdue."});
