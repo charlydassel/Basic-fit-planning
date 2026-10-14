@@ -636,7 +636,7 @@ function topCard(title,list,unit){
   return card;
 }
 
-let prs=[],photos=[],comments=[],prCol=null,phCol=null,cmCol=null,drafts={},reacts=[],reCol=null,profCol=null,profiles={},auth=null,acMode="in",pa=false,follows=[],folCol=null,inbox=[],inboxSub=null,DB=null,tu=null,chatSub=null,chatKey=null,chatWith=null,chatMsgs=[];
+let prs=[],photos=[],comments=[],prCol=null,phCol=null,cmCol=null,drafts={},reacts=[],reCol=null,profCol=null,profiles={},auth=null,acMode="in",acEdit=false,pa=false,follows=[],folCol=null,inbox=[],inboxSub=null,DB=null,tu=null,chatSub=null,chatKey=null,chatWith=null,chatMsgs=[];
 const LIFTS=[["squat","Squat"],["bench","Bench"],["deadlift","Deadlift"]];
 try{const ps=localStorage.getItem("bf_pseudo")||"";$("#prPseudo").value=ps;$("#phPseudo").value=ps}catch(e){}
 function keep(p){try{localStorage.setItem("bf_pseudo",p)}catch(e){}}
@@ -795,16 +795,22 @@ if(auth&&hasFB)token();
 
 checkAdmin();
 function renderAcct(){
-  const box=$("#acct");box.textContent="";
+  const box=$("#acct"),fa=document.activeElement;
+  // Ne pas effacer la saisie en cours (pseudo, photo choisie) quand les données se mettent à jour
+  if(auth&&fa&&box.contains(fa)&&fa.matches("input")&&!box.hidden)return;
+  box.textContent="";
   const card=h("div","card");box.appendChild(card);
   if(!hasFB||local){card.appendChild(h("p","note",!hasFB?"Connexion non configurée : ajoute FB_API_KEY dans config.js (voir README).":SHARED));return}
   const st=h("p","note","");
   const inp=(label,type,ph)=>{const l=h("label","",label),i=h("input");i.type=type;if(ph)i.placeholder=ph;card.append(l,i);return i};
   if(auth){
-    const pr=profiles[auth.uid]||{},hd=h("div","hero");hd.style.padding="0 0 6px";
-    hd.appendChild(av(auth.uid,pr.pseudo||auth.email,88));
-    const nm=h("b","",pr.pseudo||"Sans pseudo");nm.style.cssText="display:block;font-size:20px;margin-top:8px";
-    hd.appendChild(nm);hd.appendChild(h("div","m",auth.email));card.appendChild(hd);
+    // Son propre profil, tel que les autres le voient, puis les réglages du compte
+    const pr=profiles[auth.uid]||{},name=pr.pseudo||auth.email,top=profileTop(auth.uid,name);
+    const eb=h("button","sec");eb.appendChild(ic("settings"));eb.appendChild(h("span","",acEdit?"Fermer la modification":"Modifier mon profil"));
+    eb.onclick=()=>{acEdit=!acEdit;renderAcct()};top.appendChild(eb);
+    box.insertBefore(top,card);profileRest(box,auth.uid,name);
+    card.hidden=!acEdit;
+    card.appendChild(h("div","m",auth.email));
     const ps=inp("Pseudo","text");ps.maxLength=20;ps.value=pr.pseudo||"";
     const fl=inp("Changer ma photo de profil","file");fl.accept="image/*";
     const sv=h("button","go","Enregistrer mon profil");card.appendChild(sv);
@@ -814,10 +820,10 @@ function renderAcct(){
         await profCol.doc(auth.uid).set({...pr,uid:auth.uid,pseudo:v,photo});applyProfile(v);st.textContent="Profil enregistré"}
       catch(e){st.textContent="Impossible d'enregistrer le profil."}
     };
-    if(isAdmin()){const ad=h("button","go","🛡️ Panel admin");ad.onclick=()=>setView("admin");card.appendChild(ad)}
-    const lo=h("button","sec","Se déconnecter");card.appendChild(lo);
+    if(isAdmin()){const ad=h("button","go","🛡️ Panel admin");ad.onclick=()=>setView("admin");top.appendChild(ad)}
+    const lo=h("button","sec","Se déconnecter");lo.style.marginTop="12px";box.appendChild(lo);
     lo.onclick=()=>{auth=null;idTok=null;pa=false;afterAuth(null)};
-    const gs=h("button","sec");gs.appendChild(ic("settings"));gs.appendChild(h("span","","Réglages (salles, check-in auto, couleurs…)"));gs.onclick=()=>setView("settings");card.appendChild(gs);
+    const gs=h("button","sec");gs.appendChild(ic("settings"));gs.appendChild(h("span","","Réglages (salles, check-in auto, couleurs…)"));gs.onclick=()=>setView("settings");top.appendChild(gs);
     card.appendChild(st);return;
   }
   const tg=h("div","tabs");
@@ -878,15 +884,9 @@ function renderUser(){
   const u=tu.uid,pr=u&&profiles[u],name=(pr&&pr.pseudo)||tu.name||"Membre";
   const bk=h("button","sec","← Retour");bk.style.cssText="width:auto;margin:0 0 12px;padding:8px 14px";
   bk.onclick=()=>setView(["user","chat"].includes(prevV)?"home":prevV);box.appendChild(bk);
-  const card=playerCard(u,name);
-  const fo=u?follows.filter(f=>f.to===u).length:0,fi=u?follows.filter(f=>f.from===u).length:0;
-  card.appendChild(h("div","m",fo+" abonné"+(fo>1?"s":"")+" · "+fi+" abonnement"+(fi>1?"s":"")));
-  const td=todayStr(),key=name.trim().toLowerCase();
-  {const lb=levelBox(u,name);lb.firstChild.remove();card.appendChild(lb)}card.appendChild(badgeGrid(u,name,false));
-  const bg=badges(u,name);if(bg.length)card.appendChild(h("p","cm","Défis du mois réussis : "+bg.join(" ")));
-  if(banned(u))card.appendChild(h("p","note","🚫 Membre suspendu"));
+  const card=profileTop(u,name);
   const reg=!!(u&&pr);
-  if(auth&&u===auth.uid){const b=h("button","sec","Modifier mon profil");b.onclick=()=>setView("acct");card.appendChild(b)}
+  if(auth&&u===auth.uid){const b=h("button","sec","Modifier mon profil");b.onclick=()=>{acEdit=true;setView("acct")};card.appendChild(b)}
   else if(!reg)card.appendChild(h("p","note","Ce membre n'a pas de compte : impossible de s'abonner ou de lui écrire."));
   else if(!auth){const b=h("button","go","Connecte-toi pour t'abonner ou écrire");b.onclick=()=>setView("acct");card.appendChild(b)}
   else{
@@ -898,6 +898,21 @@ function renderUser(){
     const db=h("button","sec","⚔️ Défier ce mois-ci");db.onclick=()=>challenge(u,name);card.appendChild(db);
   }
   box.appendChild(card);
+  profileRest(box,u,name);
+}
+// Haut du profil (carte de joueur, abonnés, niveau, badges) : identique pour son propre profil et celui des autres
+function profileTop(u,name){
+  const card=playerCard(u,name);
+  const fo=u?follows.filter(f=>f.to===u).length:0,fi=u?follows.filter(f=>f.from===u).length:0;
+  card.appendChild(h("div","m",fo+" abonné"+(fo>1?"s":"")+" · "+fi+" abonnement"+(fi>1?"s":"")));
+  {const lb=levelBox(u,name);lb.firstChild.remove();card.appendChild(lb)}card.appendChild(badgeGrid(u,name,false));
+  const bg=badges(u,name);if(bg.length)card.appendChild(h("p","cm","Défis du mois réussis : "+bg.join(" ")));
+  if(banned(u))card.appendChild(h("p","note","🚫 Membre suspendu"));
+  return card;
+}
+// Bas du profil : activité, courbes PR, avant / après, photos
+function profileRest(box,u,name){
+  const key=name.trim().toLowerCase();
   box.appendChild(heatCard(u,name));
   const pc0=prChart(u,name);if(pc0)box.appendChild(pc0);
   const ph=photos.filter(x=>u?x.uid===u:x.pseudo.trim().toLowerCase()===key).sort((a,b)=>b.ts-a.ts);
@@ -1168,7 +1183,7 @@ if("serviceWorker" in navigator&&location.protocol==="https:")navigator.serviceW
 // L'app installée sur l'écran d'accueil reste ouverte en arrière-plan et ne se recharge pas toute seule.
 // Au retour dans l'app (et toutes les 15 min), on vérifie s'il existe une nouvelle version et on propose de l'installer.
 // APP_VERSION doit changer à chaque mise à jour du site.
-const APP_VERSION="2026-10-14.2";
+const APP_VERSION="2026-10-14.3";
 // Retour au toucher : anneau autour de l'élément touché + petite vibration (Android ; l'iPhone ne permet pas la vibration aux sites)
 document.addEventListener("touchstart",()=>{},{passive:true}); // active l'effet :active sur iPhone
 document.addEventListener("pointerdown",e=>{
