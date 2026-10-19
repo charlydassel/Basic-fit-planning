@@ -267,6 +267,7 @@ button:active,.tile:active,.mitem:active,.chip:active{transform:scale(.96);filte
   <div id="defis" hidden></div>
   <div id="crowd" hidden></div>
   <div id="body" hidden></div>
+  <div id="loads" hidden></div>
   <div id="user" hidden></div>
   <div id="chat" hidden></div>
   <div id="notifs" hidden></div>
@@ -1183,7 +1184,7 @@ if("serviceWorker" in navigator&&location.protocol==="https:")navigator.serviceW
 // L'app installée sur l'écran d'accueil reste ouverte en arrière-plan et ne se recharge pas toute seule.
 // Au retour dans l'app (et toutes les 15 min), on vérifie s'il existe une nouvelle version et on propose de l'installer.
 // APP_VERSION doit changer à chaque mise à jour du site.
-const APP_VERSION="2026-10-14.3";
+const APP_VERSION="2026-10-19.1";
 // Retour au toucher : anneau autour de l'élément touché + petite vibration (Android ; l'iPhone ne permet pas la vibration aux sites)
 document.addEventListener("touchstart",()=>{},{passive:true}); // active l'effet :active sur iPhone
 document.addEventListener("pointerdown",e=>{
@@ -1583,7 +1584,7 @@ XV.body=()=>{
     if(!n){st.textContent="Entre au moins une mesure.";return}
     try{await bdCol.add(data);BODY.forEach(([k])=>ins[k].value="");st.textContent="Mesure enregistrée"}catch(e){st.textContent="Échec de l'envoi, réessaie."}};
   c.append(sv,st);box.appendChild(c);
-  const mine=body.filter(b=>b.uid===me).sort((a,b)=>a.date.localeCompare(b.date)||a.ts-b.ts);
+  const mine=body.filter(b=>b.uid===me&&b.kind!=="load").sort((a,b)=>a.date.localeCompare(b.date)||a.ts-b.ts);
   const g=h("div","card");g.appendChild(h("b","","📈 Mon suivi"));
   if(!mine.length)g.appendChild(h("p","note","Aucune mesure pour l'instant."));
   BODY.forEach(([k,l,u])=>{const pts=mine.filter(b=>b[k]).map(b=>({d:b.date,kg:b[k]}));if(pts.length)g.appendChild(sparkline(pts,l,u))});
@@ -1591,6 +1592,56 @@ XV.body=()=>{
   if(mine.length){const hc=h("div","card");hc.appendChild(h("b","","🗂️ Historique"));
     mine.slice().reverse().forEach(b=>{const s=h("div","s");s.appendChild(h("div","p",fmtD(b.date)+" · "+BODY.filter(([k])=>b[k]).map(([k,l,u])=>l+" "+b[k]+" "+u).join(" · ")));
       const x=h("button","x","✕");x.title="Supprimer";x.onclick=()=>undoDel(bdCol,b.id,strip(b),"Mesure");s.appendChild(x);hc.appendChild(s)});box.appendChild(hc)}
+};
+
+// ---------- 🏋️ Mes charges (carnet perso, jamais classé) ----------
+// Rangé dans la collection privée "body" (kind:"load") : en mode sécurisé, seul le propriétaire peut le lire.
+let ldOpen=null,ldQ="";
+function myLoads(){return body.filter(b=>b.uid===me&&b.kind==="load"&&b.ex).sort((a,b)=>a.date.localeCompare(b.date)||a.ts-b.ts)}
+XV.loads=()=>{
+  const box=$("#loads");box.textContent="";box.appendChild(backBtn());
+  if(noShared(box))return;
+  const L=myLoads(),by={};L.forEach(x=>{const k=gymKey(x.ex);(by[k]=by[k]||{name:x.ex,L:[]}).L.push(x);by[k].name=x.ex});
+  const c=h("div","card");c.appendChild(h("b","","🏋️ Noter une charge"));
+  const lex=h("label","","Exercice ou machine"),ex=h("input");ex.type="text";ex.maxLength=40;ex.placeholder="ex : Presse à cuisses";ex.setAttribute("list","ldExos");
+  const dl=h("datalist");dl.id="ldExos";[...new Set([...Object.values(by).map(g=>g.name),...EXOS])].forEach(n=>{const o=h("option");o.value=n;dl.appendChild(o)});
+  c.append(lex,ex,dl);
+  const r=h("div","row"),mk=(l,ph,st)=>{const d=h("div");d.appendChild(h("label","",l));const x=h("input");x.type="number";x.inputMode="decimal";x.step=st;x.placeholder=ph;d.appendChild(x);r.appendChild(d);return x};
+  const kg=mk("Charge (kg)","ex : 60","0.5"),reps=mk("Reps","ex : 10","1"),sets=mk("Séries","ex : 3","1");c.appendChild(r);
+  const lnt=h("label","","Note (optionnel)"),nt=h("input");nt.type="text";nt.maxLength=80;nt.placeholder="ex : réglage siège 4, prise serrée";c.append(lnt,nt);
+  const dt=h("input");dt.type="date";dt.value=todayStr();dt.style.marginTop="10px";c.appendChild(dt);
+  // Rappel de la dernière charge quand on choisit un exercice déjà noté
+  const hint=h("p","note","");c.appendChild(hint);
+  ex.oninput=()=>{const g=by[gymKey(ex.value)];if(!g){hint.textContent="";return}const l=g.L[g.L.length-1];
+    hint.textContent="Dernière fois ("+fmtD(l.date)+") : "+l.kg+" kg"+(l.reps?" × "+l.reps:"")+(l.sets?" · "+l.sets+" séries":"");if(!kg.value)kg.value=l.kg;if(!reps.value&&l.reps)reps.value=l.reps;if(!sets.value&&l.sets)sets.value=l.sets};
+  const st=h("p","note",SECURE?"🔒 Visible seulement par toi, jamais dans un classement.":"Visible par toi dans l'app, jamais dans un classement.");
+  const sv=h("button","go","Enregistrer");sv.onclick=async()=>{const no=cantPost();if(no){st.textContent=no;return}
+    const n=clean(ex.value.trim()),k=num(kg.value);
+    if(!n){st.textContent="Indique l'exercice.";return}
+    if(!(k>=0&&k<1000)||kg.value===""){st.textContent="Indique la charge en kg (0 pour le poids du corps).";return}
+    const data={uid:me,kind:"load",ex:n,kg:k,date:dt.value||todayStr(),ts:Date.now()};
+    const rp=num(reps.value),se=num(sets.value);if(rp>0&&rp<1000)data.reps=rp;if(se>0&&se<100)data.sets=se;const no2=clean(nt.value.trim());if(no2)data.note=no2;
+    try{await bdCol.add(data);ldOpen=gymKey(n);toast("Charge enregistrée 💪")}catch(e){st.textContent="Échec de l'envoi, réessaie."}};
+  c.append(sv,st);box.appendChild(c);
+  const G=Object.entries(by).sort((a,b)=>b[1].L[b[1].L.length-1].ts-a[1].L[a[1].L.length-1].ts);
+  const lc=h("div","card");lc.appendChild(h("b","","📒 Mes exercices"));box.appendChild(lc);
+  if(!G.length){lc.appendChild(empty("biceps-flexed","Note ta première charge : elle restera ici, rien que pour toi."));return}
+  if(G.length>5){const q=h("input");q.type="search";q.placeholder="Chercher un exercice…";q.value=ldQ;q.style.marginTop="10px";
+    q.oninput=()=>{ldQ=q.value;lc.querySelectorAll("[data-k]").forEach(e=>{e.hidden=!!ldQ&&!e.dataset.k.includes(gymKey(ldQ))})};lc.appendChild(q)}
+  G.forEach(([k,g])=>{
+    const w=h("div");w.dataset.k=k;w.hidden=!!ldQ&&!k.includes(gymKey(ldQ));
+    const l=g.L[g.L.length-1],best=Math.max(...g.L.map(x=>x.kg));
+    const s=h("div","s");s.style.cursor="pointer";
+    const p=h("div","p");p.appendChild(h("b","",g.name));p.appendChild(h("div","m",l.kg+" kg"+(l.reps?" × "+l.reps:"")+(l.sets?" · "+l.sets+" séries":"")+" · "+fmtD(l.date)+(best>l.kg?" · max "+best+" kg":"")));
+    s.appendChild(p);s.appendChild(ic(ldOpen===k?"x":"chevron-right"));s.onclick=()=>{ldOpen=ldOpen===k?null:k;XV.loads()};w.appendChild(s);
+    if(ldOpen===k){
+      const by2={};g.L.forEach(x=>{by2[x.date]=Math.max(by2[x.date]||0,x.kg)});
+      const pts=Object.keys(by2).sort().map(d=>({d,kg:by2[d]}));w.appendChild(sparkline(pts,"Progression","kg"));
+      g.L.slice().reverse().forEach(x=>{const r2=h("div","s");r2.appendChild(h("div","p",fmtD(x.date)+" · "+x.kg+" kg"+(x.reps?" × "+x.reps:"")+(x.sets?" · "+x.sets+" séries":"")+(x.note?" · "+x.note:"")));
+        const del=h("button","x","✕");del.title="Supprimer";del.onclick=e=>{e.stopPropagation();undoDel(bdCol,x.id,strip(x),"Charge")};r2.appendChild(del);w.appendChild(r2)});
+    }
+    lc.appendChild(w);
+  });
 };
 
 // ---------- ↔️ Photos avant / après ----------
@@ -1927,7 +1978,8 @@ const FEATS=[
   ["pr","dumbbell","PR & 1RM","Mes records squat, bench, deadlift + calcul du 1RM","pr record max squat bench deadlift 1rm"],
   ["rank","trophy","Classement","Top du mois, streaks, défi du mois, récap","classement top streak défi récap"],
   ["defis","swords","Défis & badges","Mon niveau, mes badges et les duels","niveau xp badge duel défi"],
-  ["body","scale","Mon corps","Poids et mensurations avec courbes","poids mensuration taille bras corps"]]],
+  ["body","scale","Mon corps","Poids et mensurations avec courbes","poids mensuration taille bras corps"],
+  ["loads","biceps-flexed","Mes charges","Mon carnet perso : quelle charge sur quel exercice","charge poids kg exercice machine carnet perso privé"]]],
  ["Mon compte",[
   ["acct","user","Mon profil","Photo, pseudo, connexion et déconnexion","profil compte connexion photo pseudo mot de passe déconnexion"],
   ["settings","settings","Réglages","Mes salles Basic-Fit, check-in automatique, couleurs, icône, bannière, thème","réglages paramètres salle basic-fit thème sombre clair couleur icône bannière géolocalisation position gps automatique check-in en ligne"]]]];
@@ -2457,7 +2509,7 @@ $("#add").onclick=async()=>{
   ggCol=sub("gym_geo",v=>{gymGeo=v;const first=!ggLoaded;ggLoaded=true;setTimeout(autoGeocode,first?3000:800);if(!$("#settings").hidden)renderTheme()},[]);
   rdCol=sub("rides",v=>{rides=v;if(!$("#admin").hidden)renderAdmin()},["rides"]);rjCol=sub("ride_join",v=>rideJ=v,["rides"]);
   lfgCol=sub("lfg",v=>lfg=v,["team"]);ljCol=sub("lfg_join",v=>lfgJ=v,["team"]);grCol=sub("groups",v=>groups=v,["team"]);gmCol=sub("gmember",v=>gmem=v,["team"]);
-  duCol=sub("duels",v=>duels=v,["defis"]);drCol=sub("duel_resp",v=>duelR=v,["defis"]);ckLogCol=sub("ck_log",v=>ckLog=v,["crowd","defis"]);bdCol=sub("body",v=>body=v,["body"]);
+  duCol=sub("duels",v=>duels=v,["defis"]);drCol=sub("duel_resp",v=>duelR=v,["defis"]);ckLogCol=sub("ck_log",v=>ckLog=v,["crowd","defis"]);bdCol=sub("body",v=>body=v,["body","loads"]);
   histCol=db.collection("pr_history");histCol.onSnapshot(s=>{prHist=s.docs.map(d=>({id:d.id,...d.data()}));renderPR();if(!$("#user").hidden)renderUser()},()=>{});
   startPresence(db);
   reCol=db.collection("reactions");reCol.onSnapshot(s=>{reacts=s.docs.map(d=>({id:d.id,...d.data()}));renderPhotos()},()=>{});
